@@ -30,5 +30,9 @@
 /**数量*/
 @property(nonatomic,assign)NSInteger ProductShopCarCout;
 
+@property(nonatomic,assign)BOOL isSelected;
+
+@property(nonatomic,assign)NSInteger cellNum;
+
 
 @end

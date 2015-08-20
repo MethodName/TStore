@@ -47,6 +47,7 @@
         //选择按钮
         _selectedBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 30+49, 25, 25)];
         [_selectedBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
+        [_selectedBtn setTag:0];
         [self.contentView addSubview:_selectedBtn];
         
         
@@ -78,6 +79,7 @@
         
         _centerNum = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+4+24, height-25, 25, 20)];
         [_centerNum setTitle:@"1" forState:0];
+        [_centerNum.titleLabel setFont:[UIFont systemFontOfSize:12.0]];
         [_centerNum setTitleColor:[UIColor lightGrayColor] forState:0];
         [_centerNum.layer setBorderWidth:1.0];
         [_centerNum.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
@@ -142,7 +144,7 @@
     });
     [_productName setText:product.ProductName];
     [_productDetail setText:product.ProductDesc];
-    [_productCount setText:[NSString stringWithFormat:@"x%d",(int)product.ProductShopCarCout]];
+    [_productCount setText:[NSString stringWithFormat:@"%d",(int)product.ProductShopCarCout]];
     [_productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductRealityPrice]];
     
     
@@ -152,15 +154,25 @@
 #pragma mark -改变商品数量
 -(void)productCountChage:(UIButton *)btn
 {
+    NSString *countStr =_productCount.text;
+    NSInteger count =countStr.integerValue;
     if ([btn.titleLabel.text isEqualToString:@"-"])
     {
-        
+        if (count>1)
+        {
+            count--;
+        }
     }
     else  if ([btn.titleLabel.text isEqualToString:@"+"])
     {
-        
+        if (count<100)
+        {
+            count++;
+        }
     }
-
+#warning 中间数字显示有问题
+    _centerNum.titleLabel.text = [NSString stringWithFormat:@"%ld",(long)count];
+    [_productCount setText:[NSString stringWithFormat:@"%ld",(long)count]];
 }
 
 
