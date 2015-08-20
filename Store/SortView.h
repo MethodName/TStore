@@ -1,5 +1,5 @@
 //
-//  CustomBar.h
+//  SortView.h
 //  Store
 //
 //  Created by tangmingming on 15/8/17.
@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SearchProductDelegate.h"
 
-@interface CustomBar : UIBarButtonItem
+@interface SortView : UIView
 
-+(id)customBarWithImage:(UIImage*)image;
+@property(nonatomic,weak)id<SearchProductDelegate>delegate;
 
 @end

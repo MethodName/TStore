@@ -10,6 +10,15 @@
 
 @interface ProductListMenuView : UIView
 
+
+@property(nonatomic,strong)UIButton *screening;
+
+@property(nonatomic,strong)UIButton *sort;
+
+@property(nonatomic,strong)UIButton *collection;
+
 +(ProductListMenuView *)defaultViewWithFrame:(CGRect)frame;
+
+
 
 @end

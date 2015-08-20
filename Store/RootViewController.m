@@ -15,15 +15,9 @@
 
 @implementation RootViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
- 
-    
-}
-
-
--(UIStatusBarStyle)preferredStatusBarStyle{
+/**设置状态栏颜色*/
+-(UIStatusBarStyle)preferredStatusBarStyle
+{
     return  UIStatusBarStyleLightContent;
 }
 

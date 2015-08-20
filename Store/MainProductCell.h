@@ -7,8 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "StoreProductsModel.h"
+
 
 @interface MainProductCell : UITableViewCell
+
 
 @property(nonatomic,strong)UIImageView *productImage;
 
@@ -19,5 +22,10 @@
 @property(nonatomic,strong)UILabel *productPrice;
 
 @property(nonatomic,strong)UILabel *productScaleCount;
+
+@property(nonatomic,strong)UIButton *addShopCar;
+
+
+-(void)setCellDataWithProduct:(StoreProductsModel *)product;
 
 @end

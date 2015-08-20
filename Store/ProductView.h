@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ProductView : UIView
+@interface ProductView : UIButton
+
+@property(nonatomic,strong)NSString *ProductID;
 
 @property(nonatomic,strong)UIImageView *productImage;
 

@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MainSreachBarDelegate.h"
 
-@interface ProductListTableViewController : UITableViewController
+
+@interface ProductListTableViewController : UIViewController
+
+@property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
 
 @end

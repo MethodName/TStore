@@ -7,8 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MainSreachBarDelegate.h"
+
 
 @interface MainADScrollVIew : UIScrollView
+
+@property(nonatomic,weak)id<MainSreachBarDelegate>sreachBarDelegate;
+
 
 -(void)setImages:(NSArray *)imageArray;
 

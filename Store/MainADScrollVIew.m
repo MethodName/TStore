@@ -31,4 +31,9 @@
 
 }
 
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    [_sreachBarDelegate searchBarEndEditing];
+}
+
+
 @end

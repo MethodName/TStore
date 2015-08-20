@@ -8,7 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol TopProductsViewDelegate <NSObject>
+
+-(void)productDetailWithProductID:(NSString *)proid;
+
+@end
+
 @interface TopProductsView : UIView
+
+@property(nonatomic,weak)id<TopProductsViewDelegate>delegate;
 
 //@property(nonatomic,strong)
 -(void)setProducts:(NSArray *)products;

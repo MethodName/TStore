@@ -8,10 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MainMeunView : UIScrollView
+@protocol MainMeunViewDelegate <NSObject>
 
+-(void)productListWithType:(NSInteger)type;
 
+@end
 
+@interface MainMeunView : UIView
+
+@property(nonatomic,weak)id<MainMeunViewDelegate>delegate;
 
 -(void)setMenuItems:(NSArray *)menuItems;
 
