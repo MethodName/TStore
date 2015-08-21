@@ -50,7 +50,10 @@
         //结算按钮
         _settlementBtn = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width-(10+frame.size.width*0.3), 15, frame.size.width*0.3, 30)];
         [_settlementBtn setTitle:@"结算" forState:0];
-        [_settlementBtn setBackgroundColor:[UIColor orangeColor]];
+        [_settlementBtn setEnabled:NO];
+        [_settlementBtn.layer setCornerRadius:2.0];
+        [_settlementBtn setBackgroundColor:[UIColor lightGrayColor]];
+       
         [self addSubview:_settlementBtn];
         
         //阴影

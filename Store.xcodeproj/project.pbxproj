@@ -36,6 +36,9 @@
 		6A2F6A901B81B1E4000C882D /* SortView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A2F6A8F1B81B1E4000C882D /* SortView.m */; };
 		6A2F6A971B81D8A6000C882D /* ProductListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A2F6A961B81D8A6000C882D /* ProductListCell.m */; };
 		6A48522B1B84A9A900C9129C /* IconTitleButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A48522A1B84A9A900C9129C /* IconTitleButton.m */; };
+		6A624C701B872ABB00963DC4 /* SettlementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A624C6F1B872ABB00963DC4 /* SettlementViewController.m */; };
+		6A624C731B873CE000963DC4 /* SettlementHeadCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A624C721B873CE000963DC4 /* SettlementHeadCell.m */; };
+		6A624C761B87436600963DC4 /* SettlementProductCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A624C751B87436600963DC4 /* SettlementProductCell.m */; };
 		6A698AC21B7E37D800CC9707 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A698AC11B7E37D800CC9707 /* 1.png */; };
 		6A698AC41B7E49BF00CC9707 /* 2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A698AC31B7E49BF00CC9707 /* 2.png */; };
 		6A698AC71B7E4A9500CC9707 /* MainADScrollVIew.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A698AC61B7E4A9500CC9707 /* MainADScrollVIew.m */; };
@@ -145,6 +148,12 @@
 		6A2F6A961B81D8A6000C882D /* ProductListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductListCell.m; sourceTree = "<group>"; };
 		6A4852291B84A9A900C9129C /* IconTitleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconTitleButton.h; sourceTree = "<group>"; };
 		6A48522A1B84A9A900C9129C /* IconTitleButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IconTitleButton.m; sourceTree = "<group>"; };
+		6A624C6E1B872ABB00963DC4 /* SettlementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettlementViewController.h; sourceTree = "<group>"; };
+		6A624C6F1B872ABB00963DC4 /* SettlementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettlementViewController.m; sourceTree = "<group>"; };
+		6A624C711B873CE000963DC4 /* SettlementHeadCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettlementHeadCell.h; sourceTree = "<group>"; };
+		6A624C721B873CE000963DC4 /* SettlementHeadCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettlementHeadCell.m; sourceTree = "<group>"; };
+		6A624C741B87436600963DC4 /* SettlementProductCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettlementProductCell.h; sourceTree = "<group>"; };
+		6A624C751B87436600963DC4 /* SettlementProductCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettlementProductCell.m; sourceTree = "<group>"; };
 		6A698AC11B7E37D800CC9707 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
 		6A698AC31B7E49BF00CC9707 /* 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 2.png; sourceTree = "<group>"; };
 		6A698AC51B7E4A9500CC9707 /* MainADScrollVIew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainADScrollVIew.h; sourceTree = "<group>"; };
@@ -337,6 +346,10 @@
 				6AC7C2D61B8348FB00532559 /* ProductDetailCell.m */,
 				6A0358111B846550009E893C /* ShopCarProductCell.h */,
 				6A0358121B846550009E893C /* ShopCarProductCell.m */,
+				6A624C711B873CE000963DC4 /* SettlementHeadCell.h */,
+				6A624C721B873CE000963DC4 /* SettlementHeadCell.m */,
+				6A624C741B87436600963DC4 /* SettlementProductCell.h */,
+				6A624C751B87436600963DC4 /* SettlementProductCell.m */,
 			);
 			name = CustomTableCell;
 			sourceTree = "<group>";
@@ -472,6 +485,8 @@
 				6AEE6E051B822BE0000C82C1 /* ProductDetailViewController.m */,
 				6A03580B1B845C70009E893C /* ShopCarViewController.h */,
 				6A03580C1B845C70009E893C /* ShopCarViewController.m */,
+				6A624C6E1B872ABB00963DC4 /* SettlementViewController.h */,
+				6A624C6F1B872ABB00963DC4 /* SettlementViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -654,6 +669,7 @@
 				6A0358081B843B61009E893C /* ShopBar.m in Sources */,
 				6A0357FC1B841DD2009E893C /* MJRefreshBackNormalFooter.m in Sources */,
 				6AEE6E061B822BE0000C82C1 /* ProductDetailViewController.m in Sources */,
+				6A624C701B872ABB00963DC4 /* SettlementViewController.m in Sources */,
 				6A0357F51B841DD2009E893C /* MJRefreshComponent.m in Sources */,
 				6A0357FF1B841DD2009E893C /* MJRefreshNormalHeader.m in Sources */,
 				6AAF5C0F1B810CC200C7F397 /* RootViewController.m in Sources */,
@@ -662,6 +678,7 @@
 				6A0358591B8493DB009E893C /* SettlementBar.m in Sources */,
 				6A0357F31B841DD2009E893C /* MJRefreshAutoFooter.m in Sources */,
 				6AEE6E421B82F7D7000C82C1 /* ProductTypes.m in Sources */,
+				6A624C761B87436600963DC4 /* SettlementProductCell.m in Sources */,
 				6A0357F41B841DD2009E893C /* MJRefreshBackFooter.m in Sources */,
 				6AFDF0211B7EE98A00CC96FF /* ProductView.m in Sources */,
 				6A0358051B841DD2009E893C /* UIView+MJExtension.m in Sources */,
@@ -671,6 +688,7 @@
 				6A0357FE1B841DD2009E893C /* MJRefreshGifHeader.m in Sources */,
 				6A0357FA1B841DD2009E893C /* MJRefreshAutoStateFooter.m in Sources */,
 				6AB296B91B7CAEE3002F1D16 /* main.m in Sources */,
+				6A624C731B873CE000963DC4 /* SettlementHeadCell.m in Sources */,
 				6AFDF01E1B7EE15300CC96FF /* TopProductsView.m in Sources */,
 				6AC7C2D21B832CD700532559 /* ProductImagesScrollView.m in Sources */,
 				6AFDF0721B80D25800CC96FF /* MainProductCell.m in Sources */,

@@ -18,4 +18,6 @@
 
 -(void)setSettlementBarWithSumPrice:(double)sumPrice productCount:(NSInteger)count;
 
+
+
 @end

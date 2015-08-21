@@ -12,8 +12,9 @@
 #import "ShopCarProductCell.h"
 #import "StoreDefine.h"
 #import "SettlementBar.h"
+#import "SettlementViewController.h"
 
-@interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate>
+@interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate,ShopCarProductCellDelegate>
 
 /**购物车商品列表*/
 @property(nonatomic,strong)NSMutableArray *productList;
@@ -21,6 +22,8 @@
 @property(nonatomic,strong)UITableView *tableView;
 
 @property(nonatomic,assign)CGSize mainSize;
+
+@property(nonatomic,weak)SettlementBar *settlementBar;
 
 
 @end
@@ -109,7 +112,8 @@
     [settlementBar.selectAllBtn setTag:0];
     [settlementBar.selectAllBtn addTarget:self action:@selector(selectAllBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [settlementBar setSettlementBarWithSumPrice:12.0 productCount:1];
-    
+    [settlementBar.settlementBtn addTarget:self action:@selector(settlementBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    _settlementBar = settlementBar;
     [self.view addSubview:settlementBar];
     /**
      添加手势
@@ -138,12 +142,20 @@
 {
     ShopCarProductModel *product =_productList[indexPath.section];
     ShopCarProductCell *cell =[tableView dequeueReusableCellWithIdentifier:@"shopCarProductListCell"];
-    if (cell.productImage == nil) {
+    if (cell.productImage == nil)
+    {
         cell = [[ShopCarProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"shopCarProductListCell"];
     }
+    [cell.addBtn setTag:indexPath.section];
+    [cell.subBtn setTag:indexPath.section];
     [cell setShopCarListItemShopCarProductModel:product];
+     //选择按钮
     [cell.selectedBtn setTag:indexPath.section];
     [cell.selectedBtn addTarget:self action:@selector(selectedBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //删除按钮
+    [cell.deleteBtn setTag:indexPath.section];
+    [cell.deleteBtn addTarget:self action:@selector(deleteBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     
     //选择状态
     if (product.isSelected)
@@ -154,9 +166,7 @@
     {
         [cell.selectedBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
     }
-
-    
-    
+    [cell setDelegate:self];
     return cell;
 }
 
@@ -165,6 +175,15 @@
  避免重复刷新的时候出现数据不对的问题
  
  */
+
+#pragma mark -改变商品数量代理
+-(void)productCountChage:(NSInteger)count CellRow:(NSInteger)cellRow
+{
+    //NSLog(@"%ld     %ld",(long)cellRow,(long)count);
+    ShopCarProductModel *product =_productList[cellRow];
+    [product setProductShopCarCout:count];
+    [self sumPrice];
+}
 
 
 #pragma mark -选择商品
@@ -181,15 +200,38 @@
         [btn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
         [product setIsSelected:NO];
     }
+    //全选按钮自动选择和取消
+    int count = 0;
+    for (int i =0; i<_productList.count; i++)
+    {
+        ShopCarProductModel *productI =_productList[i];
+        if (!productI.isSelected)
+        {
+            [_settlementBar.selectAllBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
+            [_settlementBar.selectAllBtn setTag:0];
+            break;
+        }else{
+            count++;
+        }
+    }
+    //NSLog(@"%d",count);全选按钮自动选中
+    if (count==_productList.count)
+    {
+         [_settlementBar.selectAllBtn setImage:[UIImage imageNamed:@"shopCarSelected"] forState:0];
+         [_settlementBar.selectAllBtn setTag:1];
+    }
+    [self sumPrice];
 }
 
 #pragma mark -全选
 -(void)selectAllBtnClick:(UIButton *)btn
 {
-    
-    if (!btn.tag) {
+    if (!btn.tag)
+    {
          [btn setImage:[UIImage imageNamed:@"shopCarSelected"] forState:0];
-    }else{
+    }
+    else
+    {
          [btn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
     }
       for (int i =0; i<_productList.count; i++)
@@ -198,11 +240,64 @@
         [product setIsSelected:!btn.tag];
     }
     [btn setTag:!btn.tag];
+    [self sumPrice];
     [self.tableView reloadData];
 }
 
 
+#pragma mark -删除商品
+-(void)deleteBtnClick:(UIButton *)btn
+{
+    [_productList removeObject:_productList[btn.tag]];
+    [self.tableView reloadData];
+    [self sumPrice];
+}
 
+
+#pragma mark -计算总金额
+-(void)sumPrice
+{
+    double sumPrice = 0.0;
+    NSInteger sumCount = 0;
+    for (int i =0; i<_productList.count; i++)
+    {
+         ShopCarProductModel *product =_productList[i];
+        if (product.isSelected)//选中的商品
+        {
+            sumPrice+= product.ProductRealityPrice*product.ProductShopCarCout;
+            sumCount+=product.ProductShopCarCout;
+        }
+    }
+    [_settlementBar.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",sumPrice]];
+    [_settlementBar.settlementBtn setTitle:[NSString stringWithFormat:@"结算(%d)",(int)sumCount] forState:0];
+    if (sumCount>0)
+    {
+        [_settlementBar.settlementBtn setBackgroundColor:[UIColor orangeColor]];
+        [_settlementBar.settlementBtn setEnabled:YES];
+    }else{
+        [_settlementBar.settlementBtn setBackgroundColor:[UIColor lightGrayColor]];
+        [_settlementBar.settlementBtn setEnabled:NO];
+    }
+    
+}
+
+#pragma mark -结算
+-(void)settlementBtnClick
+{
+    SettlementViewController *settlementView = [[SettlementViewController alloc]init];
+    NSMutableArray *newProductList = [[NSMutableArray alloc]init];
+    for (int i =0; i<_productList.count; i++)
+    {
+        ShopCarProductModel *product =_productList[i];
+        if (product.isSelected)//选中的商品
+        {
+            [newProductList addObject:product];
+        }
+    }
+
+    [settlementView setProductList:newProductList];
+    [self.navigationController pushViewController:settlementView animated:YES];
+}
 
 
 

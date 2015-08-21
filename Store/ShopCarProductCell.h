@@ -9,7 +9,18 @@
 #import <UIKit/UIKit.h>
 #import "ShopCarProductModel.h"
 
+
+@protocol ShopCarProductCellDelegate <NSObject>
+
+@optional
+-(void)productCountChage:(NSInteger )count CellRow:(NSInteger)cellRow;
+
+@end
+
 @interface ShopCarProductCell : UITableViewCell
+
+
+@property(nonatomic,weak)id<ShopCarProductCellDelegate>delegate;
 
 @property(nonatomic,strong)UIButton *selectedBtn;
 

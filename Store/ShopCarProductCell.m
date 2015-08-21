@@ -74,7 +74,7 @@
         [_subBtn setTitleColor:[UIColor lightGrayColor] forState:0];
         [_subBtn.layer setBorderWidth:1.0];
         [_subBtn.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
-        [_subBtn addTarget:self action:@selector(productCountChage:) forControlEvents:UIControlEventTouchUpInside];
+        [_subBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:_subBtn];
         
         _centerNum = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+4+24, height-25, 25, 20)];
@@ -90,7 +90,7 @@
         [_addBtn setTitleColor:[UIColor lightGrayColor] forState:0];
         [_addBtn.layer setBorderWidth:1.0];
         [_addBtn.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
-        [_addBtn addTarget:self action:@selector(productCountChage:) forControlEvents:UIControlEventTouchUpInside];
+        [_addBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:_addBtn];
     
         
@@ -152,7 +152,7 @@
 }
 
 #pragma mark -改变商品数量
--(void)productCountChage:(UIButton *)btn
+-(void)productCountClick:(UIButton *)btn
 {
     NSString *countStr =_productCount.text;
     NSInteger count =countStr.integerValue;
@@ -171,6 +171,7 @@
         }
     }
 #warning 中间数字显示有问题
+    [_delegate productCountChage:count CellRow:btn.tag];
     _centerNum.titleLabel.text = [NSString stringWithFormat:@"%ld",(long)count];
     [_productCount setText:[NSString stringWithFormat:@"%ld",(long)count]];
 }
