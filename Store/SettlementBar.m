@@ -23,24 +23,24 @@
         [_selectAllBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
         [self addSubview:_selectAllBtn];
         
-        UILabel *selAll = [[UILabel alloc]initWithFrame:CGRectMake(45, 20, 40, 20)];
+        UILabel *selAll = [[UILabel alloc]initWithFrame:CGRectMake(37, 20, 40, 20)];
         [selAll setTextColor:[UIColor colorWithRed:(180/255.0) green:(180/255.0) blue:(180/255.0) alpha:1.0]];
         [selAll setText:@"全选"];
         [self addSubview:selAll];
         
         //总金额
-        UILabel *heji = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.27, 10, 30, 20)];
+        UILabel *heji = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.24, 10, 30, 20)];
         [heji setTextColor:[UIColor colorWithRed:(180/255.0) green:(180/255.0) blue:(180/255.0) alpha:1.0]];
         [heji setText:@"合计"];
         [heji setFont:[UIFont fontWithName:@"Thonburi-Bold" size:13.0]];
         [self addSubview:heji];
         
-        _sumPrice = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.27+30, 10, frame.size.width*0.3, 20)];
+        _sumPrice = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.24+30, 10, frame.size.width*0.3, 20)];
         [_sumPrice setTextColor:[UIColor redColor]];
         [_sumPrice setFont:[UIFont fontWithName:@"Thonburi-Bold" size:13.0]];
         [self addSubview:_sumPrice];
         
-        UILabel *yufen = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.27, 30, 80, 30)];
+        UILabel *yufen = [[UILabel alloc]initWithFrame:CGRectMake(frame.size.width*0.24, 30, 80, 30)];
         [yufen setTextColor:[UIColor colorWithRed:(180/255.0) green:(180/255.0) blue:(180/255.0) alpha:1.0]];
         [yufen setText:@"不含运费"];
         [yufen setFont:[UIFont fontWithName:@"Thonburi-Bold" size:13.0]];

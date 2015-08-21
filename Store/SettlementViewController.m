@@ -11,6 +11,7 @@
 #import "ShopCarProductModel.h"
 #import "SettlementHeadCell.h"
 #import "SettlementProductCell.h"
+#import "SettlementConfirmView.h"
 
 @interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -20,6 +21,7 @@
 
 @property(nonatomic,assign)CGSize mainSize;
 
+@property(nonatomic,strong)SettlementConfirmView *settlementBar;
 
 @end
 
@@ -61,8 +63,22 @@
     [_tableView registerClass:[SettlementProductCell class] forCellReuseIdentifier:@"settlementProductCell"];
     [self.view addSubview:_tableView];
     
+    /**
+        确认栏
+     */
+    SettlementConfirmView *settlementBar = [[SettlementConfirmView alloc]initWithFrame:CGRectMake(0, _mainSize.height-60, _mainSize.width, 60)];
+    [settlementBar.settlementBtn addTarget:self action:@selector(settlementBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    _settlementBar = settlementBar;
+    //计算总金额
+    double sumprice =0;
+    for (int i =0; i<_productList.count; i++)
+    {
+          ShopCarProductModel * product = _productList[i];
+          sumprice += product.ProductRealityPrice*product.ProductShopCarCout;
+    }
+    [settlementBar.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",sumprice]];
     
-    
+    [self.view addSubview:settlementBar];
     
 }
 
@@ -73,7 +89,8 @@
 }
 
 #pragma mark -表格每组行
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
     NSInteger row = 2;
     if (section >0) {
         row = 6;
@@ -87,7 +104,7 @@
     if (indexPath.section>0&&indexPath.row==1) {
         return 70;
     }else{
-        return 44;
+        return 40;
     }
 }
 
@@ -136,17 +153,23 @@
         }else if (indexPath.row==2)//运费
         {
             [cell.name setText:@"运费"];
+            [cell.detail setText:[NSString stringWithFormat:@"快递:￥%0.2lf元(已减免:%0.2lf)",0.0,0.0]];
         }else if (indexPath.row==3)//现金券
         {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             [cell.name setText:@"现金券"];
+            [cell.detail setText:@"使用现金券"];
+            [cell.detail setCenter:CGPointMake(cell.detail.center.x-15, cell.detail.center.y)];
         }else if (indexPath.row==4)//红包
         {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             [cell.name setText:@"红包"];
+            [cell.detail setText:@"使用现金券"];
+            [cell.detail setCenter:CGPointMake(cell.detail.center.x-15, cell.detail.center.y)];
         }else if (indexPath.row==5)//合计
         {
             [cell.name setText:@"合计"];
+            [cell.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductRealityPrice*product.ProductShopCarCout]];
         }
         [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         
@@ -155,6 +178,11 @@
    
 }
 
+#pragma mark -确认付款
+-(void)settlementBtnClick
+{
+    
+}
 
 
 

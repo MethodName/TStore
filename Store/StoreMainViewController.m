@@ -18,6 +18,7 @@
 #import "ProductDetailViewController.h"
 #import "ProductTypes.h"
 #import "ShopCarViewController.h"
+#import "CustomHUD.h"
 
 @interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate>
 
@@ -40,9 +41,9 @@
 
 @property(nonatomic,strong)NSMutableArray *hotProductList;
 
-
 @property(nonatomic,weak)UISearchBar *search;
 
+@property(nonatomic,strong)CustomHUD *hud;
 
 
 @end
@@ -69,6 +70,9 @@
 
 #pragma mark -创建视图
 -(void)createView{
+   
+    
+    
 #pragma mark -左右按钮
 
     UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
@@ -155,6 +159,10 @@
     [_headView setFrame:CGRectMake(0, 0, _mainSize.width, topProductsView.frame.origin.y+topProductsView.frame.size.height+2)];
    [_tableView setTableHeaderView:_headView];
     
+    CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
+    [self.view addSubview:hud];
+    [hud.animate startAnimating];
+    _hud = hud;
     //加载数据
     [self loadData];
     
@@ -170,7 +178,7 @@
         //获取广告图片资源
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             for (int i =0; i<4; i++) {
-                [_adImages addObject:[UIImage imageNamed:@"2.png"]];
+                [_adImages addObject:[UIImage imageNamed:@"ad.png"]];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [_ad setImages:_adImages];
@@ -214,9 +222,21 @@
             [_hotProductList addObject:product];
             
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^
+        {
             [self.tableView reloadData];
             [self.tableView.header endRefreshing];
+           
+            [UIView animateWithDuration:0.45 animations:^{
+//                CGAffineTransform transform = _hud.transform;
+//                transform = CGAffineTransformScale(transform, 0.1,0.1);
+//                _hud.transform = transform;
+                 [_hud.layer setOpacity:0.1];
+            } completion:^(BOOL finished) {
+                [_hud.animate stopAnimating];
+                [_hud setHidden:YES];
+            }];
         });
         
     });

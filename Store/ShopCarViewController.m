@@ -13,6 +13,7 @@
 #import "StoreDefine.h"
 #import "SettlementBar.h"
 #import "SettlementViewController.h"
+#import "CustomHUD.h"
 
 @interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate,ShopCarProductCellDelegate>
 
@@ -25,6 +26,7 @@
 
 @property(nonatomic,weak)SettlementBar *settlementBar;
 
+@property(nonatomic,strong) CustomHUD *hud;
 
 @end
 
@@ -59,9 +61,20 @@
                 [product setCellNum:i];
                 [_productList addObject:product];
             }
+        sleep(2.0);
         dispatch_async(dispatch_get_main_queue(), ^{
             //更新数据
             [_tableView reloadData];
+            [UIView animateWithDuration:0.5 animations:^{
+                //CGAffineTransform transform = _hud.transform;
+                // transform = CGAffineTransformScale(transform, 0.1,0.1);
+                //_hud.transform = transform;
+                [_hud.layer setOpacity:0.1];
+            } completion:^(BOOL finished) {
+                [_hud.animate stopAnimating];
+                [_hud setHidden:YES];
+            }];
+
         });
     });
     
@@ -121,6 +134,11 @@
     UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
+    
+    CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
+    [self.view addSubview:hud];
+    [hud.animate startAnimating];
+    _hud = hud;
     
     
 }

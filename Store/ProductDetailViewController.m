@@ -15,6 +15,7 @@
 #import "ShopCarViewController.h"
 #import "IconTitleButton.h"
 
+
 @interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
@@ -27,6 +28,7 @@
 
 /**商品对象*/
 @property(nonatomic,strong)StoreProductsModel *product;
+
 
 
 @end
@@ -52,7 +54,7 @@
    
     NSMutableArray *imgArray = [NSMutableArray new];
     for (int i =0; i<4; i++) {
-        [imgArray addObject:[UIImage imageNamed:@"2"]];
+        [imgArray addObject:[UIImage imageNamed:@"ad"]];
     }
     [_product setProductImages:imgArray];
     
@@ -120,6 +122,7 @@
     UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
+    
 }
 
 #pragma mark -tableView组行数

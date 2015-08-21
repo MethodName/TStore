@@ -17,6 +17,7 @@
 #import "ProductListCell.h"
 #import "ToolsOriginImage.h"
 #import "ProductDetailViewController.h"
+#import "CustomHUD.h"
 
 @interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate>
 
@@ -29,6 +30,8 @@
 @property(nonatomic,strong)ScreeningView *screeingView;
 
 @property(nonatomic,strong)SortView *sortView;
+
+@property(nonatomic,strong) CustomHUD *hud;
 
 @end
 
@@ -79,7 +82,11 @@
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
 
-    
+    CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
+    [self.view addSubview:hud];
+    [hud.animate startAnimating];
+    _hud = hud;
+
     
 }
 
@@ -126,9 +133,20 @@
             [product setPSName:@"1.5斤/份"];
             [_productList addObject:product];
         }
+        sleep(2.0);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
             //[self.tableView.header endRefreshing];
+            [UIView animateWithDuration:0.5 animations:^{
+                //CGAffineTransform transform = _hud.transform;
+               // transform = CGAffineTransformScale(transform, 0.1,0.1);
+                //_hud.transform = transform;
+                [_hud.layer setOpacity:0.1];
+            } completion:^(BOOL finished) {
+                [_hud.animate stopAnimating];
+                [_hud setHidden:YES];
+            }];
+
         });
 
     });
