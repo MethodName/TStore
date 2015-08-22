@@ -12,8 +12,11 @@
 #import "SettlementHeadCell.h"
 #import "SettlementProductCell.h"
 #import "SettlementConfirmView.h"
+#import "CustomHUD.h"
+#import "AddressViewController.h"
+#import "DeliveryTimeViewController.h"
 
-@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate>
+@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate>
 
 
 
@@ -22,6 +25,11 @@
 @property(nonatomic,assign)CGSize mainSize;
 
 @property(nonatomic,strong)SettlementConfirmView *settlementBar;
+
+@property(nonatomic,strong)CustomHUD *simpleHud;
+
+@property(nonatomic,strong)NSString *defaultAddress;
+
 
 @end
 
@@ -39,6 +47,8 @@
 #pragma mark -创建视图
 -(void)createView
 {
+    
+    _defaultAddress = @"请先填写收货人信息";
     _mainSize = self.view.frame.size;
     
     /**
@@ -80,6 +90,13 @@
     
     [self.view addSubview:settlementBar];
     
+    /**
+     添加手势
+     */
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
+    [self.tableView addGestureRecognizer:swipe];
+    
 }
 
 #pragma mark -设置分组
@@ -120,7 +137,7 @@
         if (indexPath.row==0)
         {
             [cell.icon setImage:[UIImage imageNamed:@"location"]];
-            [cell.name setText:@"请先填写收货人信息"];
+            [cell.name setText:_defaultAddress];
         }else if (indexPath.row==1) {
             [cell.icon setImage:[UIImage imageNamed:@"date"]];
             [cell.name setText:@"工作日、双休日与假日均可送货"];
@@ -164,7 +181,7 @@
         {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             [cell.name setText:@"红包"];
-            [cell.detail setText:@"使用现金券"];
+            [cell.detail setText:@"使用红包"];
             [cell.detail setCenter:CGPointMake(cell.detail.center.x-15, cell.detail.center.y)];
         }else if (indexPath.row==5)//合计
         {
@@ -181,10 +198,56 @@
 #pragma mark -确认付款
 -(void)settlementBtnClick
 {
+    [self.simpleHud setHidden:NO];
+    [self.simpleHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(5.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.simpleHud simpleComplete];
+        });
+    });
+
+}
+
+
+
+#pragma mark -CustomHUD 懒加载
+-(CustomHUD *)simpleHud
+{
+    if (_simpleHud == nil) {
+        _simpleHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
+        [self.view addSubview:_simpleHud];
+        [_simpleHud setHidden:YES];
+    }
+    return _simpleHud;
+}
+
+#pragma mark -tableView行点击事件
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //选择地址
+    if (indexPath.section ==0&&indexPath.row==0)
+    {
+        AddressViewController *addressView  =[[AddressViewController alloc]init];
+        [addressView setDelegate:self];
+        [self.navigationController pushViewController:addressView animated:YES];
+    }
+    else if(indexPath.section ==0&&indexPath.row==1){
+        DeliveryTimeViewController *deliveryTimeView  =[[DeliveryTimeViewController alloc]init];
+        [self.navigationController pushViewController:deliveryTimeView animated:YES];
+    }
+    
     
 }
 
 
+-(void)selectRowWithAddress:(NSString *)address
+{
+    _defaultAddress = address;
+    NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:0];
+    [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
+}
 
 
 #pragma mark -返回上层

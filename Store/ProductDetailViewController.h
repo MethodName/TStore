@@ -10,8 +10,11 @@
 #import "MainSreachBarDelegate.h"
 
 
+
+
 @interface ProductDetailViewController : UIViewController
 
 @property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
+
 
 @end

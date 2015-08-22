@@ -18,6 +18,8 @@
 #import "ToolsOriginImage.h"
 #import "ProductDetailViewController.h"
 #import "CustomHUD.h"
+#import "ShopCarButton.h"
+#import "ShopCarViewController.h"
 
 @interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate>
 
@@ -32,6 +34,10 @@
 @property(nonatomic,strong)SortView *sortView;
 
 @property(nonatomic,strong) CustomHUD *hud;
+
+@property(nonatomic,strong)CustomHUD *addshopHud;
+
+@property(nonatomic,strong)ShopCarButton *shopCar;
 
 @end
 
@@ -51,13 +57,15 @@
     _mainSize = self.view.frame.size;
     
     //导航按钮
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setLeftBarButtonItem:leftBtn];
     
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"messageList.png"] scaleToSize:CGSizeMake(22, 32)] style:UIBarButtonItemStyleBordered target:self action:nil];
+    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftmuen"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:nil];
     [rightBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setRightBarButtonItem:rightBtn];
+    
+    //选项
     ProductListMenuView *menuView = [ProductListMenuView defaultViewWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 44)];
     [self.view addSubview:menuView];
     [menuView.screening addTarget:self action:@selector(showScreeningView) forControlEvents:UIControlEventTouchUpInside];
@@ -77,6 +85,12 @@
     
     [self pushData];
     
+    //购物车按钮
+    _shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
+    [_shopCar addTarget:self action:@selector(pushToShopCarView) forControlEvents:UIControlEventTouchUpInside];
+    [_shopCar setShopcarCountWithNum:15];
+    [self.view addSubview:_shopCar];
+    
     /*----------------------------------【添加手势】-------------------------------------*/
     UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
@@ -84,7 +98,7 @@
 
     CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
     [self.view addSubview:hud];
-    [hud.animate startAnimating];
+    [hud startLoad];
     _hud = hud;
 
     
@@ -99,11 +113,13 @@
 #pragma mark -tableView每行内容
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    StoreProductsModel *product =_productList[indexPath.row];
     ProductListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productListCell" forIndexPath:indexPath];
     if (cell.productImage == nil) {
         cell = [[ProductListCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"productListCell"];
     }
-    [cell setCellDataWith:_productList[indexPath.row]];
+    [cell setCellDataWith:product];
+    //[cell.addShopCar setValue:product.ProductID forUndefinedKey:@"productID"];
     [cell.addShopCar addTarget:self action:@selector(addShopCarClick:) forControlEvents:UIControlEventTouchUpInside];
     return cell;
 }
@@ -111,7 +127,18 @@
 #pragma mark -加入购物车
 -(void)addShopCarClick:(UIButton*)btn
 {
-    NSLog(@"加入购物车%d",(int)btn.tag);
+    
+    //NSLog(@"加入购物车%@",[btn valueForUndefinedKey:@"productID"]);
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.addshopHud simpleComplete];
+        });
+    });
+
 }
 
 #pragma mark -刷新数据
@@ -125,7 +152,7 @@
         for (int i =0; i<10; i++) {
             StoreProductsModel *product = [StoreProductsModel new];
             [product setProductName:@"露天大樱桃"];
-            [product setProductDesc:@""];
+            [product setProductDesc:@"这种东西很不错哦，很好吃的范德萨范德萨发生的冯绍峰都是范德萨范德萨范德萨范德萨发斯蒂芬"];
             [product setProductImages:[NSArray arrayWithObjects:@"product2", nil]];
             [product setProductSaleCount:15];
             [product setProductPrice:36.25];
@@ -133,22 +160,11 @@
             [product setPSName:@"1.5斤/份"];
             [_productList addObject:product];
         }
-        sleep(2.0);
+        sleep(1.0);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
-            //[self.tableView.header endRefreshing];
-            [UIView animateWithDuration:0.5 animations:^{
-                //CGAffineTransform transform = _hud.transform;
-               // transform = CGAffineTransformScale(transform, 0.1,0.1);
-                //_hud.transform = transform;
-                [_hud.layer setOpacity:0.1];
-            } completion:^(BOOL finished) {
-                [_hud.animate stopAnimating];
-                [_hud setHidden:YES];
-            }];
-
+            [_hud loadHide];
         });
-
     });
 }
 
@@ -171,11 +187,23 @@
 
 }
 
-#pragma mark -筛选所有
+#pragma mark -排序，筛选，我的收藏
 -(void)searchProductListWithType:(NSInteger)type
 {
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
+    
+    if (type!=0) {
+        [self.addshopHud setHidden:NO];
+        [self.addshopHud startSimpleLoad];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //模拟请求网络数据
+            sleep(2.0);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.addshopHud simpleComplete];
+            });
+        });
+    }
 }
 
 #pragma mark -ScreeningView懒加载
@@ -213,6 +241,17 @@
 }
 
 
+#pragma mark -跳转到购物车
+-(void)pushToShopCarView
+{
+    [_delegate hideSreachBar];
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
+    [shopCar setDelegate:self];
+    [shopCar setUserID:10];//传入用户ID
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+
 
 #pragma mark -返回上层
 -(void)leftItemClick
@@ -231,8 +270,21 @@
     [_delegate showSreachBar];
 }
 
+-(void)showNavigationBarAndStutsBar
+{
+    [self.navigationController.navigationBar setHidden:NO];
+}
 
-
+#pragma mark -CustomHUD 懒加载
+-(CustomHUD *)addshopHud
+{
+    if (_addshopHud == nil) {
+        _addshopHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
+        [self.view addSubview:_addshopHud];
+        [_addshopHud setHidden:YES];
+    }
+    return _addshopHud;
+}
 
 
 

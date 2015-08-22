@@ -48,7 +48,7 @@
         
         
         //结算按钮
-        _settlementBtn = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width-(10+frame.size.width*0.3), 15, frame.size.width*0.3, 30)];
+        _settlementBtn = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width-(15+frame.size.width*0.3), 15, frame.size.width*0.3, 35)];
         [_settlementBtn setTitle:@"结算" forState:0];
         [_settlementBtn setEnabled:NO];
         [_settlementBtn.layer setCornerRadius:2.0];

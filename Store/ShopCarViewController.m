@@ -14,8 +14,10 @@
 #import "SettlementBar.h"
 #import "SettlementViewController.h"
 #import "CustomHUD.h"
+#import "ProductDetailViewController.h"
+#import "MainSreachBarDelegate.h"
 
-@interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate,ShopCarProductCellDelegate>
+@interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate,ShopCarProductCellDelegate,MainSreachBarDelegate>
 
 /**购物车商品列表*/
 @property(nonatomic,strong)NSMutableArray *productList;
@@ -27,6 +29,9 @@
 @property(nonatomic,weak)SettlementBar *settlementBar;
 
 @property(nonatomic,strong) CustomHUD *hud;
+
+@property(nonatomic,strong)CustomHUD *simpleHud;
+
 
 @end
 
@@ -56,25 +61,16 @@
                 [product setProductRealityPrice:(i+1)*15];
                 [product setProductStock:15];
                 [product setProductDesc:@"dsfasfsdfdgdgdsgdffdsafdsafdsafdsfdsafdsffdsafdsafdsfsda"];
-                [product setProductShopCarCout:1];
+                [product setProductShopCarCout:10];
                 [product setIsSelected:NO];
                 [product setCellNum:i];
                 [_productList addObject:product];
             }
-        sleep(2.0);
+        sleep(1);
         dispatch_async(dispatch_get_main_queue(), ^{
             //更新数据
             [_tableView reloadData];
-            [UIView animateWithDuration:0.5 animations:^{
-                //CGAffineTransform transform = _hud.transform;
-                // transform = CGAffineTransformScale(transform, 0.1,0.1);
-                //_hud.transform = transform;
-                [_hud.layer setOpacity:0.1];
-            } completion:^(BOOL finished) {
-                [_hud.animate stopAnimating];
-                [_hud setHidden:YES];
-            }];
-
+            [_hud loadHide];
         });
     });
     
@@ -107,7 +103,7 @@
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height-60) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
-    [_tableView setRowHeight:144];
+    [_tableView setRowHeight:_mainSize.width*0.5];
     [_tableView setSectionHeaderHeight:3];
     [_tableView setSectionFooterHeight:3];
     [_tableView setTableHeaderView:[[UIView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 1)]];
@@ -137,7 +133,7 @@
     
     CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
     [self.view addSubview:hud];
-    [hud.animate startAnimating];
+    [hud startLoad];
     _hud = hud;
     
     
@@ -198,11 +194,30 @@
 -(void)productCountChage:(NSInteger)count CellRow:(NSInteger)cellRow
 {
     //NSLog(@"%ld     %ld",(long)cellRow,(long)count);
-    ShopCarProductModel *product =_productList[cellRow];
-    [product setProductShopCarCout:count];
-    [self sumPrice];
+    [self.simpleHud setHidden:NO];
+    [self.simpleHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        //sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.simpleHud simpleComplete];
+            [self sumPrice];
+            ShopCarProductModel *product =_productList[cellRow];
+            [product setProductShopCarCout:count];
+            NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:cellRow];
+            [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
+            [self sumPrice];
+        });
+    });
 }
 
+#pragma mark -行点击事件
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    ProductDetailViewController *prodcutDetail = [[ProductDetailViewController alloc]init];
+    [prodcutDetail setDelegate:self];
+    [self.navigationController pushViewController:prodcutDetail animated:YES];
+}
 
 #pragma mark -选择商品
 -(void)selectedBtnClick:(UIButton *)btn
@@ -266,9 +281,21 @@
 #pragma mark -删除商品
 -(void)deleteBtnClick:(UIButton *)btn
 {
-    [_productList removeObject:_productList[btn.tag]];
-    [self.tableView reloadData];
-    [self sumPrice];
+    [self.simpleHud setHidden:NO];
+    [self.simpleHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.simpleHud simpleComplete];
+            [_productList removeObject:_productList[btn.tag]];
+            [self.tableView reloadData];
+            [self sumPrice];
+        });
+    });
+
+    
+  
 }
 
 
@@ -318,12 +345,34 @@
 }
 
 
+#pragma mark -CustomHUD 懒加载
+-(CustomHUD *)simpleHud
+{
+    if (_simpleHud == nil) {
+        _simpleHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
+        [self.view addSubview:_simpleHud];
+        [_simpleHud setHidden:YES];
+    }
+    return _simpleHud;
+}
+
+-(void)showNavigationBarAndStutsBar
+{
+    [self.navigationController.navigationBar setHidden:NO];
+}
+
+
+-(void)searchBarEndEditing{}
+-(void)showSreachBar{};
 
 #pragma mark -返回上层
 -(void)leftItemClick
 {
-   // [_delegate showSreachBar];
+      [_delegate showSreachBar];
     //[_delegate searchBarEndEditing];
+    if (_navigationBarDelegate != nil) {
+        [_navigationBarDelegate hideNavigationBar];
+    }
     [self.navigationController popViewControllerAnimated:YES];
 }
 

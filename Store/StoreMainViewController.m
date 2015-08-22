@@ -19,8 +19,10 @@
 #import "ProductTypes.h"
 #import "ShopCarViewController.h"
 #import "CustomHUD.h"
+#import "ShopCarButton.h"
+#import "MessageListViewController.h"
 
-@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate>
+@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate>
 
 #pragma mark -屏幕大小
 @property(assign,nonatomic)CGSize mainSize;
@@ -44,6 +46,12 @@
 @property(nonatomic,weak)UISearchBar *search;
 
 @property(nonatomic,strong)CustomHUD *hud;
+
+@property(nonatomic,strong)CustomHUD *addshopHud;
+
+@property(nonatomic,strong)ShopCarButton *shopCar;
+
+@property(nonatomic,weak)UIPageControl *page;
 
 
 @end
@@ -78,7 +86,7 @@
     UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"messageList.png"] scaleToSize:CGSizeMake(22, 32)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"messageList.png"] scaleToSize:CGSizeMake(22, 32)] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
     [rightBtn setTintColor:[UIColor whiteColor]];
     
     
@@ -112,12 +120,14 @@
 #pragma mark -广告ScrollView
     _ad = [[MainADScrollVIew alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.4)];
     [_ad setSreachBarDelegate:self];
+    [_ad setImageMoveDelegate:self];
     [_ad setDelegate:self];
     [_headView addSubview:_ad];
     
     UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(_ad.frame.size.width-100, _ad.frame.size.height-20, 100,20)];
     [page setNumberOfPages:4];
     [page setCurrentPage:0];
+    _page = page;
     [_headView addSubview:page];
     
     
@@ -156,12 +166,22 @@
     [topProductsView setProducts:proArray];
     /*-----------------------------------------------------------------------*/
     
+    //重新设置headview大小
     [_headView setFrame:CGRectMake(0, 0, _mainSize.width, topProductsView.frame.origin.y+topProductsView.frame.size.height+2)];
    [_tableView setTableHeaderView:_headView];
     
+    //购物车按钮
+    _shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
+    [_shopCar addTarget:self action:@selector(pushToShopCarView) forControlEvents:UIControlEventTouchUpInside];
+    [_shopCar setShopcarCountWithNum:15];
+    [self.view addSubview:_shopCar];
+    
+    
+    
+    
     CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
     [self.view addSubview:hud];
-    [hud.animate startAnimating];
+    [hud startLoad];
     _hud = hud;
     //加载数据
     [self loadData];
@@ -222,21 +242,12 @@
             [_hotProductList addObject:product];
             
         }
-        sleep(2.0);
+        sleep(1);
         dispatch_async(dispatch_get_main_queue(), ^
         {
             [self.tableView reloadData];
             [self.tableView.header endRefreshing];
-           
-            [UIView animateWithDuration:0.45 animations:^{
-//                CGAffineTransform transform = _hud.transform;
-//                transform = CGAffineTransformScale(transform, 0.1,0.1);
-//                _hud.transform = transform;
-                 [_hud.layer setOpacity:0.1];
-            } completion:^(BOOL finished) {
-                [_hud.animate stopAnimating];
-                [_hud setHidden:YES];
-            }];
+            [_hud loadHide];
         });
         
     });
@@ -275,21 +286,6 @@
     [self.navigationController pushViewController:productDetail animated:YES];
 }
 
-#pragma mark -显示sreachBar代理方法
--(void)showSreachBar
-{
-    [_search setHidden:NO];
-}
-
--(void)hideSreachBar
-{
-    [_search setHidden:YES];
-}
-
--(void)searchBarEndEditing
-{
-    [_search endEditing:YES];
-}
 
 
 #pragma mark -跳转商品详细信息
@@ -312,6 +308,7 @@
 #pragma mark -商品类别搜索
 -(void)productListWithType:(NSInteger)type
 {
+    [_search endEditing:YES];
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
     [self.navigationController pushViewController:productListTableView animated:YES];
@@ -320,7 +317,65 @@
 #pragma mark -加入购物车
 -(void)addShopCarClick:(UIButton*)btn
 {
-    NSLog(@"加入购物车%d",(int)btn.tag);
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.addshopHud simpleComplete];
+        });
+    });
+}
+
+#pragma mark -跳转到购物车
+-(void)pushToShopCarView
+{
+    [_search setHidden:YES];
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
+    [shopCar setDelegate:self];
+    [shopCar setUserID:10];//传入用户ID
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+
+
+#pragma mark -CustomHUD 懒加载
+-(CustomHUD *)addshopHud
+{
+    if (_addshopHud == nil) {
+        _addshopHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
+        [self.view addSubview:_addshopHud];
+        [_addshopHud setHidden:YES];
+    }
+    return _addshopHud;
+}
+
+#pragma mark -PageControl显示当前页代理
+-(void)imageMoveWithIndex:(NSInteger)index
+{
+    [_page setCurrentPage:index];
+}
+
+#pragma mark -显示sreachBar代理方法
+-(void)showSreachBar
+{
+    [_search setHidden:NO];
+}
+
+-(void)hideSreachBar
+{
+    [_search setHidden:YES];
+}
+
+-(void)searchBarEndEditing
+{
+    [_search endEditing:YES];
+}
+
+-(void)showNavigationBarAndStutsBar
+{
+    [self.navigationController.navigationBar setHidden:NO];
 }
 
 
@@ -328,6 +383,15 @@
 -(void)leftItemClick
 {
     NSLog(@"返回上级");
+}
+
+
+-(void)rightItemClick
+{
+    [_search setHidden:YES];
+    MessageListViewController *messageListView = [[MessageListViewController alloc]init];
+    [messageListView setDelegate:self];
+    [self.navigationController pushViewController:messageListView animated:YES];
 }
 
 

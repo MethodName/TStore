@@ -10,8 +10,20 @@
 
 @interface CustomHUD : UIView
 
+@property(nonatomic,strong)UIImageView *animate;
+
+
 +(id)defaultCustomHUDWithFrame:(CGRect)frame;
 
-@property(nonatomic,strong)UIImageView *animate;
++(id)defaultCustomHUDSimpleWithFrame:(CGRect)frame;
+
+-(void)startLoad;
+
+-(void)loadHide;
+
+-(void)startSimpleLoad;
+
+-(void)simpleComplete;
+
 
 @end

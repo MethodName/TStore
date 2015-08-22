@@ -37,6 +37,7 @@
         [_addShopCar setBackgroundColor:[UIColor orangeColor]];
         [_addShopCar setTitle:@"加入购物车" forState:0];
         [_addShopCar.titleLabel setFont:[UIFont fontWithName:@"Thonburi-Bold" size:16.0]];
+        [_addShopCar addTarget:self action:@selector(addShopCarto) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_addShopCar];
         
         //立即购买
@@ -44,6 +45,7 @@
         [_bayShop setBackgroundColor:[UIColor redColor]];
         [_bayShop setTitle:@"立即购买" forState:0];
         [_bayShop.titleLabel setFont:[UIFont fontWithName:@"Thonburi-Bold" size:16.0]];
+        [_bayShop addTarget:self action:@selector(buyProduct) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_bayShop];
         
         [self setBackgroundColor:[UIColor colorWithRed:(255/255.0) green:(255/255.0) blue:(255/255.0) alpha:0.0]];
@@ -56,6 +58,18 @@
     }
     return self;
 }
+
+
+-(void)addShopCarto{
+    [_delegate addShopCar];
+}
+
+-(void)buyProduct{
+    [_delegate buyProduct];
+}
+
+
+
 
 #pragma mark - 设置购物车上显示数量
 -(void)setShopCatCountNum:(NSInteger)num

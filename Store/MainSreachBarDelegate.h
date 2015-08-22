@@ -10,13 +10,19 @@
 
 @protocol MainSreachBarDelegate <NSObject>
 
+@optional
 /*
     隐藏显示主页的SreachBar
  */
 -(void)showSreachBar;
 
-@optional
+
+
+
+
 -(void)hideSreachBar;
+
+-(void)showNavigationBarAndStutsBar;
 
 /*
     SreachBar结束编辑

@@ -14,9 +14,11 @@
 #import "ShopBar.h"
 #import "ShopCarViewController.h"
 #import "IconTitleButton.h"
+#import "CustomHUD.h"
+#import "ProductDetailintroductionViewController.h"
 
 
-@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate>
+@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,ShopCarViewControllerDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -29,7 +31,9 @@
 /**商品对象*/
 @property(nonatomic,strong)StoreProductsModel *product;
 
+@property(nonatomic,strong)CustomHUD *addshopHud;
 
+@property(nonatomic,weak)UIPageControl *page;
 
 @end
 
@@ -54,7 +58,7 @@
    
     NSMutableArray *imgArray = [NSMutableArray new];
     for (int i =0; i<4; i++) {
-        [imgArray addObject:[UIImage imageNamed:@"ad"]];
+        [imgArray addObject:@"ad"];
     }
     [_product setProductImages:imgArray];
     
@@ -63,16 +67,22 @@
 #pragma mark -创建视图
 -(void)createView
 {
+    
+    [self.navigationController.navigationBar setHidden:YES];
+    
     [self.view setBackgroundColor:[UIColor whiteColor]];
     _mainSize = self.view.frame.size;
     
     /**
         导航按钮
      */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"商品详情"];
+//    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+//    [leftBtn setTintColor:[UIColor whiteColor]];
+//    [self.navigationItem setLeftBarButtonItem:leftBtn];
+//    [self.navigationItem setTitle:@"商品详情"];
+    UIButton *leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(15, 15, 30, 30)];
+    [leftBtn setImage: [UIImage imageNamed:@"leftBtn.png"] forState:0];
+    [leftBtn addTarget:self action:@selector(leftItemClick) forControlEvents:UIControlEventTouchUpInside];
     
     
     /**
@@ -83,11 +93,12 @@
     self.navigationController.navigationBar.titleTextAttributes = dict;
     
     // tableView
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height+200) style:UITableViewStyleGrouped];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
     [_tableView setSectionFooterHeight:2.0];
     [_tableView setSectionHeaderHeight:2.0];
+   
      [self.view addSubview:_tableView];
     
     /**
@@ -98,9 +109,18 @@
     /**
      商品图片
      */
-    ProductImagesScrollView *imagesScrollView = [[ProductImagesScrollView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.45)];
+    ProductImagesScrollView *imagesScrollView = [[ProductImagesScrollView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.8)];
     [_tableView setTableHeaderView:imagesScrollView];
+    [imagesScrollView setDelegate:self];
     [imagesScrollView setImages:_product.ProductImages];
+    
+    
+    UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(imagesScrollView.frame.size.width-100, imagesScrollView.frame.size.height-20, 100,20)];
+    [page setNumberOfPages:4];
+    [page setCurrentPage:0];
+    _page = page;
+    [self.view addSubview:page];
+    
     /**
         商品属性
      */
@@ -115,6 +135,7 @@
     [shopBar setDelegate:self];
     [shopBar setShopCatCountNum:6];
     
+     [self.view addSubview:leftBtn];
     
     /**
         添加手势
@@ -144,6 +165,9 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ProductDetailCell * cell = [[ProductDetailCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"productDetailCell"];
+    [cell.haoPing setHidden:YES];
+    [cell.zhongPing setHidden:YES];
+    [cell.chaPing setHidden:YES];
     if (indexPath.section == 0)
     {
        [cell.name setText:_nameArray[indexPath.row]];
@@ -157,6 +181,7 @@
     }
     else if(indexPath.section==1)
     {
+    
         [cell.name setText:_nameArray[indexPath.row+3]];
         if (indexPath.row==0)
         {
@@ -164,6 +189,10 @@
         }
         else if (indexPath.row==1)
         {
+            [cell.haoPing setHidden:NO];
+             [cell.zhongPing setHidden:NO];
+             [cell.chaPing setHidden:NO];
+            
             [cell.haoPing setTitle:[NSString stringWithFormat:@"好评(%d)",0] forState:0];
              [cell.zhongPing setTitle:[NSString stringWithFormat:@"中评(%d)",0] forState:0];
              [cell.chaPing setTitle:[NSString stringWithFormat:@"差评(%d)",0] forState:0];
@@ -180,7 +209,9 @@
  */
 -(void)pushToShopCarView
 {
+    [self.navigationController.navigationBar setHidden:NO];
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
+    [shopCar setNavigationBarDelegate:self];
     [shopCar setUserID:10];//传入用户ID
     [self.navigationController pushViewController:shopCar animated:YES];
 }
@@ -190,30 +221,99 @@
  */
 -(void)addShopCar
 {
-    NSLog(@"添加到购物车了");
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.addshopHud simpleComplete];
+        });
+    });
+
 }
 
 #pragma mark -收藏
 -(void)collectBtnClick:(IconTitleButton *)btn
 {
-    if ( btn.tag==0)
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.addshopHud simpleComplete];
+            if ( btn.tag==0)
+            {
+                [btn.iconImageView setImage:[UIImage imageNamed:@"collect_full"]];
+                [btn setTag:1];
+            }
+            else
+            {
+                [btn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
+                [btn setTag:0];
+            }
+
+        });
+    });
+
+    
+}
+
+#pragma mark -tableView行点击事件
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //商品详细介绍
+    if (indexPath.section == 1&&indexPath.row ==0)
     {
-        [btn.iconImageView setImage:[UIImage imageNamed:@"collect_full"]];
-        [btn setTag:1];
-    }
-    else
-    {
-        [btn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
-        [btn setTag:0];
+        ProductDetailintroductionViewController *proDetail =[[ProductDetailintroductionViewController alloc]init];
+        [self.navigationController.navigationBar setHidden:NO];
+        [self.navigationController pushViewController:proDetail animated:YES];
     }
 }
+
+
 
 /**
  *  购买商品
  */
 -(void)buyProduct
 {
-    
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.addshopHud simpleComplete];
+        });
+    });
+
+}
+
+
+#pragma mark -图片ScrollView滑动代理事件
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
+    [_page setCurrentPage:index];
+}
+
+
+#pragma mark -CustomHUD 懒加载
+-(CustomHUD *)addshopHud
+{
+    if (_addshopHud == nil) {
+        _addshopHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
+        [self.view addSubview:_addshopHud];
+        [_addshopHud setHidden:YES];
+    }
+    return _addshopHud;
+}
+
+
+-(void)hideNavigationBar{
+    [self.navigationController.navigationBar setHidden:YES];
 }
 
 
@@ -221,9 +321,14 @@
 #pragma mark -返回上层
 -(void)leftItemClick
 {
+    [self.navigationController popViewControllerAnimated:YES];
     [_delegate showSreachBar];
     [_delegate searchBarEndEditing];
-    [self.navigationController popViewControllerAnimated:YES];
+    [_delegate showNavigationBarAndStutsBar];
+}
+
+-(BOOL)prefersStatusBarHidden{
+    return YES;
 }
 
 

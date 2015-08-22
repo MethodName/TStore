@@ -23,10 +23,19 @@
         //名字
         _productName = [[UILabel alloc]initWithFrame:CGRectMake(height, 5, width-height, 20)];
         [_productName setFont:[UIFont systemFontOfSize:16]];
+        
+        //商品详情
+        _productDetail = [[UILabel alloc]initWithFrame:CGRectMake(height, 25, width*0.5, 35)];
+        [_productDetail setFont:[UIFont systemFontOfSize:13]];
+        [_productDetail setNumberOfLines:0];
+        [_productDetail setTextColor:[UIColor lightGrayColor]];
+        
+        
+        
         //规格
-        _PSName = [[UILabel alloc]initWithFrame:CGRectMake(height, 25, width-height, 20)];
+        _PSName = [[UILabel alloc]initWithFrame:CGRectMake(height, height-40, width-height, 20)];
         [_PSName setFont:[UIFont systemFontOfSize:13]];
-        [_PSName setTextColor:[UIColor lightGrayColor]];
+        //[_PSName setTextColor:[UIColor orangeColor]];
         //价格
         _productPrice = [[UILabel alloc]initWithFrame:CGRectMake(height, height-20, width-height, 20)];
         [_productPrice setTextColor:[UIColor redColor]];
@@ -48,14 +57,17 @@
         [self.contentView addSubview:_productPrice];
         [self.contentView addSubview:_addShopCar];
         [self.contentView addSubview:_productScaleCount];
+        [self.contentView addSubview:_productDetail];
         [self setSelectionStyle:UITableViewCellSelectionStyleNone];
     }
     return self;
 }
 
--(void)setCellDataWith:(StoreProductsModel *)product{
+-(void)setCellDataWith:(StoreProductsModel *)product
+{
     [self.imageView setImage:[UIImage imageNamed:product.ProductImages[0]]];
     [self.productName setText:product.ProductName];
+    [self.productDetail setText:product.ProductDesc];
     [self.PSName setText:product.PSName];
     [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductPrice]];
     [self.productScaleCount setText:[NSString stringWithFormat:@"%d已售出",(int)product.ProductSaleCount]];
