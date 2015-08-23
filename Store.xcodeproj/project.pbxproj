@@ -78,6 +78,9 @@
 		6AEE6E3F1B82DE0C000C82C1 /* ToolsOriginImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AEE6E3E1B82DE0C000C82C1 /* ToolsOriginImage.m */; };
 		6AEE6E421B82F7D7000C82C1 /* ProductTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AEE6E411B82F7D7000C82C1 /* ProductTypes.m */; };
 		6AEE6E451B831700000C82C1 /* shopCar.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AEE6E441B831700000C82C1 /* shopCar.png */; };
+		6AF383411B89ACDE00FAFB32 /* AddAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383401B89ACDE00FAFB32 /* AddAddressViewController.m */; };
+		6AF383441B89B6D800FAFB32 /* SelectAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383431B89B6D800FAFB32 /* SelectAddressViewController.m */; };
+		6AF383471B89C10500FAFB32 /* EditAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383461B89C10500FAFB32 /* EditAddressViewController.m */; };
 		6AFDF01E1B7EE15300CC96FF /* TopProductsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AFDF01D1B7EE15300CC96FF /* TopProductsView.m */; };
 		6AFDF0211B7EE98A00CC96FF /* ProductView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AFDF0201B7EE98A00CC96FF /* ProductView.m */; };
 		6AFDF0641B7F0C3B00CC96FF /* StoreProductsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AFDF0631B7F0C3B00CC96FF /* StoreProductsModel.m */; };
@@ -229,6 +232,12 @@
 		6AEE6E411B82F7D7000C82C1 /* ProductTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductTypes.m; sourceTree = "<group>"; };
 		6AEE6E431B830C39000C82C1 /* MainSreachBarDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainSreachBarDelegate.h; sourceTree = "<group>"; };
 		6AEE6E441B831700000C82C1 /* shopCar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shopCar.png; sourceTree = "<group>"; };
+		6AF3833F1B89ACDE00FAFB32 /* AddAddressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddAddressViewController.h; sourceTree = "<group>"; };
+		6AF383401B89ACDE00FAFB32 /* AddAddressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddAddressViewController.m; sourceTree = "<group>"; };
+		6AF383421B89B6D800FAFB32 /* SelectAddressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectAddressViewController.h; sourceTree = "<group>"; };
+		6AF383431B89B6D800FAFB32 /* SelectAddressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectAddressViewController.m; sourceTree = "<group>"; };
+		6AF383451B89C10500FAFB32 /* EditAddressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditAddressViewController.h; sourceTree = "<group>"; };
+		6AF383461B89C10500FAFB32 /* EditAddressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditAddressViewController.m; sourceTree = "<group>"; };
 		6AFDF01C1B7EE15300CC96FF /* TopProductsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TopProductsView.h; sourceTree = "<group>"; };
 		6AFDF01D1B7EE15300CC96FF /* TopProductsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TopProductsView.m; sourceTree = "<group>"; };
 		6AFDF01F1B7EE98A00CC96FF /* ProductView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductView.h; sourceTree = "<group>"; };
@@ -530,6 +539,12 @@
 				6A286B551B888711005512EF /* ProductDetailintroductionViewController.m */,
 				6A392FA01B88D78B00309EE3 /* MessageListViewController.h */,
 				6A392FA11B88D78B00309EE3 /* MessageListViewController.m */,
+				6AF3833F1B89ACDE00FAFB32 /* AddAddressViewController.h */,
+				6AF383401B89ACDE00FAFB32 /* AddAddressViewController.m */,
+				6AF383421B89B6D800FAFB32 /* SelectAddressViewController.h */,
+				6AF383431B89B6D800FAFB32 /* SelectAddressViewController.m */,
+				6AF383451B89C10500FAFB32 /* EditAddressViewController.h */,
+				6AF383461B89C10500FAFB32 /* EditAddressViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -716,6 +731,7 @@
 				6A0358041B841DD2009E893C /* UIScrollView+MJRefresh.m in Sources */,
 				6A0358081B843B61009E893C /* ShopBar.m in Sources */,
 				6A0357FC1B841DD2009E893C /* MJRefreshBackNormalFooter.m in Sources */,
+				6AF383471B89C10500FAFB32 /* EditAddressViewController.m in Sources */,
 				6AEE6E061B822BE0000C82C1 /* ProductDetailViewController.m in Sources */,
 				6A624C701B872ABB00963DC4 /* SettlementViewController.m in Sources */,
 				6A0357F51B841DD2009E893C /* MJRefreshComponent.m in Sources */,
@@ -732,6 +748,7 @@
 				6AFDF0211B7EE98A00CC96FF /* ProductView.m in Sources */,
 				6A0358051B841DD2009E893C /* UIView+MJExtension.m in Sources */,
 				6AFDF0641B7F0C3B00CC96FF /* StoreProductsModel.m in Sources */,
+				6AF383411B89ACDE00FAFB32 /* AddAddressViewController.m in Sources */,
 				6AAF5C091B80F98F00C7F397 /* ProductListTableViewController.m in Sources */,
 				6A0358101B845D26009E893C /* ShopCarProductModel.m in Sources */,
 				6A0357FE1B841DD2009E893C /* MJRefreshGifHeader.m in Sources */,
@@ -752,6 +769,7 @@
 				6A0358021B841DD2009E893C /* MJRefreshConst.m in Sources */,
 				6A286B441B885FB8005512EF /* AddressViewController.m in Sources */,
 				6A2F6A901B81B1E4000C882D /* SortView.m in Sources */,
+				6AF383441B89B6D800FAFB32 /* SelectAddressViewController.m in Sources */,
 				6A48522B1B84A9A900C9129C /* IconTitleButton.m in Sources */,
 				6A698AD51B7ED1FD00CC9707 /* MainMenuItem.m in Sources */,
 				6A03580D1B845C70009E893C /* ShopCarViewController.m in Sources */,

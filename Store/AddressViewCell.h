@@ -9,7 +9,21 @@
 #import <UIKit/UIKit.h>
 #import "StoreAddressModel.h"
 
+@protocol AddressViewCellDelegate <NSObject>
+
+-(void)setDefaultAddressWithBtn:(UIButton *)btn;
+
+-(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone;
+
+
+-(void)deleteAddress;
+
+@end
+
 @interface AddressViewCell : UITableViewCell
+
+
+@property(nonatomic,weak)id<AddressViewCellDelegate>delegate;
 
 /**收货人*/
 @property(nonatomic,strong)UILabel *consignee;
@@ -34,5 +48,8 @@
 
 
 -(void)setAddressValueWithAddress:(StoreAddressModel *)address;
+
+
+
 
 @end

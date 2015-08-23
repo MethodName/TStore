@@ -339,9 +339,18 @@
             [newProductList addObject:product];
         }
     }
+    [self.simpleHud setHidden:NO];
+    [self.simpleHud startSimpleLoad];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //模拟请求网络数据
+        //sleep(2.0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.simpleHud simpleComplete];
+            [settlementView setProductList:newProductList];
+            [self.navigationController pushViewController:settlementView animated:YES];
+            });
+    });
 
-    [settlementView setProductList:newProductList];
-    [self.navigationController pushViewController:settlementView animated:YES];
 }
 
 

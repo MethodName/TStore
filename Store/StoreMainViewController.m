@@ -53,6 +53,8 @@
 
 @property(nonatomic,weak)UIPageControl *page;
 
+@property(nonatomic,assign)NSInteger userID;
+
 
 @end
 
@@ -66,7 +68,9 @@
 
 
 #pragma mark -视图加载后
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
+    _userID = 1;
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor whiteColor]];
     [self.navigationController.navigationBar setBarTintColor:[UIColor orangeColor]];
@@ -105,7 +109,7 @@
 #pragma mark -tableView
     
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height) style:UITableViewStylePlain];
-    _tableView.footer = [MJRefreshFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadData)];
+    _tableView.header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadData)];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setShowsVerticalScrollIndicator:NO];
@@ -319,6 +323,7 @@
 {
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         //模拟请求网络数据
         sleep(2.0);
