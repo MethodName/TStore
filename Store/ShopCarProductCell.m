@@ -46,14 +46,14 @@
         
         
         //选择按钮
-        _selectedBtn = [[UIButton alloc]initWithFrame:CGRectMake(15, 30+49, 25, 25)];
+        _selectedBtn = [[UIButton alloc]initWithFrame:CGRectMake(3, 30+49, 42, 40)];
         [_selectedBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
         [_selectedBtn setTag:0];
         [self.contentView addSubview:_selectedBtn];
         
         
         //图片
-        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(55, 5+44, height-60, height-60)];
+        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(45, 5+44, height-60, height-60)];
         [self.contentView addSubview:_productImage];
         
         //简介
@@ -142,20 +142,22 @@
 #pragma mark -设置值
 -(void)setShopCarListItemShopCarProductModel:(ShopCarProductModel *)product
 {
+    /**
+     *  异步线程加载图片
+     */
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        UIImage *img = [UIImage imageNamed:product.ProductImage];
+        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
+        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
         dispatch_async(dispatch_get_main_queue(), ^{
             [_productImage setImage:img];
         });
     });
+    
     [_centerNum setTitle:[NSString stringWithFormat:@"%d",(int)product.ProductShopCarCout] forState:0];
     [_productName setText:product.ProductName];
     [_productDetail setText:product.ProductDesc];
     [_productCount setText:[NSString stringWithFormat:@"x%d",(int)product.ProductShopCarCout]];
     [_productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductRealityPrice]];
-    
-    
-    
 }
 
 #pragma mark -改变商品数量

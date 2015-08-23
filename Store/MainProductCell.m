@@ -17,10 +17,10 @@
     if (self) {
         CGFloat width = [UIScreen mainScreen].bounds.size.width;
         CGFloat height = 100;
-        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 15, height-30, height-30)];
+        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 5, height-10, height-10)];
         _productName = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, 15, width*0.4, 20)];
         [_productName setTextColor:[UIColor orangeColor]];
-        _productDetail = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, _productName.frame.origin.y + 20, width*0.5, 20)];
+        _productDetail = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, _productName.frame.origin.y + 20, width*0.4, 20)];
         [_productDetail setFont:[UIFont systemFontOfSize:12]];
         [_productDetail setNumberOfLines:0];
         _productPrice = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, 80, 100, 20)];
@@ -51,7 +51,15 @@
 
 
 -(void)setCellDataWithProduct:(StoreProductsModel *)product{
-    [self.productImage setImage: [UIImage imageNamed:product.ProductImages[0]]];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
+        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
+        dispatch_async(dispatch_get_main_queue(), ^{
+             [self.productImage setImage: img];
+        });
+        
+    });
+   
     [self.productName setText:product.ProductName];
     [self.productDetail setText:product.ProductDesc];
     [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductPrice]];

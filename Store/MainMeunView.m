@@ -15,7 +15,8 @@
 
 @implementation MainMeunView
 
--(id)initWithFrame:(CGRect)frame{
+-(id)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
    
     CGFloat width = frame.size.width;
@@ -24,8 +25,8 @@
     [self setBackgroundColor:[UIColor whiteColor]];
     MainMenuItem *hotBtn = [MainMenuItem buttonWithType:UIButtonTypeCustom];
     [hotBtn setFrame:CGRectMake(0, 10, 80, 80)];
-     UIImage *img =[UIImage imageNamed:@"tuijian"];
-    [hotBtn setImage:[ToolsOriginImage OriginImage:img scaleToSize:CGSizeMake(50, 50)] forState:0];
+     UIImage *img =[UIImage imageWithCGImage:[[UIImage imageNamed:@"tuijian"] CGImage] scale:1.8 orientation:UIImageOrientationUp];
+    [hotBtn setImage:img forState:0];
     [hotBtn setTitle:@"热门推荐" forState:0];
     [hotBtn setTitleColor:[UIColor grayColor] forState:0];
     hotBtn.titleLabel.font = [UIFont systemFontOfSize:12];//title字体大小
@@ -43,12 +44,13 @@
     CGFloat width = self.frame.size.width;
     CGFloat height = self.frame.size.height;
     
-    for (int i =0; i<3; i++) {
+    for (int i =0; i<3; i++)
+    {
         ProductTypes *type = menuItems[i];
         MainMenuItem *hotBtn = [MainMenuItem buttonWithType:UIButtonTypeCustom];
         int index = (i+1)%4;
         [hotBtn setFrame:CGRectMake(index*width/4, 10, 80, 80)];
-        UIImage *img =[UIImage imageNamed:type.PTIconUrl];
+        UIImage *img =[UIImage imageWithCGImage:[[UIImage imageNamed:type.PTIconUrl] CGImage] scale:1.8 orientation:UIImageOrientationUp];
         [hotBtn setImage: [ToolsOriginImage OriginImage:img scaleToSize:CGSizeMake(50, 50)] forState:0];
         [hotBtn setTitle:type.PTName forState:0];
         [hotBtn setTitleColor:[UIColor grayColor] forState:0];

@@ -19,7 +19,7 @@
         CGFloat height = TABLE_CELL_HEIGHT;
         
         //图片
-        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 15, height-30, height-30)];
+        _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 10, height-20, height-20)];
         //名字
         _productName = [[UILabel alloc]initWithFrame:CGRectMake(height, 5, width-height, 20)];
         [_productName setFont:[UIFont systemFontOfSize:16]];
@@ -65,7 +65,17 @@
 
 -(void)setCellDataWith:(StoreProductsModel *)product
 {
-    [self.imageView setImage:[UIImage imageNamed:product.ProductImages[0]]];
+    /**
+     *  异步线程加载图片
+     */
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
+        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.productImage setImage: img];
+        });
+    });
+   // [self.imageView setImage:[UIImage imageNamed:product.ProductImages[0]]];
     [self.productName setText:product.ProductName];
     [self.productDetail setText:product.ProductDesc];
     [self.PSName setText:product.PSName];

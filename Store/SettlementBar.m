@@ -19,13 +19,14 @@
         
         //全选
         //选择按钮
-        _selectAllBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 20, 25, 25)];
+        _selectAllBtn = [[UIButton alloc]initWithFrame:CGRectMake(3, 10, 42, 40)];
         [_selectAllBtn setImage:[UIImage imageNamed:@"shopCarNotSelected"] forState:0];
         [self addSubview:_selectAllBtn];
         
-        UILabel *selAll = [[UILabel alloc]initWithFrame:CGRectMake(37, 20, 40, 20)];
+        UILabel *selAll = [[UILabel alloc]initWithFrame:CGRectMake(40, 20, 40, 20)];
         [selAll setTextColor:[UIColor colorWithRed:(180/255.0) green:(180/255.0) blue:(180/255.0) alpha:1.0]];
         [selAll setText:@"全选"];
+        [selAll setFont:[UIFont systemFontOfSize:14.0]];
         [self addSubview:selAll];
         
         //总金额

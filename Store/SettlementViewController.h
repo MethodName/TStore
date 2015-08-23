@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MainSreachBarDelegate.h"
 
 @interface SettlementViewController : UIViewController
 
 /**购物车商品列表*/
 @property(nonatomic,strong)NSMutableArray *productList;
+
+@property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
 
 @end

@@ -50,7 +50,7 @@
         [_chaPing setHidden:YES];
         [self.contentView addSubview:_chaPing];
         
-        _collectBtn = [[IconTitleButton alloc]initWithFrame:CGRectMake(width-60, 2, 44, 44)];
+        _collectBtn = [[IconTitleButton alloc]initWithFrame:CGRectMake(width-60, 0, 44, 44)];
         [_collectBtn.titleText setText:@"收藏"];
         [_collectBtn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
         [_collectBtn setHidden:YES];

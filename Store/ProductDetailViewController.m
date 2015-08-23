@@ -16,9 +16,11 @@
 #import "IconTitleButton.h"
 #import "CustomHUD.h"
 #import "ProductDetailintroductionViewController.h"
+#import "SettlementViewController.h"
+#import "ShopCarProductModel.h"
 
 
-@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,ShopCarViewControllerDelegate>
+@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,ShopCarViewControllerDelegate,MainSreachBarDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -174,6 +176,7 @@
         if (indexPath.row==0) {
             [cell.productName setText:_product.ProductName];
             [cell.collectBtn setHidden:NO];
+             [cell.chaPing setHidden:YES];
             [cell.collectBtn addTarget:self action:@selector(collectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         }else if (indexPath.row==1){
             [cell.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",_product.ProductPrice]];
@@ -279,16 +282,31 @@
  */
 -(void)buyProduct
 {
+    SettlementViewController *settlementView = [[SettlementViewController alloc]init];
+    NSMutableArray *newProductList = [[NSMutableArray alloc]init];
+    
+    ShopCarProductModel *product =[ShopCarProductModel new];
+    [product setProductID:_product.ProductID];
+    [product setProductImage:_product.ProductImages[0]];
+    [product setProductDesc:_product.ProductDesc];
+    [product setProductName:_product.ProductName];
+    [product setProductRealityPrice:_product.ProductPrice];
+    [product setProductShopCarCout:1];
+    [newProductList addObject:product];
+    
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         //模拟请求网络数据
-        sleep(2.0);
+        //sleep(2.0);
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self.navigationController.navigationBar setHidden:NO];
             [self.addshopHud simpleComplete];
+            [settlementView setProductList:newProductList];
+            [settlementView setDelegate:self];
+            [self.navigationController pushViewController:settlementView animated:YES];
         });
     });
-
 }
 
 
@@ -312,6 +330,7 @@
 }
 
 
+
 -(void)hideNavigationBar{
     [self.navigationController.navigationBar setHidden:YES];
 }
@@ -321,10 +340,11 @@
 #pragma mark -返回上层
 -(void)leftItemClick
 {
-    [self.navigationController popViewControllerAnimated:YES];
-    [_delegate showSreachBar];
-    [_delegate searchBarEndEditing];
     [_delegate showNavigationBarAndStutsBar];
+    [_delegate showSreachBar];
+    [self.navigationController popViewControllerAnimated:YES];
+    [_delegate searchBarEndEditing];
+  
 }
 
 -(BOOL)prefersStatusBarHidden{

@@ -57,11 +57,11 @@
     _mainSize = self.view.frame.size;
     
     //导航按钮
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setLeftBarButtonItem:leftBtn];
     
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftmuen"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:nil];
+    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"leftmuen"] CGImage] scale:2.0 orientation:UIImageOrientationUp]  style:UIBarButtonItemStyleBordered target:self action:nil];
     [rightBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setRightBarButtonItem:rightBtn];
     
@@ -151,8 +151,8 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (int i =0; i<10; i++) {
             StoreProductsModel *product = [StoreProductsModel new];
-            [product setProductName:@"露天大樱桃"];
-            [product setProductDesc:@"这种东西很不错哦，很好吃的范德萨范德萨发生的冯绍峰都是范德萨范德萨范德萨范德萨发斯蒂芬"];
+            [product setProductName:@"露天大草莓"];
+            [product setProductDesc:@"很好吃的露天大🍓"];
             [product setProductImages:[NSArray arrayWithObjects:@"product2", nil]];
             [product setProductSaleCount:15];
             [product setProductPrice:36.25];
@@ -211,9 +211,10 @@
     if (_screeingView ==nil)
     {
         _screeingView = [[ScreeningView alloc]initWithFrame:CGRectMake(0, 104, _mainSize.width, _mainSize.height-104)];
-        [self.view addSubview:_screeingView];
+      
         [_screeingView setDelegate:self];
         [_screeingView setHidden:YES];
+        [self.view insertSubview:_screeingView aboveSubview:self.tableView];
     }
     return _screeingView;
 }
@@ -222,10 +223,10 @@
 -(SortView*)sortView{
     if (_sortView ==nil)
     {
-            _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, 104, _mainSize.width, _mainSize.height-104)];
-            [self.view addSubview:_sortView];
-            [_sortView setDelegate:self];
-            [_sortView setHidden:YES];
+        _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, 104, _mainSize.width, _mainSize.height-104)];
+        [_sortView setDelegate:self];
+        [_sortView setHidden:YES];
+          [self.view insertSubview:_sortView aboveSubview:self.tableView];
     }
      return _sortView;
 }

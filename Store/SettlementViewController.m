@@ -15,8 +15,9 @@
 #import "CustomHUD.h"
 #import "AddressViewController.h"
 #import "DeliveryTimeViewController.h"
+#import "ProductDetailViewController.h"
 
-@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate>
+@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate>
 
 
 
@@ -54,7 +55,7 @@
     /**
      导航按钮
      */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setLeftBarButtonItem:leftBtn];
     [self.navigationItem setTitle:@"结算中心"];
@@ -255,6 +256,10 @@
 {
     // [_delegate showSreachBar];
     //[_delegate searchBarEndEditing];
+    if (_delegate != nil) {
+        [_delegate hideNavigationBar];
+    }
+    
     [self.navigationController popViewControllerAnimated:YES];
 }
 

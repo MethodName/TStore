@@ -87,10 +87,11 @@
     
 #pragma mark -左右按钮
 
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+   
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"messageList.png"] scaleToSize:CGSizeMake(22, 32)] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
+    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"messageList"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
     [rightBtn setTintColor:[UIColor whiteColor]];
     
     
@@ -238,15 +239,15 @@
         for (int i =0; i<9; i++) {
             //获取热销商品资源
             StoreProductsModel *product = [StoreProductsModel new];
-            [product setProductName:@"看家神器"];
-            [product setProductDesc:@"无线wifi摄像头"];
+            [product setProductName:@"大草莓"];
+            [product setProductDesc:@"大草莓，小草莓，大大草莓"];
             product.ProductImages = [NSArray arrayWithObjects:@"shuiguo", nil];
             [product setProductPrice:15.0];
             [product setProductSaleCount:(i+5)*3];
             [_hotProductList addObject:product];
             
         }
-        sleep(1);
+        sleep(3);
         dispatch_async(dispatch_get_main_queue(), ^
         {
             [self.tableView reloadData];

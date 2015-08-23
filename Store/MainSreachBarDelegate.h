@@ -16,13 +16,11 @@
  */
 -(void)showSreachBar;
 
-
-
-
-
 -(void)hideSreachBar;
 
 -(void)showNavigationBarAndStutsBar;
+
+-(void)hideNavigationBar;
 
 /*
     SreachBar结束编辑
