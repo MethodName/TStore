@@ -57,7 +57,7 @@
     _mainSize = self.view.frame.size;
     
     //导航按钮
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setLeftBarButtonItem:leftBtn];
     
@@ -147,7 +147,9 @@
         _productList = [NSMutableArray new];
     }
     [_productList removeAllObjects];
-    
+    /**
+     *  请求数据
+     */
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (int i =0; i<10; i++) {
             StoreProductsModel *product = [StoreProductsModel new];
@@ -175,6 +177,14 @@
         [self.sortView setHidden:YES];
     }
     [self.screeingView setHidden:!self.screeingView.hidden];
+
+
+//    if (self.sortView.frame.origin.y==104&&self.screeingView.frame.origin.y==-104) {
+//        [self.screeingView setFrame:CGRectMake(self.screeingView.frame.origin.x, 104, self.screeingView.frame.size.width, self.screeingView.frame.size.height)];
+//    }
+//     NSLog(@"筛选%lf",self.sortView.frame.origin.y);
+//      NSLog(@"排序%lf",self.screeingView.frame.origin.y);
+    
 }
 
 #pragma mark -显示排序视图
@@ -184,6 +194,12 @@
         [self.screeingView setHidden:YES];
     }
     [self.sortView setHidden:!self.sortView.hidden];
+    
+//    if (self.sortView.frame.origin.y==-104&&self.screeingView.frame.origin.y==-104) {
+//        [self.sortView setFrame:CGRectMake(self.sortView.frame.origin.x, 104, self.sortView.frame.size.width, self.sortView.frame.size.height)];
+//    }
+//    NSLog(@"筛选%lf",self.sortView.frame.origin.y);
+//    NSLog(@"排序%lf",self.screeingView.frame.origin.y);
 
 }
 
@@ -192,8 +208,10 @@
 {
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
+//      [self.sortView setFrame:CGRectMake(self.sortView.frame.origin.x, 104, self.sortView.frame.size.width, self.sortView.frame.size.height)];
+//      [self.screeingView setFrame:CGRectMake(self.screeingView.frame.origin.x, 104, self.screeingView.frame.size.width, self.sortView.frame.size.height)];
     
-    if (type!=0) {
+    if (type!=HIED_SELF_TAG) {
         [self.addshopHud setHidden:NO];
         [self.addshopHud startSimpleLoad];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -231,7 +249,7 @@
      return _sortView;
 }
 
-
+#pragma mark -点击单个商品
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];

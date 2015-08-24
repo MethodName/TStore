@@ -34,6 +34,13 @@
 
 
 
+/*
+ 服务器地址
+ */
+#define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
+
+
+
 
 
 #endif

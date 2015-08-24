@@ -17,14 +17,16 @@
 
 -(id)initWithFrame:(CGRect)frame{
     if (self=[super initWithFrame:frame]) {
-        UIButton *btnAll = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, frame.size.width, 30)];
+        UIButton *btnAll = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, frame.size.width*0.33, 44)];
         [btnAll setBackgroundColor:[UIColor whiteColor]];
         [btnAll setTitleColor:[UIColor lightGrayColor] forState:0];
         [btnAll setTitle:@"全部" forState:0];
         [btnAll.titleLabel setFont:[UIFont systemFontOfSize:14]];
+        [btnAll.layer setCornerRadius:2.0];
         [btnAll addTarget:self action:@selector(screeingAll) forControlEvents:UIControlEventTouchUpInside];
         
-        [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2]];
+        
+        [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.1]];
        
         [self addSubview:btnAll];
         

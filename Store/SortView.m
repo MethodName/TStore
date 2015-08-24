@@ -15,12 +15,13 @@
 -(id)initWithFrame:(CGRect)frame{
     if (self=[super initWithFrame:frame]) {
         NSArray *array = @[@"销量",@"价格",@"上架时间"];
-        UIView *sView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, frame.size.width, 105)];
-        [sView setBackgroundColor:[UIColor lightGrayColor]];
-        [self addSubview:sView];
+        //UIView *sView = [[UIView alloc]initWithFrame:CGRectMake(frame.size.width*0.33, 0, frame.size.width*0.33, 105)];
+//        [sView setBackgroundColor:[UIColor lightGrayColor]];
+//        [self addSubview:sView];
         for (int i =0; i<array.count; i++) {
-            UIButton *btn = [[UIButton alloc]initWithFrame:CGRectMake(0, 35*i, frame.size.width, 34)];
+            UIButton *btn = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width*0.33, 45*i, frame.size.width*0.33, 44)];
             [btn setBackgroundColor:[UIColor whiteColor]];
+            [btn.layer setCornerRadius:2.0];
             [btn setTitleColor:[UIColor lightGrayColor] forState:0];
             [btn setTitle:array[i] forState:0];
             [btn.titleLabel setFont:[UIFont systemFontOfSize:14]];
@@ -41,7 +42,7 @@
             
             [btn addTarget:self action:@selector(sort:) forControlEvents:UIControlEventTouchUpInside];
             
-            [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2]];
+            [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.1]];
             
             [self addSubview:btn];
             UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideSelf)];

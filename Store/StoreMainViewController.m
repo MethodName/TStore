@@ -88,7 +88,7 @@
 #pragma mark -左右按钮
 
    
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     
     UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"messageList"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
@@ -99,8 +99,8 @@
     [self.navigationItem setRightBarButtonItem:rightBtn];
     
 #pragma mark -搜索框
-    UISearchBar *search = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width-30*4, 30)];
-    [search setPlaceholder:@"请输入你想搜索的商品"];
+    UISearchBar *search = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width-30*4, 44)];
+    [search setPlaceholder:@"搜索商品"];
     [search sizeToFit];
     [search setCenter:CGPointMake(self.navigationController.navigationBar.center.x, NAVIGATION_POSITION_Y)];
     [self.navigationController.navigationBar addSubview:search];
@@ -187,6 +187,7 @@
     CustomHUD *hud = [CustomHUD defaultCustomHUDWithFrame:self.view.frame];
     [self.view addSubview:hud];
     [hud startLoad];
+    //[self.navigationController.navigationBar setHidden:YES];
     _hud = hud;
     //加载数据
     [self loadData];
@@ -252,6 +253,7 @@
         {
             [self.tableView reloadData];
             [self.tableView.header endRefreshing];
+            //[self.navigationController.navigationBar setHidden:NO];
             [_hud loadHide];
         });
         
