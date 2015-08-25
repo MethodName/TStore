@@ -11,7 +11,7 @@
 
 @interface ScreeningView : UIView
 
-
+@property(nonatomic,strong)UIView *sView;
 
 @property(nonatomic,weak)id<SearchProductDelegate>delegate;
 

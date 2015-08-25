@@ -20,8 +20,10 @@
 #import "CustomHUD.h"
 #import "ShopCarButton.h"
 #import "ShopCarViewController.h"
+#import "User.h"
+#import "Product.h"
 
-@interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate>
+@interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate,ProductListCellDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -66,7 +68,7 @@
     [self.navigationItem setRightBarButtonItem:rightBtn];
     
     //选项
-    ProductListMenuView *menuView = [ProductListMenuView defaultViewWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 44)];
+    ProductListMenuView *menuView = [ProductListMenuView defaultViewWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 56)];
     [self.view addSubview:menuView];
     [menuView.screening addTarget:self action:@selector(showScreeningView) forControlEvents:UIControlEventTouchUpInside];
     
@@ -74,7 +76,7 @@
       
     
 #pragma mark -tableView初始化
-    self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 108, _mainSize.width, _mainSize.height-108) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 120, _mainSize.width, _mainSize.height-120) style:UITableViewStylePlain];
     [self.tableView setDelegate:self];
     [self.tableView setDataSource:self];
     [self.tableView setRowHeight:TABLE_CELL_HEIGHT];
@@ -113,31 +115,47 @@
 #pragma mark -tableView每行内容
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    StoreProductsModel *product =_productList[indexPath.row];
+    Product *product =_productList[indexPath.row];
     ProductListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productListCell" forIndexPath:indexPath];
     if (cell.productImage == nil) {
         cell = [[ProductListCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"productListCell"];
     }
     [cell setCellDataWith:product];
-    //[cell.addShopCar setValue:product.ProductID forUndefinedKey:@"productID"];
-    [cell.addShopCar addTarget:self action:@selector(addShopCarClick:) forControlEvents:UIControlEventTouchUpInside];
+   
+    //设置cell代理
+    [cell setDelegate:self];
     return cell;
 }
 
 #pragma mark -加入购物车
--(void)addShopCarClick:(UIButton*)btn
+-(void)addShopCarCWithProductID:(NSString *)productID
 {
     
-    //NSLog(@"加入购物车%@",[btn valueForUndefinedKey:@"productID"]);
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(2.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.addshopHud simpleComplete];
-        });
-    });
+    
+    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",productID,@"&userID=",(int)[User shareUserID]];
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([dic[@"status"] intValue] == 1)//成功
+                {
+                    [self.addshopHud simpleComplete];
+                }
+                else//失败
+                {
+                    [self.addshopHud stopAnimation];
+                    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                    [alertView show];
+                }
+            });
+        }
+    }];
 
 }
 
@@ -152,14 +170,15 @@
      */
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (int i =0; i<10; i++) {
-            StoreProductsModel *product = [StoreProductsModel new];
+            Product *product = [Product new];
+            [product setProductID:@"SP201508210006"];
             [product setProductName:@"露天大草莓"];
             [product setProductDesc:@"很好吃的露天大🍓"];
-            [product setProductImages:[NSArray arrayWithObjects:@"product2", nil]];
+            [product setProductImages:@"product1"];
             [product setProductSaleCount:15];
             [product setProductPrice:36.25];
-            [product setPUName:@"斤"];
-            [product setPSName:@"1.5斤/份"];
+            [product setPuName:@"斤"];
+            [product setPsName:@"1.5斤/份"];
             [_productList addObject:product];
         }
         sleep(1.0);
@@ -173,43 +192,65 @@
 #pragma mark -显示筛选视图
 -(void)showScreeningView
 {
-    if (self.sortView.hidden==NO&&self.screeingView.hidden==YES) {
-        [self.sortView setHidden:YES];
+    if (!self.sortView.hidden) {
+        [self showSortView];
     }
-    [self.screeingView setHidden:!self.screeingView.hidden];
+    [self.screeingView setHidden:NO];
+    CGFloat y = 0;
+    if (self.screeingView.sView.frame.origin.y==0)
+    {
+        y=-116;
+    }
+        
+    [UIView animateWithDuration:0.15 animations:^{
+       [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, y, self.screeingView.sView .frame.size.width, self.screeingView.sView.frame.size.height)];
+    } completion:^(BOOL finished) {
+        if (y==-116) {
+            [_screeingView setHidden:YES];
+        }
+    }];
 
-
-//    if (self.sortView.frame.origin.y==104&&self.screeingView.frame.origin.y==-104) {
-//        [self.screeingView setFrame:CGRectMake(self.screeingView.frame.origin.x, 104, self.screeingView.frame.size.width, self.screeingView.frame.size.height)];
-//    }
-//     NSLog(@"筛选%lf",self.sortView.frame.origin.y);
-//      NSLog(@"排序%lf",self.screeingView.frame.origin.y);
+    
+    
     
 }
 
 #pragma mark -显示排序视图
 -(void)showSortView
 {
-    if (self.sortView.hidden==YES&&self.screeingView.hidden==NO) {
-        [self.screeingView setHidden:YES];
+    if (!self.screeingView.hidden) {
+        [self showScreeningView];
+    };
+    [_sortView setHidden:NO];
+    CGFloat y=0;
+    if (self.sortView.sView.frame.origin.y==0)
+    {
+        y=-116;
+        
     }
-    [self.sortView setHidden:!self.sortView.hidden];
+    //动画
+    [UIView animateWithDuration:0.15 animations:^{
+         [self.sortView.sView setFrame:CGRectMake(self.sortView.sView.frame.origin.x, y, self.sortView.sView .frame.size.width, self.sortView.sView.frame.size.height)];
+    } completion:^(BOOL finished) {
+        if (y==-116) {
+            [_sortView setHidden:YES];
+        }
+    }];
     
-//    if (self.sortView.frame.origin.y==-104&&self.screeingView.frame.origin.y==-104) {
-//        [self.sortView setFrame:CGRectMake(self.sortView.frame.origin.x, 104, self.sortView.frame.size.width, self.sortView.frame.size.height)];
-//    }
-//    NSLog(@"筛选%lf",self.sortView.frame.origin.y);
-//    NSLog(@"排序%lf",self.screeingView.frame.origin.y);
-
+    
+    
+        
+    
 }
 
 #pragma mark -排序，筛选，我的收藏
 -(void)searchProductListWithType:(NSInteger)type
 {
+    [self.sortView.sView setFrame:CGRectMake(self.sortView.sView.frame.origin.x, -116, self.sortView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
+    [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, -116, self.screeingView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
-//      [self.sortView setFrame:CGRectMake(self.sortView.frame.origin.x, 104, self.sortView.frame.size.width, self.sortView.frame.size.height)];
-//      [self.screeingView setFrame:CGRectMake(self.screeingView.frame.origin.x, 104, self.screeingView.frame.size.width, self.sortView.frame.size.height)];
+    
     
     if (type!=HIED_SELF_TAG) {
         [self.addshopHud setHidden:NO];
@@ -228,7 +269,7 @@
 -(ScreeningView*)screeingView{
     if (_screeingView ==nil)
     {
-        _screeingView = [[ScreeningView alloc]initWithFrame:CGRectMake(0, 104, _mainSize.width, _mainSize.height-104)];
+        _screeingView = [[ScreeningView alloc]initWithFrame:CGRectMake(0, 116, _mainSize.width, _mainSize.height-116)];
       
         [_screeingView setDelegate:self];
         [_screeingView setHidden:YES];
@@ -241,7 +282,7 @@
 -(SortView*)sortView{
     if (_sortView ==nil)
     {
-        _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, 104, _mainSize.width, _mainSize.height-104)];
+        _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, 116, _mainSize.width, _mainSize.height-116)];
         [_sortView setDelegate:self];
         [_sortView setHidden:YES];
           [self.view insertSubview:_sortView aboveSubview:self.tableView];
@@ -252,10 +293,16 @@
 #pragma mark -点击单个商品
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
-    [productDetail setDelegate:self];
+    //隐藏导航栏
     [_delegate hideSreachBar];
     [_delegate searchBarEndEditing];
+    
+    Product *product =_productList[indexPath.row];
+    ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
+    [productDetail setDelegate:self];
+    [productDetail setProductID:product.productID];
+   
+    
     [self.navigationController pushViewController:productDetail animated:YES];
 }
 

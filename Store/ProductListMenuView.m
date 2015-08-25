@@ -19,19 +19,19 @@
     
     [defaulfView addSubview:dView];
     
-    defaulfView.screening = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, frame.size.width/3-1, 39)];
+    defaulfView.screening = [[UIButton alloc]initWithFrame:CGRectMake(0, 4, frame.size.width/3-1, 44)];
     [defaulfView.screening setTitle:@"筛选》" forState:0];
     [defaulfView.screening setTitleColor:[UIColor lightGrayColor] forState:0];
     [defaulfView.screening.titleLabel setFont:[UIFont systemFontOfSize:14]];
     [defaulfView addSubview:defaulfView.screening];
     
-    defaulfView.sort = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width*0.33+1, 0, frame.size.width/3-1, 39)];
+    defaulfView.sort = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width*0.33+1, 4, frame.size.width/3-1, 44)];
     [defaulfView.sort setTitle:@"排序》" forState:0];
     [defaulfView.sort setTitleColor:[UIColor lightGrayColor] forState:0];
     [defaulfView.sort.titleLabel setFont:[UIFont systemFontOfSize:14]];
     [defaulfView addSubview:defaulfView.sort];
 
-    defaulfView.collection = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width*0.66+1, 0, frame.size.width/3-1, 39)];
+    defaulfView.collection = [[UIButton alloc]initWithFrame:CGRectMake(frame.size.width*0.66+1, 4, frame.size.width/3-1, 44)];
     [defaulfView.collection setTitle:@"我的收藏》" forState:0];
     [defaulfView.collection setTitleColor:[UIColor lightGrayColor] forState:0];
     [defaulfView.collection.titleLabel setFont:[UIFont systemFontOfSize:14]];

@@ -7,11 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "StoreProductsModel.h"
+#import "Product.h"
 
+
+@protocol MainProductCellDelegate <NSObject>
+
+-(void)addShopCarCWithProductID:(NSString *)productID;
+
+@end
 
 @interface MainProductCell : UITableViewCell
 
+
+@property(nonatomic,weak)id<MainProductCellDelegate>delegate;
+
+@property(nonatomic,strong)NSString *productID;
 
 @property(nonatomic,strong)UIImageView *productImage;
 
@@ -26,6 +36,6 @@
 @property(nonatomic,strong)UIButton *addShopCar;
 
 
--(void)setCellDataWithProduct:(StoreProductsModel *)product;
+-(void)setCellDataWithProduct:(Product *)product;
 
 @end

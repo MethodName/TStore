@@ -39,6 +39,11 @@
  */
 #define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
 
+/**
+ *  服务器图片根目录
+ *
+ */
+#define SEVER_IMAGES_ROOT_PATH "http://store.hexiaotian.cn/images/"
 
 
 

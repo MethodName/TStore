@@ -16,5 +16,6 @@
 
 @property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
 
+@property(nonatomic,strong)NSString *productID;
 
 @end

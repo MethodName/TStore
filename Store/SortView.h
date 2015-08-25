@@ -13,4 +13,6 @@
 
 @property(nonatomic,weak)id<SearchProductDelegate>delegate;
 
+@property(nonatomic,strong)UIView *sView;
+
 @end

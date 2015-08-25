@@ -44,6 +44,7 @@
         //加入购物车
         _addShopCar = [[UIButton alloc]initWithFrame:CGRectMake(width-55, height-50, 33, 28)];
         [_addShopCar setImage:[UIImage imageNamed:@"shopCar"] forState:0];
+         [_addShopCar addTarget:self action:@selector(addShopCarClick) forControlEvents:UIControlEventTouchUpInside];
         
         //已售数量
         _productScaleCount = [[UILabel alloc]initWithFrame:CGRectMake(width-60, height-23, 80, 20)];
@@ -63,8 +64,9 @@
     return self;
 }
 
--(void)setCellDataWith:(StoreProductsModel *)product
+-(void)setCellDataWith:(Product *)product
 {
+    _productID = product.productID;
     /**
      *  异步线程加载图片
      */
@@ -76,13 +78,17 @@
         });
     });
    // [self.imageView setImage:[UIImage imageNamed:product.ProductImages[0]]];
-    [self.productName setText:product.ProductName];
-    [self.productDetail setText:product.ProductDesc];
-    [self.PSName setText:product.PSName];
-    [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductPrice]];
-    [self.productScaleCount setText:[NSString stringWithFormat:@"%d已售出",(int)product.ProductSaleCount]];
+    [self.productName setText:product.productName];
+    [self.productDetail setText:product.productDesc];
+    [self.PSName setText:product.psName];
+    [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productPrice]];
+    [self.productScaleCount setText:[NSString stringWithFormat:@"%d已售出",(int)product.productSaleCount]];
 }
 
+
+-(void)addShopCarClick{
+    [_delegate addShopCarCWithProductID:_productID];
+}
 
 
 

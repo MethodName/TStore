@@ -7,10 +7,8 @@
 //
 
 #import "ProductDetailViewController.h"
-#import "ToolsOriginImage.h"
 #import "ProductImagesScrollView.h"
 #import "ProductDetailCell.h"
-#import "StoreProductsModel.h"
 #import "ShopBar.h"
 #import "ShopCarViewController.h"
 #import "IconTitleButton.h"
@@ -18,6 +16,10 @@
 #import "ProductDetailintroductionViewController.h"
 #import "SettlementViewController.h"
 #import "ShopCarProductModel.h"
+#import "StoreDefine.h"
+#import "Product.h"
+#import "User.h"
+
 
 
 @interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,ShopCarViewControllerDelegate,MainSreachBarDelegate>
@@ -30,8 +32,10 @@
 /**每列名字*/
 @property(nonatomic,strong)NSArray *nameArray;
 
-/**商品对象*/
-@property(nonatomic,strong)StoreProductsModel *product;
+
+@property(nonatomic,strong)Product *product;
+
+@property(nonatomic,strong)ProductImagesScrollView *imagesScrollView;
 
 @property(nonatomic,strong)CustomHUD *addshopHud;
 
@@ -53,16 +57,39 @@
 #pragma mark -加载数据
 -(void)loadData
 {
-    _product = [StoreProductsModel new];
-    [_product setProductID:@"xx201508080001"];
-    [_product setProductName:@"大草莓"];
-    [_product setProductPrice:15.2];
-   
-    NSMutableArray *imgArray = [NSMutableArray new];
-    for (int i =0; i<4; i++) {
-        [imgArray addObject:@"ad"];
-    }
-    [_product setProductImages:imgArray];
+    /*
+     根据商品ID获取商品信息 :StoreProduct/getStoreProductByID   
+     参数:id
+     */
+    NSString *path = [NSString stringWithFormat:@"%s%@=%@",SERVER_ROOT_PATH,@"StoreProduct/getStoreProductByID?id",_productID];
+    NSLog(@"%@",path);
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+   [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+       if (connectionError == nil)
+       {
+           //将结果转成字典集合
+             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+           //NSLog(@"%@",json);
+           _product= [Product new];
+           [_product setValuesForKeysWithDictionary:dic];
+           //截取出图片的数组
+           NSArray *imageArr = [_product.productImages  componentsSeparatedByString:@","];
+           //NSLog(@"------%@",_product.productImages);
+           //设置pageControl的个数
+           
+           //设置图片
+          
+           //主线程更新表格数据
+           dispatch_async(dispatch_get_main_queue(), ^{
+               [_page setNumberOfPages:imageArr.count];
+                [_imagesScrollView setImages:imageArr];
+               [self.tableView reloadData];
+           });
+           
+       }
+   }];
+    
     
 }
 
@@ -114,11 +141,13 @@
     ProductImagesScrollView *imagesScrollView = [[ProductImagesScrollView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.8)];
     [_tableView setTableHeaderView:imagesScrollView];
     [imagesScrollView setDelegate:self];
-    [imagesScrollView setImages:_product.ProductImages];
+    _imagesScrollView = imagesScrollView;
     
     
+    /**
+     PageControl
+     */
     UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(imagesScrollView.frame.size.width-100, imagesScrollView.frame.size.height-20, 100,20)];
-    [page setNumberOfPages:4];
     [page setCurrentPage:0];
     _page = page;
     [self.view addSubview:page];
@@ -174,12 +203,12 @@
     {
        [cell.name setText:_nameArray[indexPath.row]];
         if (indexPath.row==0) {
-            [cell.productName setText:_product.ProductName];
+            [cell.productName setText:_product.productName];
             [cell.collectBtn setHidden:NO];
              [cell.chaPing setHidden:YES];
             [cell.collectBtn addTarget:self action:@selector(collectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         }else if (indexPath.row==1){
-            [cell.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",_product.ProductPrice]];
+            [cell.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",_product.productPrice]];
         }
     }
     else if(indexPath.section==1)
@@ -210,6 +239,7 @@
 /**
  *  shopBar   delegate
  */
+#pragma mark -进入到购物车页面
 -(void)pushToShopCarView
 {
     [self.navigationController.navigationBar setHidden:NO];
@@ -222,17 +252,34 @@
 /**
  *  添加购物车
  */
+#pragma mark -添加商品到购物车
 -(void)addShopCar
 {
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(2.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.addshopHud simpleComplete];
-        });
-    });
+    
+    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",_productID,@"&userID=",(int)[User shareUserID]];
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([dic[@"status"] intValue] == 1)//成功
+                {
+                    [self.addshopHud simpleComplete];
+                }
+                else//失败
+                {
+                    [self.addshopHud stopAnimation];
+                    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                    [alertView show];
+                }
+            });
+        }
+    }];
 
 }
 
@@ -280,17 +327,18 @@
 /**
  *  购买商品
  */
+#pragma mark -立即购买
 -(void)buyProduct
 {
     SettlementViewController *settlementView = [[SettlementViewController alloc]init];
     NSMutableArray *newProductList = [[NSMutableArray alloc]init];
     
     ShopCarProductModel *product =[ShopCarProductModel new];
-    [product setProductID:_product.ProductID];
-    [product setProductImage:_product.ProductImages[0]];
-    [product setProductDesc:_product.ProductDesc];
-    [product setProductName:_product.ProductName];
-    [product setProductRealityPrice:_product.ProductPrice];
+    [product setProductID:_product.productID];
+    //[product setProductImage:_product.ProductImages[0]];
+    [product setProductDesc:_product.productDesc];
+    [product setProductName:_product.productName];
+    [product setProductRealityPrice:_product.productRealityPrice];
     [product setProductShopCarCout:1];
     [newProductList addObject:product];
     
@@ -330,13 +378,6 @@
 }
 
 
-
--(void)hideNavigationBar{
-    [self.navigationController.navigationBar setHidden:YES];
-}
-
-
-
 #pragma mark -返回上层
 -(void)leftItemClick
 {
@@ -347,7 +388,17 @@
   
 }
 
--(BOOL)prefersStatusBarHidden{
+
+/**
+ *  隐藏导航栏和状态栏
+ */
+-(void)hideNavigationBar
+{
+    [self.navigationController.navigationBar setHidden:YES];
+}
+
+-(BOOL)prefersStatusBarHidden
+{
     return YES;
 }
 

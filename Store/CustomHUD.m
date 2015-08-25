@@ -20,6 +20,13 @@
 
 @implementation CustomHUD
 
+/**
+ *  获取一个默认的指示器
+ *
+ *  @param frame 范围
+ *
+ *  @return 指示器对象
+ */
 +(id)defaultCustomHUDWithFrame:(CGRect)frame
 {
     CustomHUD *hud = [[CustomHUD alloc]initWithFrame:frame];
@@ -33,7 +40,13 @@
 }
 
 
-
+/**
+ *  获取一个默认的简单指示器
+ *
+ *  @param frame 范围
+ *
+ *  @return 指示器对象
+ */
 +(id)defaultCustomHUDSimpleWithFrame:(CGRect)frame
 {
     CustomHUD *hud = [[CustomHUD alloc]initWithFrame:frame];
@@ -46,7 +59,9 @@
     return hud;
 }
 
-
+/**
+ *  默认指示器开始加载动画
+ */
 -(void)startLoad
 {
     NSMutableArray *images = [NSMutableArray new];
@@ -61,6 +76,9 @@
     [self.animate startAnimating];
 }
 
+/**
+ *  简单指示器开始加载动画
+ */
 -(void)startSimpleLoad
 {
     NSMutableArray *images = [NSMutableArray new];
@@ -75,7 +93,9 @@
     [self.animate startAnimating];
 }
 
-#pragma mark -完成动画后隐藏
+/**
+ *简单指示器完成动画后隐藏
+ */
 -(void)simpleComplete
 {
     NSMutableArray *images = [NSMutableArray new];
@@ -99,7 +119,9 @@
     });
 }
 
-#pragma mark -加载后隐藏
+/**
+ *  默认指示器加载后隐藏
+ */
 -(void)loadHide
 {
    [UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionLayoutSubviews animations:^
@@ -113,6 +135,14 @@
     
 }
 
+/**
+ *  停止并隐藏指示器
+ */
+-(void)stopAnimation
+{
+    [self.animate stopAnimating];
+    [self setHidden:YES];
+}
 
 
 

@@ -25,5 +25,7 @@
 
 -(void)simpleComplete;
 
+-(void)stopAnimation;
+
 
 @end

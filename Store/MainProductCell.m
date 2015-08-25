@@ -30,12 +30,14 @@
         //加入购物车
         _addShopCar = [[UIButton alloc]initWithFrame:CGRectMake(width-55, height-50, 33, 28)];
         [_addShopCar setImage:[UIImage imageNamed:@"shopCar"] forState:0];
+        [_addShopCar addTarget:self action:@selector(addShopCarClick) forControlEvents:UIControlEventTouchUpInside];
         
         //已售数量
         _productScaleCount = [[UILabel alloc]initWithFrame:CGRectMake(width-60, height-23, 80, 20)];
         [_productScaleCount setFont:[UIFont systemFontOfSize:12]];
 
         
+      
     
         [self.contentView addSubview:_productImage];
         [self.contentView addSubview:_productName];
@@ -50,7 +52,10 @@
 }
 
 
--(void)setCellDataWithProduct:(StoreProductsModel *)product{
+-(void)setCellDataWithProduct:(Product *)product
+{
+    //商品编号
+    _productID =product.productID;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
         UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
@@ -60,12 +65,18 @@
         
     });
    
-    [self.productName setText:product.ProductName];
-    [self.productDetail setText:product.ProductDesc];
-    [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductPrice]];
-    [self.productScaleCount setText:[NSString stringWithFormat:@"%d件已售",(int)product.ProductSaleCount]];
+    [self.productName setText:product.productName];
+    [self.productDetail setText:product.productDesc];
+    [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productPrice]];
+    [self.productScaleCount setText:[NSString stringWithFormat:@"%d件已售",(int)product.productSaleCount]];
 }
 
+
+#pragma mark -加入购物车
+-(void)addShopCarClick
+{
+    [_delegate addShopCarCWithProductID:_productID];
+}
 
 
 

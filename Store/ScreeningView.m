@@ -15,8 +15,11 @@
 
 @implementation ScreeningView
 
--(id)initWithFrame:(CGRect)frame{
-    if (self=[super initWithFrame:frame]) {
+-(id)initWithFrame:(CGRect)frame
+{
+    if (self=[super initWithFrame:frame])
+    {
+        UIView *sView = [[UIView alloc]initWithFrame:CGRectMake(0, -104, frame.size.width*0.33, 105)];
         UIButton *btnAll = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, frame.size.width*0.33, 44)];
         [btnAll setBackgroundColor:[UIColor whiteColor]];
         [btnAll setTitleColor:[UIColor lightGrayColor] forState:0];
@@ -27,8 +30,9 @@
         
         
         [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.1]];
-       
-        [self addSubview:btnAll];
+        [sView addSubview:btnAll];
+        _sView = sView;
+        [self addSubview:sView];
         
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideSelf)];
         [self addGestureRecognizer:tap];
