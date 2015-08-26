@@ -192,7 +192,7 @@
             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                NSLog(@"%@",dic);
+                //NSLog(@"%@",dic);
                 //                if ([dic[@"status"] intValue] == 1)//成功
                 //                {
                 //                    [self.addshopHud simpleComplete];
@@ -282,13 +282,18 @@
 #pragma mark -加入购物车
 -(void)addShopCarCWithProductID:(NSString *)productID
 {
-    
+    //显示指示器
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    
-    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",productID,@"&userID=",(int)[User shareUserID]];
+    /**
+     path: StoreCollects/addStoreCollects?productID=%@&userID=%d
+     参数：商品编号，用户编号
+     */
+    //确定请求路径与参数【商品编号，用户编号】
+    NSString *path = [NSString stringWithFormat:@"%sStoreCollects/addStoreCollects?productID=%@&userID=%d",SERVER_ROOT_PATH,productID,(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
     [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError == nil)
         {
@@ -297,10 +302,12 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([dic[@"status"] intValue] == 1)//成功
                 {
+                    //指示器显示完成
                     [self.addshopHud simpleComplete];
                 }
                 else//失败
                 {
+                    //弹出失败提示
                     [self.addshopHud stopAnimation];
                     UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
                     [alertView show];
@@ -323,13 +330,13 @@
     CGFloat y = 0;
     if (self.screeingView.sView.frame.origin.y==0)
     {
-        y=-116;
+        y=SCREENINGVIEW_HIDE_Y;
     }
      //显示隐藏筛选的view动画
-    [UIView animateWithDuration:0.15 animations:^{
+    [UIView animateWithDuration:ANIMATION_TIME_QUICK animations:^{
        [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, y, self.screeingView.sView .frame.size.width, self.screeingView.sView.frame.size.height)];
     } completion:^(BOOL finished) {
-        if (y==-116) {
+        if (y==SCREENINGVIEW_HIDE_Y) {
             [_screeingView setHidden:YES];
         }
     }];
@@ -341,21 +348,20 @@
     if (!self.screeingView.hidden) {
         [self showScreeningView];
     };
-    [_sortView setHidden:NO];
+    [self.sortView setHidden:NO];
     CGFloat y=0;
     if (self.sortView.sView.frame.origin.y==0)
     {
-        y=-116;
-        
+        y=SCREENINGVIEW_HIDE_Y;
     }
     //显示隐藏排序view的动画
-    [UIView animateWithDuration:0.15 animations:^
+    [UIView animateWithDuration:ANIMATION_TIME_QUICK animations:^
     {
          [self.sortView.sView setFrame:CGRectMake(self.sortView.sView.frame.origin.x, y, self.sortView.sView .frame.size.width, self.sortView.sView.frame.size.height)];
     }
     completion:^(BOOL finished)
     {
-        if (y==-116) {
+        if (y==SCREENINGVIEW_HIDE_Y) {
             [_sortView setHidden:YES];
         }
     }];
@@ -364,22 +370,23 @@
 #pragma mark -排序，筛选，我的收藏
 -(void)searchProductListWithType:(NSInteger)type
 {
+    //隐藏排序，筛选View
     [self.sortView.sView setFrame:CGRectMake(self.sortView.sView.frame.origin.x, -116, self.sortView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
     [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, -116, self.screeingView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
     
-    
-    if (type!=HIED_SELF_TAG) {
+    //如果不是点击了空白处
+    if (type!=HIED_SELF_TAG)
+    {
         [self.addshopHud setHidden:NO];
         [self.addshopHud startSimpleLoad];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            //模拟请求网络数据
-            sleep(2.0);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.addshopHud simpleComplete];
-            });
-        });
+        
+#warning 设置排序，筛选的值
+        
+        
+        //加载数据
+        [self loadData];
     }
 }
 
@@ -388,10 +395,12 @@
 {
     if (_screeingView ==nil)
     {
-        _screeingView = [[ScreeningView alloc]initWithFrame:CGRectMake(0, 116, _mainSize.width, _mainSize.height-116)];
+        //初始化位置，大小
+        _screeingView = [[ScreeningView alloc]initWithFrame:CGRectMake(0, SCREENINGVIEW_BEGIN_Y, _mainSize.width, _mainSize.height-SCREENINGVIEW_BEGIN_Y)];
       
         [_screeingView setDelegate:self];
         [_screeingView setHidden:YES];
+        //设置view的位置
         [self.view insertSubview:_screeingView aboveSubview:self.tableView];
     }
     return _screeingView;
@@ -402,9 +411,11 @@
 {
     if (_sortView ==nil)
     {
-        _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, 116, _mainSize.width, _mainSize.height-116)];
+        //初始化位置大小
+        _sortView = [[SortView alloc]initWithFrame:CGRectMake(0, SCREENINGVIEW_BEGIN_Y, _mainSize.width, _mainSize.height-SCREENINGVIEW_BEGIN_Y)];
         [_sortView setDelegate:self];
         [_sortView setHidden:YES];
+        //设置view的位置
           [self.view insertSubview:_sortView aboveSubview:self.tableView];
     }
      return _sortView;
@@ -420,7 +431,9 @@
     Product *product =_productList[indexPath.row];
     ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
     [productDetail setDelegate:self];
+    //传入商品编号
     [productDetail setProductID:product.productID];
+    //push页面
     [self.navigationController pushViewController:productDetail animated:YES];
 }
 
@@ -431,33 +444,12 @@
     [_delegate hideSreachBar];
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
     [shopCar setDelegate:self];
-    [shopCar setUserID:10];//传入用户ID
+    //传入用户编号
+    [shopCar setUserID:10];
+    //push页面
     [self.navigationController pushViewController:shopCar animated:YES];
 }
 
-
-
-#pragma mark -返回上层
--(void)leftItemClick
-{
-    [_delegate searchBarEndEditing];
-    [self.navigationController popToRootViewControllerAnimated:YES];
-}
-
--(void)searchBarEndEditing
-{
-    [_delegate searchBarEndEditing];
-}
-
--(void)showSreachBar
-{
-    [_delegate showSreachBar];
-}
-
--(void)showNavigationBarAndStutsBar
-{
-    [self.navigationController.navigationBar setHidden:NO];
-}
 
 #pragma mark -CustomHUD 懒加载
 -(CustomHUD *)addshopHud
@@ -471,5 +463,111 @@
 }
 
 
+#pragma mark -返回上层
+-(void)leftItemClick
+{
+    //取消主页sreachBar的编辑状态
+    [_delegate searchBarEndEditing];
+    //pop页面
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)searchBarEndEditing
+{
+    //取消主页（delegate）sreachBar的编辑状态
+    [_delegate searchBarEndEditing];
+}
+
+-(void)showSreachBar
+{
+    //显示主页（delegate）的sreachBar
+    [_delegate showSreachBar];
+}
+
+-(void)showNavigationBarAndStutsBar
+{
+    //显示主页（delegate）的navigationBar
+    [self.navigationController.navigationBar setHidden:NO];
+}
+
+
+
 
 @end
+
+
+
+
+
+#pragma mark -以下为程序神秘加成部分
+/**
+ *
+ * ━━━━━━神兽出没━━━━━━
+ * 　　　┏┓　　　┏┓
+ * 　　┏┛┻━━━┛┻┓
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　━　　　┃
+ * 　　┃　┳┛　┗┳　┃
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　┻　　　┃
+ * 　　┃　　　　　　　┃
+ * 　　┗━┓　　　┏━┛Code is far away from bug with the animal protecting
+ * 　　　　┃　　　┃    神兽保佑,代码无bug
+ * 　　　　┃　　　┃
+ * 　　　　┃　　　┗━━━┓
+ * 　　　　┃　　　　　　　┣┓
+ * 　　　　┃　　　　　　　┏┛
+ * 　　　　┗┓┓┏━┳┓┏┛
+ * 　　　　　┃┫┫　┃┫┫
+ * 　　　　　┗┻┛　┗┻┛
+ *
+ * ━━━━━━感觉萌萌哒━━━━━━
+ */
+
+/**
+ * 　　　　　　　　┏┓　　　┏┓
+ * 　　　　　　　┏┛┻━━━┛┻┓
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┃　　　━　　　┃
+ * 　　　　　　　┃　＞　　　＜　┃
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┃    ...　⌒　...　 ┃
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┗━┓　　　┏━┛
+ * 　　　　　　　　　┃　　　┃　Code is far away from bug with the animal protecting
+ * 　　　　　　　　　┃　　　┃   神兽保佑,代码无bug
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┗━━━┓
+ * 　　　　　　　　　┃　　　　　　　┣┓
+ * 　　　　　　　　　┃　　　　　　　┏┛
+ * 　　　　　　　　　┗┓┓┏━┳┓┏┛
+ * 　　　　　　　　　　┃┫┫　┃┫┫
+ * 　　　　　　　　　　┗┻┛　┗┻┛
+ */
+
+/**
+ *　　　　　　　　┏┓　　　┏┓+ +
+ *　　　　　　　┏┛┻━━━┛┻┓ + +
+ *　　　　　　　┃　　　　　　　┃
+ *　　　　　　　┃　　　━　　　┃ ++ + + +
+ *　　　　　　 ████━████ ┃+
+ *　　　　　　　┃　　　　　　　┃ +
+ *　　　　　　　┃　　　┻　　　┃
+ *　　　　　　　┃　　　　　　　┃ + +
+ *　　　　　　　┗━┓　　　┏━┛
+ *　　　　　　　　　┃　　　┃
+ *　　　　　　　　　┃　　　┃ + + + +
+ *　　　　　　　　　┃　　　┃　　　　Code is far away from bug with the animal protecting
+ *　　　　　　　　　┃　　　┃ + 　　　　神兽保佑,代码无bug
+ *　　　　　　　　　┃　　　┃
+ *　　　　　　　　　┃　　　┃　　+
+ *　　　　　　　　　┃　 　　┗━━━┓ + +
+ *　　　　　　　　　┃ 　　　　　　　┣┓
+ *　　　　　　　　　┃ 　　　　　　　┏┛
+ *　　　　　　　　　┗┓┓┏━┳┓┏┛ + + + +
+ *　　　　　　　　　　┃┫┫　┃┫┫
+ *　　　　　　　　　　┗┻┛　┗┻┛+ + + +
+ */

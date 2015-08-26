@@ -83,19 +83,16 @@
 
 
 #pragma mark -创建视图
--(void)createView{
-   
-    
-    
+-(void)createView
+{
 #pragma mark -左右按钮
-
-   
+    //leftBtn
     UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
     [leftBtn setTintColor:[UIColor whiteColor]];
     
+    //rightBtn
     UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"messageList"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
     [rightBtn setTintColor:[UIColor whiteColor]];
-    
     
     [self.navigationItem setLeftBarButtonItem:leftBtn];
     [self.navigationItem setRightBarButtonItem:rightBtn];
@@ -120,16 +117,18 @@
     [self.tableView setRowHeight:100];
     
 #pragma mark -headView
+    
     _headView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height)];
     [_headView setBackgroundColor:[UIColor colorWithRed:(220/255.0) green:(220.0/255.0) blue:(220.0/255.0) alpha:1.0]];
     
 #pragma mark -广告ScrollView
+    
     _ad = [[MainADScrollVIew alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.4)];
     [_ad setSreachBarDelegate:self];
     [_ad setImageMoveDelegate:self];
     [_ad setDelegate:self];
     [_headView addSubview:_ad];
-    
+    //ADpage
     UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(_ad.frame.size.width-100, _ad.frame.size.height-20, 100,20)];
     [page setNumberOfPages:4];
     [page setCurrentPage:0];
@@ -138,13 +137,14 @@
     
     
 #pragma mark  -菜单
+    
     _meunView = [[MainMeunView alloc]initWithFrame:CGRectMake(0, _ad.frame.origin.y+_ad.frame.size.height, _mainSize.width, 100)];
     [_meunView setDelegate:self];
     [_headView addSubview:_meunView];
    
     
-    
 #pragma mark -置顶商品
+    
     TopProductsView *topProductsView = [[TopProductsView alloc]initWithFrame:CGRectMake(0, _meunView.frame.origin.y+_meunView.frame.size.height+10, _mainSize.width, 150)];
     [_headView addSubview:topProductsView];
     _topProductsView = topProductsView;
@@ -153,10 +153,12 @@
 
     
 #pragma mark -重新设置headview大小
+    
     [_headView setFrame:CGRectMake(0, 0, _mainSize.width, topProductsView.frame.origin.y+topProductsView.frame.size.height+2)];
    [_tableView setTableHeaderView:_headView];
     
-    //购物车按钮
+#pragma mark -购物车按钮
+    
     _shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
     [_shopCar addTarget:self action:@selector(pushToShopCarView) forControlEvents:UIControlEventTouchUpInside];
     [_shopCar setShopcarCountWithNum:15];
@@ -185,7 +187,6 @@
     [self.view addSubview:hud];
     [hud startLoad];
     _hud = hud;
-    
     
     
 //加载数据
@@ -341,9 +342,14 @@
 #pragma mark -商品类别搜索
 -(void)productListWithType:(NSInteger)type
 {
+    //结束sreachBar编辑状态
     [_search endEditing:YES];
+    //商品列表页面
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
+    //传入商品类型编号
+    [productListTableView setPtID:type];
+    //push页面
     [self.navigationController pushViewController:productListTableView animated:YES];
 }
 
@@ -352,10 +358,11 @@
 {
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    
+    //确定路径
     NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",productID,@"&userID=",(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
     [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError == nil)
         {
@@ -364,10 +371,12 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([dic[@"status"] intValue] == 1)//成功
                 {
+                    //显示成功
                     [self.addshopHud simpleComplete];
                 }
                 else//失败
                 {
+                    //提示失败
                     [self.addshopHud stopAnimation];
                     UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
                     [alertView show];
@@ -381,9 +390,12 @@
 -(void)pushToShopCarView
 {
     [_search setHidden:YES];
+    //购物车
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
     [shopCar setDelegate:self];
-    [shopCar setUserID:10];//传入用户ID
+    //传入用户ID
+    [shopCar setUserID:10];
+    //push页面
     [self.navigationController pushViewController:shopCar animated:YES];
 }
 
@@ -411,17 +423,17 @@
 {
     [_search setHidden:NO];
 }
-
+#pragma mark -sreachBar隐藏
 -(void)hideSreachBar
 {
     [_search setHidden:YES];
 }
-
+#pragma mark -sreachBar结算编辑状态
 -(void)searchBarEndEditing
 {
     [_search endEditing:YES];
 }
-
+#pragma mark -显示navigationBar和StutsBar
 -(void)showNavigationBarAndStutsBar
 {
     [self.navigationController.navigationBar setHidden:NO];
@@ -431,23 +443,94 @@
 #pragma mark - 左边按钮
 -(void)leftItemClick
 {
-    //NSLog(@"返回上级");
+    
 }
 
-
+#pragma mark -右边按钮点击
 -(void)rightItemClick
 {
     [_search setHidden:YES];
+    //消息中心
     MessageListViewController *messageListView = [[MessageListViewController alloc]init];
     [messageListView setDelegate:self];
+    //push页面
     [self.navigationController pushViewController:messageListView animated:YES];
 }
 
 
-
-
-
-
-
-
 @end
+
+
+
+#pragma mark -以下为程序神秘加成部分
+/**
+ *
+ * ━━━━━━神兽出没━━━━━━
+ * 　　　┏┓　　　┏┓
+ * 　　┏┛┻━━━┛┻┓
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　━　　　┃
+ * 　　┃　┳┛　┗┳　┃
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　┻　　　┃
+ * 　　┃　　　　　　　┃
+ * 　　┗━┓　　　┏━┛Code is far away from bug with the animal protecting
+ * 　　　　┃　　　┃    神兽保佑,代码无bug
+ * 　　　　┃　　　┃
+ * 　　　　┃　　　┗━━━┓
+ * 　　　　┃　　　　　　　┣┓
+ * 　　　　┃　　　　　　　┏┛
+ * 　　　　┗┓┓┏━┳┓┏┛
+ * 　　　　　┃┫┫　┃┫┫
+ * 　　　　　┗┻┛　┗┻┛
+ *
+ * ━━━━━━感觉萌萌哒━━━━━━
+ */
+
+/**
+ * 　　　　　　　　┏┓　　　┏┓
+ * 　　　　　　　┏┛┻━━━┛┻┓
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┃　　　━　　　┃
+ * 　　　　　　　┃　＞　　　＜　┃
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┃    ...　⌒　...　 ┃
+ * 　　　　　　　┃　　　　　　　┃
+ * 　　　　　　　┗━┓　　　┏━┛
+ * 　　　　　　　　　┃　　　┃　Code is far away from bug with the animal protecting
+ * 　　　　　　　　　┃　　　┃   神兽保佑,代码无bug
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┃
+ * 　　　　　　　　　┃　　　┗━━━┓
+ * 　　　　　　　　　┃　　　　　　　┣┓
+ * 　　　　　　　　　┃　　　　　　　┏┛
+ * 　　　　　　　　　┗┓┓┏━┳┓┏┛
+ * 　　　　　　　　　　┃┫┫　┃┫┫
+ * 　　　　　　　　　　┗┻┛　┗┻┛
+ */
+
+/**
+ *　　　　　　　　┏┓　　　┏┓+ +
+ *　　　　　　　┏┛┻━━━┛┻┓ + +
+ *　　　　　　　┃　　　　　　　┃
+ *　　　　　　　┃　　　━　　　┃ ++ + + +
+ *　　　　　　 ████━████ ┃+
+ *　　　　　　　┃　　　　　　　┃ +
+ *　　　　　　　┃　　　┻　　　┃
+ *　　　　　　　┃　　　　　　　┃ + +
+ *　　　　　　　┗━┓　　　┏━┛
+ *　　　　　　　　　┃　　　┃
+ *　　　　　　　　　┃　　　┃ + + + +
+ *　　　　　　　　　┃　　　┃　　　　Code is far away from bug with the animal protecting
+ *　　　　　　　　　┃　　　┃ + 　　　　神兽保佑,代码无bug
+ *　　　　　　　　　┃　　　┃
+ *　　　　　　　　　┃　　　┃　　+
+ *　　　　　　　　　┃　 　　┗━━━┓ + +
+ *　　　　　　　　　┃ 　　　　　　　┣┓
+ *　　　　　　　　　┃ 　　　　　　　┏┛
+ *　　　　　　　　　┗┓┓┏━┳┓┏┛ + + + +
+ *　　　　　　　　　　┃┫┫　┃┫┫
+ *　　　　　　　　　　┗┻┛　┗┻┛+ + + +
+ */

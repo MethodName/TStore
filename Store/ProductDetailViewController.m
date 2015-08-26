@@ -132,6 +132,8 @@
 //    [leftBtn setTintColor:[UIColor whiteColor]];
 //    [self.navigationItem setLeftBarButtonItem:leftBtn];
 //    [self.navigationItem setTitle:@"商品详情"];
+    
+    //leftBtn
     UIButton *leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(15, 15, 30, 30)];
     [leftBtn setImage: [UIImage imageNamed:@"leftBtn.png"] forState:0];
     [leftBtn addTarget:self action:@selector(leftItemClick) forControlEvents:UIControlEventTouchUpInside];
@@ -238,10 +240,12 @@
              */
             if (_isCollect)
             {
+                //显示已收藏图片
                 [cell.collectBtn.iconImageView setImage:[UIImage imageNamed:@"collect_full"]];
             }
             else
             {
+                //未收藏图片
                [cell.collectBtn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
             }
             [cell.chaPing setHidden:YES];
@@ -305,9 +309,11 @@
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
     
+    //确定请求路径
     NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",_productID,@"&userID=",(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
     [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError == nil)
         {
@@ -316,10 +322,12 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([dic[@"status"] intValue] == 1)//成功
                 {
+                    //显示成功
                     [self.addshopHud simpleComplete];
                 }
                 else//失败
                 {
+                    //提示失败
                     [self.addshopHud stopAnimation];
                     UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
                     [alertView show];
@@ -379,8 +387,11 @@
     //商品详细介绍
     if (indexPath.section == 1&&indexPath.row ==0)
     {
+        //商品详细结算页面
         ProductDetailintroductionViewController *proDetail =[[ProductDetailintroductionViewController alloc]init];
+        //显示navigationBar
         [self.navigationController.navigationBar setHidden:NO];
+        //push页面
         [self.navigationController pushViewController:proDetail animated:YES];
     }
 }
@@ -393,9 +404,11 @@
 #pragma mark -立即购买
 -(void)buyProduct
 {
+    //结算页面
     SettlementViewController *settlementView = [[SettlementViewController alloc]init];
+    //结算页面商品集合
     NSMutableArray *newProductList = [[NSMutableArray alloc]init];
-    
+    //将当前的商品信息转化为结算时的商品信息
     ShopCarProductModel *product =[ShopCarProductModel new];
     [product setProductID:_product.productID];
     //[product setProductImage:_product.ProductImages[0]];
@@ -403,6 +416,7 @@
     [product setProductName:_product.productName];
     [product setProductRealityPrice:_product.productRealityPrice];
     [product setProductShopCarCout:1];
+    //将当前商品加入结算商品集合中
     [newProductList addObject:product];
     
     [self.addshopHud setHidden:NO];
@@ -413,8 +427,10 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.navigationController.navigationBar setHidden:NO];
             [self.addshopHud simpleComplete];
+            //传入商品形信息
             [settlementView setProductList:newProductList];
             [settlementView setDelegate:self];
+            //push到计算页面
             [self.navigationController pushViewController:settlementView animated:YES];
         });
     });
@@ -452,14 +468,12 @@
 }
 
 
-/**
- *  隐藏导航栏和状态栏
- */
+#pragma mark -隐藏导航栏
 -(void)hideNavigationBar
 {
     [self.navigationController.navigationBar setHidden:YES];
 }
-
+#pragma mark -隐藏状态栏
 -(BOOL)prefersStatusBarHidden
 {
     return YES;
