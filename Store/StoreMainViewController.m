@@ -72,7 +72,7 @@
 #pragma mark -视图加载后
 - (void)viewDidLoad
 {
-    [User setShacreUserID:5];
+    [User setShacreUserID:1];
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor whiteColor]];
     [self.navigationController.navigationBar setBarTintColor:[UIColor orangeColor]];
@@ -112,8 +112,6 @@
 #pragma mark -tableView
     
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height) style:UITableViewStylePlain];
-   
-    
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setShowsVerticalScrollIndicator:NO];
@@ -331,10 +329,12 @@
 }
 
 #pragma mark -搜索
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar{
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
     [_search endEditing:YES];
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
+    [productListTableView setProductName:_search.text];
     [self.navigationController pushViewController:productListTableView animated:YES];
 }
 
@@ -431,7 +431,7 @@
 #pragma mark - 左边按钮
 -(void)leftItemClick
 {
-    NSLog(@"返回上级");
+    //NSLog(@"返回上级");
 }
 
 

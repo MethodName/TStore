@@ -41,6 +41,8 @@
 
 @property(nonatomic,weak)UIPageControl *page;
 
+@property(nonatomic,assign)BOOL isCollect;
+
 @end
 
 @implementation ProductDetailViewController
@@ -57,12 +59,12 @@
 #pragma mark -加载数据
 -(void)loadData
 {
+     [self userIsCollect];
     /*
      根据商品ID获取商品信息 :StoreProduct/getStoreProductByID   
      参数:id
      */
     NSString *path = [NSString stringWithFormat:@"%s%@=%@",SERVER_ROOT_PATH,@"StoreProduct/getStoreProductByID?id",_productID];
-    NSLog(@"%@",path);
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -73,32 +75,53 @@
            //NSLog(@"%@",json);
            _product= [Product new];
            [_product setValuesForKeysWithDictionary:dic];
-           //截取出图片的数组
+           //分割出图片的数组
            NSArray *imageArr = [_product.productImages  componentsSeparatedByString:@","];
-           //NSLog(@"------%@",_product.productImages);
-           //设置pageControl的个数
-           
-           //设置图片
-          
            //主线程更新表格数据
            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置pageControl的个数
                [_page setNumberOfPages:imageArr.count];
+               //设置图片
                 [_imagesScrollView setImages:imageArr];
                [self.tableView reloadData];
            });
            
        }
    }];
-    
-    
 }
+
+#pragma mark -检索用户是否收藏了当前商品
+-(void)userIsCollect
+{
+    /*
+     根据商品ID获取商品信息 :StoreCollects/checkCollectStatus
+     参数:id
+     */
+    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/checkCollectStatus?productID=",_productID,@"&userID=",(int)[User shareUserID]];
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            _isCollect  = (BOOL)[dic[@"status"] intValue];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:0];
+                [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
+            });
+        }
+    }];
+
+}
+
+
 
 #pragma mark -创建视图
 -(void)createView
 {
-    
+    //隐藏状态栏
     [self.navigationController.navigationBar setHidden:YES];
-    
     [self.view setBackgroundColor:[UIColor whiteColor]];
     _mainSize = self.view.frame.size;
     
@@ -180,6 +203,7 @@
 #pragma mark -tableView组行数
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    //每组行数第1组：3行   第二组：2行
     NSArray *arr = @[@(3),@(2)];
     return [arr[section] integerValue];
 }
@@ -203,11 +227,29 @@
     {
        [cell.name setText:_nameArray[indexPath.row]];
         if (indexPath.row==0) {
+            /**
+             *  商品名字
+             */
             [cell.productName setText:_product.productName];
             [cell.collectBtn setHidden:NO];
-             [cell.chaPing setHidden:YES];
+          
+            /**
+             *  判断商品是否被收藏
+             */
+            if (_isCollect)
+            {
+                [cell.collectBtn.iconImageView setImage:[UIImage imageNamed:@"collect_full"]];
+            }
+            else
+            {
+               [cell.collectBtn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
+            }
+            [cell.chaPing setHidden:YES];
+            //为收藏按钮添加点击事件
             [cell.collectBtn addTarget:self action:@selector(collectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        }else if (indexPath.row==1){
+        }else if (indexPath.row==1)
+        {
+            //显示价格
             [cell.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",_product.productPrice]];
         }
     }
@@ -217,10 +259,14 @@
         [cell.name setText:_nameArray[indexPath.row+3]];
         if (indexPath.row==0)
         {
+            //去商品详情页面
              cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
         else if (indexPath.row==1)
         {
+            /**
+             *  评论个数
+             */
             [cell.haoPing setHidden:NO];
              [cell.zhongPing setHidden:NO];
              [cell.chaPing setHidden:NO];
@@ -230,6 +276,7 @@
              [cell.chaPing setTitle:[NSString stringWithFormat:@"差评(%d)",0] forState:0];
         }
     }
+    //表格行点击样式
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
     return cell;
@@ -288,25 +335,41 @@
 {
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(2.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.addshopHud simpleComplete];
-            if ( btn.tag==0)
-            {
-                [btn.iconImageView setImage:[UIImage imageNamed:@"collect_full"]];
-                [btn setTag:1];
-            }
-            else
-            {
-                [btn.iconImageView setImage:[UIImage imageNamed:@"collect_press"]];
-                [btn setTag:0];
-            }
-
-        });
-    });
-
+    //添加收藏路径
+    NSString * path =@"StoreCollects/addStoreCollects?productID=";
+    //如果是已经收藏的，就使用删除收藏的路径
+    if (_isCollect)
+    {
+        path =@"StoreCollects/delStoreCollects?productID=";
+    }
+    
+    path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,path,_productID,@"&userID=",(int)[User shareUserID]];
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([dic[@"status"] intValue] == 1)//成功
+                {
+                    _isCollect = !_isCollect;
+                    //更新UI
+                    NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:0];
+                    [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
+                    //关闭指示器
+                    [self.addshopHud simpleComplete];
+                }
+                else//失败
+                {
+                    [self.addshopHud stopAnimation];
+                    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"]  delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                    [alertView show];
+                }
+            });
+        }
+    }];
     
 }
 

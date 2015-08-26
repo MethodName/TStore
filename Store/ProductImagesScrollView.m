@@ -11,7 +11,9 @@
 
 @implementation ProductImagesScrollView
 
--(id)initWithFrame:(CGRect)frame{
+#pragma mark -初始化方法
+-(id)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
    
     self.backgroundColor = [UIColor colorWithRed:(230.0/255.0) green:(230.0/255.0) blue:(230.0/255.0) alpha:1.0];
@@ -23,6 +25,8 @@
     return self;
 }
 
+
+#pragma mark -设置商品图片
 -(void)setImages:(NSArray *)imageArray
 {
      [self setContentSize:CGSizeMake(self.frame.size.width*imageArray.count, self.frame.size.width*0.8)];
@@ -32,7 +36,7 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
         {
             NSString *path =[NSString stringWithFormat:@"%s%@",SEVER_IMAGES_ROOT_PATH,imageArray[i]];
-            NSLog(@"%@",path);
+            //获取图片路径
             NSURL *photourl = [NSURL URLWithString:path];
             UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
             /**

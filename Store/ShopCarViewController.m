@@ -56,7 +56,7 @@
             {
                 ShopCarProductModel *product = [ShopCarProductModel new];
                 [product setProductID:[NSString stringWithFormat:@"xx20150808000%d",i+1]];
-                [product setProductName:@"神器你怕不怕"];
+                [product setProductName:@"开光者"];
                 [product setProductImage:@"product1"];
                 [product setProductRealityPrice:(i+1)*15];
                 [product setProductStock:15];
@@ -66,7 +66,6 @@
                 [product setCellNum:i];
                 [_productList addObject:product];
             }
-        sleep(1);
         dispatch_async(dispatch_get_main_queue(), ^{
             //更新数据
             [_tableView reloadData];
