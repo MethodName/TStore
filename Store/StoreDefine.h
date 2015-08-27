@@ -27,7 +27,7 @@
  */
 #define SORT_SCALECOUNT_TAG 11
 
-#define SORT_SCALCOUNT "productSaleCount"
+#define SORT_SCALECOUNT "productSaleCount"
 
 
 /**
@@ -35,7 +35,7 @@
  */
 #define SORT_PRICE_TAG 12
 
-#define SORT_PRICE  "PruductPrice"
+#define SORT_PRICE  "ProductPrice"
 
 /**
  *  上架时间
@@ -78,6 +78,21 @@
 #define ANIMATION_TIME_QUICK 0.15
 
 
+
+
+/**
+ *  商品列表数据类型【正常】
+ */
+#define PRODUCTLIST_DATA_TYPE1 0
+
+/**
+ *  商品列表数据类型【收藏】
+ */
+#define PRODUCTLIST_DATA_TYPE2 1
+
+
+
+
 /*
  服务器地址
  */
@@ -87,7 +102,7 @@
  *  服务器图片根目录
  *
  */
-#define SEVER_IMAGES_ROOT_PATH "http://store.hexiaotian.cn/images/"
+#define SERVER_IMAGES_ROOT_PATH "http://store.hexiaotian.cn/images/"
 
 
 

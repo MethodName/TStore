@@ -64,29 +64,42 @@
     return self;
 }
 
+#pragma mark -设置值
 -(void)setCellDataWith:(Product *)product
 {
     _productID = product.productID;
-    /**
-     *  异步线程加载图片
-     */
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
-        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.productImage setImage: img];
-        });
-    });
-   // [self.imageView setImage:[UIImage imageNamed:product.ProductImages[0]]];
+    
     [self.productName setText:product.productName];
     [self.productDetail setText:product.productDesc];
     [self.PSName setText:product.psName];
     [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productPrice]];
     [self.productScaleCount setText:[NSString stringWithFormat:@"%d已售出",(int)product.productSaleCount]];
+    
+    [self.productImage setImage: [UIImage imageNamed:@"placeholderImage"]];
+//    /**
+//     *  异步线程加载图片
+//     */
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        //将图片路径分割出来
+//        NSArray *imageArr = [product.productImages  componentsSeparatedByString:@","];
+//        //确定图片的路径
+//        NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
+//        //通过网络url获取uiimage
+//        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+//       
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            
+//            
+//            [self.productImage setImage:img];
+//        });
+//    });
+
+    
 }
 
-
--(void)addShopCarClick{
+#pragma mark -添加到购物车按钮点击事件
+-(void)addShopCarClick
+{
     [_delegate addShopCarCWithProductID:_productID];
 }
 

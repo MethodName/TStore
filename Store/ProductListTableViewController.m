@@ -29,6 +29,8 @@
  *  商品集合
  */
 @property(nonatomic,strong)NSMutableArray *productList;
+
+@property(nonatomic,strong)NSMutableDictionary *productImageList;
 /**
  *  页面大小
  */
@@ -58,6 +60,11 @@
  */
 @property(nonatomic,strong)  NSString *path;
 
+/**
+ *  商品数据类型数据类型
+ */
+@property(nonatomic,assign)NSInteger dataType;
+
 @end
 
 @implementation ProductListTableViewController
@@ -84,14 +91,21 @@
     UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"leftmuen"] CGImage] scale:2.0 orientation:UIImageOrientationUp]  style:UIBarButtonItemStyleBordered target:self action:nil];
     [rightBtn setTintColor:[UIColor whiteColor]];
     [self.navigationItem setRightBarButtonItem:rightBtn];
-    
+    	
     //选项
     ProductListMenuView *menuView = [ProductListMenuView defaultViewWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 56)];
     [self.view addSubview:menuView];
+    
+    //筛选
     [menuView.screening addTarget:self action:@selector(showScreeningView) forControlEvents:UIControlEventTouchUpInside];
     
+    //排序
     [menuView.sort addTarget:self action:@selector(showSortView) forControlEvents:UIControlEventTouchUpInside];
-      
+    
+    //我的收藏
+    [menuView.collection addTarget: self action:@selector(showUserClllection) forControlEvents:UIControlEventTouchUpInside];
+    
+    
     
 #pragma mark -tableView初始化
     self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 120, _mainSize.width, _mainSize.height-120) style:UITableViewStylePlain];
@@ -101,8 +115,7 @@
     [self.tableView setShowsVerticalScrollIndicator:NO];
     [self.view addSubview:self.tableView];
     [self.tableView registerClass:[ProductListCell class] forCellReuseIdentifier:@"productListCell"];
-    //加载数据
-    [self loadData];
+   
     
     //购物车按钮
     self.shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
@@ -115,9 +128,9 @@
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
 
-#pragma mark -刷新控件
+#pragma mark -上拉刷新
     // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
-    MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadData)];
+    MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(pullDownLoadData)];
     // 设置普通状态的动画图片
     NSMutableArray *images1 = [NSMutableArray new];
     for (int i =0; i<28; i++) {
@@ -134,7 +147,7 @@
     self.tableView.header = header;
     
     
-#pragma mark -下拉刷新
+#pragma mark -上拉加载更多数据
     // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadMoreData方法）
     MJRefreshAutoGifFooter *footer = [MJRefreshAutoGifFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
     // 设置刷新图片
@@ -157,8 +170,34 @@
     [self.view addSubview:hud];
     [hud startLoad];
     self.hud = hud;
-
     
+    //加载数据
+    //设置当前页与页大小【分页加载】
+    self.pageSize = 10;
+    self.pageIndex=1;
+    //物业编号
+    self.pmcID = 0;
+    //默认排序字段
+    self.order = @"productID";
+    //降序，升序
+    self.descend = 0;
+    if (_productName == nil)
+    {
+        _productName = @"";
+    }
+    //默认数据类型
+    _dataType = PRODUCTLIST_DATA_TYPE1;
+    
+   
+    
+    //NSLog(@"%@",self.path);
+    //懒加载创建商品集合
+    if (self.productList == nil)
+    {
+        self.productList = [NSMutableArray new];
+    }
+    
+    [self pullDownLoadData];
 }
 
 
@@ -166,22 +205,38 @@
 #pragma mark -刷新数据
 -(void)loadData
 {
-    //懒加载创建商品集合
-    if (self.productList == nil)
-    {
-        self.productList = [NSMutableArray new];
+    
+    if (_dataType == PRODUCTLIST_DATA_TYPE2) {
+          self.path = [NSString stringWithFormat:@"%sStoreCollects/StoreCollectsList?userID=%d&pageIndex=%d&pageSize=%d",SERVER_ROOT_PATH,(int)[User shareUserID],_pageIndex,_pageSize];
     }
-    //清空商品集合中所有数据
-    [self.productList removeAllObjects];
+    else if (_dataType ==PRODUCTLIST_DATA_TYPE1)
+    {
+            //请求数据
+            //确定路径，参数
+            /*
+             path:
+             StoreProduct/findStoreProductList
+             args:
+             productName=商品名称（模糊查询）
+             ptID=类型ID（0或不写查全部）
+             pmcID=物业ID（0或不写查全部）
+             order=排序的字段
+             desc=（1降序 0升序）
+             pageIndex=第几页
+             pageSize=每页条数
+             */
+            self.path = [NSString stringWithFormat:@"%sStoreProduct/findStoreProductList?ptID=%d&pageIndex=%d&pageSize=%d&productName=%@&pmcID=%d&order=%@&desc=%d",
+                         SERVER_ROOT_PATH,
+                         (int)_ptID,
+                         _pageIndex,
+                         _pageSize,
+                         _productName,
+                         (int)_pmcID,
+                         _order,
+                         (int)_descend];
+    }
+    //NSLog(@"%@",self.path);
     
-    
-    //请求数据
-    
-    //设置当前页与页大小【分页加载】
-    self.pageSize = 10;
-    self.pageIndex=1;
-    //确定路径，参数
-    self.path = [NSString stringWithFormat:@"%sStoreCollects/StoreCollectsList?userID=%d&pageIndex=%d&pageSize=%d",SERVER_ROOT_PATH,(int)[User shareUserID],_pageIndex,_pageSize];
     NSURL *url = [NSURL URLWithString:self.path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -190,66 +245,83 @@
         {
             //将结果转成字典集合
             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            //NSLog(@"%@",dic);
+            //收藏商品
+            NSArray *collects = dic[@"storeProducts"];//storeProducts
+
+            for (int i =0; i<collects.count; i++)
+            {
+                //添加商品
+                Product *product = [Product new];
+                [product setValuesForKeysWithDictionary:collects[i]];
+                [_productList addObject:product];
+            }
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                //NSLog(@"%@",dic);
-                //                if ([dic[@"status"] intValue] == 1)//成功
-                //                {
-                //                    [self.addshopHud simpleComplete];
-                //
-                //                }
-#warning 这里将商品信息显示
-                for (int i =0; i<10; i++)
-                {
-                    Product *product = [Product new];
-                    [product setProductID:@"SP201508210006"];
-                    [product setProductName:@"露天大草莓"];
-                    [product setProductDesc:@"很好吃的露天大🍓"];
-                    [product setProductImages:@"product1"];
-                    [product setProductSaleCount:15];
-                    [product setProductPrice:36.25];
-                    [product setPuName:@"斤"];
-                    [product setPsName:@"1.5斤/份"];
-                    [_productList addObject:product];
-                }
-                //重置下拉没有数据状态
-                [self.tableView.footer resetNoMoreData];
                 [self.tableView reloadData];
                 [self.hud loadHide];
+                [self.addshopHud simpleComplete];
                 [self.tableView.header endRefreshing];
+                //如果没有更多数据的时候
+                if(collects.count==0)
+                {
+                    //重置下拉没有数据状态
+                    [self.tableView.footer noticeNoMoreData];
+                }
+                else
+                {
+                    //重置下拉没有数据状态
+                    [self.tableView.footer resetNoMoreData];
+                }
+
             });
         }
     }];
+}
+
+
+
+#pragma mark -下拉加载数据
+-(void)pullDownLoadData
+{
+    //清空商品集合中所有数据
+    [_productImageList removeAllObjects];
+    [_productList removeAllObjects];
+
     
+    
+     //上拉加载数据，当前页为1
+    _pageIndex=1;
+    [self loadData];
 }
 
 #pragma mark -下拉刷新数据
 -(void)loadMoreData
 {
+    //下拉加载更多数据，当前页++
+    [_productList removeLastObject];
+    [_productImageList removeAllObjects];
+    _pageIndex ++;
+    [self loadData];
     
-    for (int i =0; i<10; i++)
-    {
-        Product *product = [Product new];
-        [product setProductID:@"SP201508210006"];
-        [product setProductName:@"露天大草莓"];
-        [product setProductDesc:@"很好吃的露天大🍓"];
-        [product setProductImages:@"product1"];
-        [product setProductSaleCount:15];
-        [product setProductPrice:36.25];
-        [product setPuName:@"斤"];
-        [product setPsName:@"1.5斤/份"];
-        [self.productList addObject:product];
-    }
-    //更新tableView
-    [self.tableView reloadData];
-    
-    //如果没有新数据的时候
-    //设置下拉为没有没有数据状态
-    [self.tableView.footer noticeNoMoreData];
-   
-    //结束刷新
-    //[self.tableView.footer endRefreshing];
 }
+
+
+#pragma mark -收藏商品
+-(void)showUserClllection
+{
+    //显示指示器
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    _dataType = PRODUCTLIST_DATA_TYPE2;
+    //清空商品集合中所有数据
+    [_productImageList removeAllObjects];
+    [_productList removeAllObjects];
+
+    //加载数据
+    [self loadData];
+}
+
 
 
 #pragma mark -tableView分组数
@@ -263,14 +335,39 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     Product *product =_productList[indexPath.row];
-    //tableView重用优化
+        //tableView重用优化
     ProductListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productListCell" forIndexPath:indexPath];
-    if (cell.productImage == nil)
+    if (cell == nil)
     {
         cell = [[ProductListCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"productListCell"];
     }
     //设置cell上商品显示数据
     [cell setCellDataWith:product];
+    
+    if (_productImageList == nil) {
+        _productImageList = [NSMutableDictionary new];
+    }
+    //如果存放图片的集合中没有当前商品的图片
+    if (_productImageList[product.productID]==nil)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //将图片路径分割出来
+            NSArray *imageArr = [product.productImages  componentsSeparatedByString:@","];
+            //确定图片的路径
+            NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
+            //通过网络url获取uiimage
+            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+            [_productImageList setObject:img forKey:product.productID];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //更新UI
+                [cell.productImage setImage:img];
+            });
+        });
+    }
+    else//图片集合中有当前商品的图片，直接使用集合中的图片，不去加载网络资源
+    {
+         [cell.productImage setImage:_productImageList[product.productID]];
+    }
     
     //设置cell代理
     [cell setDelegate:self];
@@ -317,6 +414,7 @@
     }];
 
 }
+
 
 
 #pragma mark -显示筛选视图
@@ -382,9 +480,26 @@
         [self.addshopHud setHidden:NO];
         [self.addshopHud startSimpleLoad];
         
-#warning 设置排序，筛选的值
-        
-        
+
+        //修改加载数据类型为正常类型
+        _dataType = PRODUCTLIST_DATA_TYPE1;
+        //
+        switch (type)
+        {
+            case SORT_SCALECOUNT_TAG:
+                _order = @SORT_SCALECOUNT;
+                break;
+            case SORT_PRICE_TAG:
+                _order = @SORT_PRICE;
+                break;
+            case SORT_UPDATE_TAG:
+                _order = @SORT_UPDATE;
+                break;
+            default:
+                break;
+        }
+        [_productImageList removeAllObjects];
+        [_productList removeAllObjects];
         //加载数据
         [self loadData];
     }

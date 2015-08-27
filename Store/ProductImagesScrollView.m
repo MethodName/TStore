@@ -32,10 +32,11 @@
      [self setContentSize:CGSizeMake(self.frame.size.width*imageArray.count, self.frame.size.width*0.8)];
     for (int i =0; i<imageArray.count; i++) {
         UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width*i, 0, self.frame.size.width, self.frame.size.width-10)];
+        [image setImage:[UIImage imageNamed:@"placeholderImage"]];
         //异步加载图片
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
         {
-            NSString *path =[NSString stringWithFormat:@"%s%@",SEVER_IMAGES_ROOT_PATH,imageArray[i]];
+            NSString *path =[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArray[i]];
             //获取图片路径
             NSURL *photourl = [NSURL URLWithString:path];
             UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];

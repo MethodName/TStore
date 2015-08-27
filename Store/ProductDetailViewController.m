@@ -65,14 +65,16 @@
      参数:id
      */
     NSString *path = [NSString stringWithFormat:@"%s%@=%@",SERVER_ROOT_PATH,@"StoreProduct/getStoreProductByID?id",_productID];
+    //NSLog(@"%@",path);
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
        if (connectionError == nil)
        {
+           
            //将结果转成字典集合
              NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-           //NSLog(@"%@",json);
+           //NSLog(@"%@",dic);
            _product= [Product new];
            [_product setValuesForKeysWithDictionary:dic];
            //分割出图片的数组
@@ -466,6 +468,8 @@
     [_delegate searchBarEndEditing];
   
 }
+
+
 
 
 #pragma mark -隐藏导航栏

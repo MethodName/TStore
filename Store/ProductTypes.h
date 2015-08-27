@@ -10,12 +10,14 @@
 
 @interface ProductTypes : NSObject
 
-@property(nonatomic,assign)NSInteger PTID;
+@property(nonatomic,assign)NSInteger pmcID;
 
-@property(nonatomic,strong)NSString *PTName;
+@property(nonatomic,assign)NSInteger ptID;
 
-@property(nonatomic,strong)NSString *PTIconUrl;
+@property(nonatomic,strong)NSString *ptName;
 
-@property(nonatomic,strong)NSString *PTDesc;
+@property(nonatomic,strong)NSString *ptIconUrl;
+
+@property(nonatomic,assign)NSInteger ptParentID;
 
 @end;

@@ -25,7 +25,7 @@
 #import "User.h"
 
 
-@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate,MainProductCellDelegate>
+@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate,MainProductCellDelegate,UIGestureRecognizerDelegate>
 
 #pragma mark -屏幕大小
 @property(assign,nonatomic)CGSize mainSize;
@@ -38,6 +38,8 @@
 #pragma mark -广告图片
 @property(strong,nonatomic)NSMutableArray *adImages;
 
+@property(nonatomic,strong)NSDictionary *dataDic;
+
 @property(strong,nonatomic)MainADScrollVIew *ad;
 
 @property(nonatomic,strong)MainMeunView *meunView;
@@ -46,7 +48,11 @@
 
 @property(strong,nonatomic)NSMutableArray *productTypes;
 
+@property(strong,nonatomic)NSMutableArray *proTopArray;
+
 @property(nonatomic,strong)NSMutableArray *hotProductList;
+
+@property(nonatomic,strong)NSMutableDictionary *productImageList;
 
 @property(nonatomic,weak)UISearchBar *search;
 
@@ -57,6 +63,9 @@
 @property(nonatomic,strong)ShopCarButton *shopCar;
 
 @property(nonatomic,weak)UIPageControl *page;
+
+@property(nonatomic,weak) ProductListTableViewController *productListTableView;
+
 
 @end
 
@@ -78,6 +87,8 @@
     [self.navigationController.navigationBar setBarTintColor:[UIColor orangeColor]];
     _mainSize = self.view.frame.size;
     [self createView];
+    self.navigationController.interactivePopGestureRecognizer.delegate = self;
+    
 }
 
 
@@ -130,7 +141,6 @@
     [_headView addSubview:_ad];
     //ADpage
     UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(_ad.frame.size.width-100, _ad.frame.size.height-20, 100,20)];
-    [page setNumberOfPages:4];
     [page setCurrentPage:0];
     _page = page;
     [_headView addSubview:page];
@@ -138,10 +148,11 @@
     
 #pragma mark  -菜单
     
-    _meunView = [[MainMeunView alloc]initWithFrame:CGRectMake(0, _ad.frame.origin.y+_ad.frame.size.height, _mainSize.width, 100)];
+    _meunView = [[MainMeunView alloc]initWithFrame:CGRectMake(0, _ad.frame.origin.y+_ad.frame.size.height, _mainSize.width,80)];
     [_meunView setDelegate:self];
     [_headView addSubview:_meunView];
    
+  
     
 #pragma mark -置顶商品
     
@@ -155,7 +166,7 @@
 #pragma mark -重新设置headview大小
     
     [_headView setFrame:CGRectMake(0, 0, _mainSize.width, topProductsView.frame.origin.y+topProductsView.frame.size.height+2)];
-   [_tableView setTableHeaderView:_headView];
+  
     
 #pragma mark -购物车按钮
     
@@ -189,6 +200,10 @@
     _hud = hud;
     
     
+    if (_productImageList==nil)
+    {
+        _productImageList = [NSMutableDictionary new];
+    }
 //加载数据
     [self loadData];
 }
@@ -196,91 +211,130 @@
 
 #pragma mark -刷新数据
 -(void)loadData{
-    //广告
-    if(_adImages==nil)
+    
+    
+    //置顶商品集合
+    if (_proTopArray == nil)
     {
-        _adImages = [[NSMutableArray alloc]init];
+        _proTopArray = [NSMutableArray new];
     }
-    //热销商品
+    [_proTopArray removeAllObjects];
+    
+    //热销商品集合
     if (_hotProductList == nil)
     {
         _hotProductList = [NSMutableArray new];
     }
     [_hotProductList removeAllObjects];
     
-    /**
-     *  异步获取数据
-     */
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-#pragma mark -获取广告图片资源
-        for (int i =0; i<4; i++) {
-            [_adImages addObject:[UIImage imageNamed:@"ad.png"]];
-        }
-
-#pragma mark -分类信息
-        if (_productTypes == nil)
+#pragma mark -异步获取数据
+    
+    //确定路径
+    NSString *path =[NSString stringWithFormat: @"%sStoreProduct/StoreHomePage?pmcID=%d",SERVER_ROOT_PATH,1];
+    NSURL *url = [NSURL URLWithString:path];
+    
+    NSURLRequest *requst = [NSURLRequest requestWithURL:url];
+    //发送请求
+    
+    
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+    {
+        if (connectionError == nil)
         {
-            _productTypes = [NSMutableArray new];
-            NSArray *typeIcons = @[@"tuijian",@"shuiguo",@"nongjia",@"type"];
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                for (int i =0; i<3; i++) {
+              NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            //NSLog(@"%@",dic);
+            //获取广告图片资源
+            NSArray *ads = dic[@"adImages"];
+          
+            //设置page页数
+            [_page setNumberOfPages:ads.count];
+            //广告集合
+            if(_adImages==nil)
+            {
+                _adImages = [[NSMutableArray alloc]init];
+                for (int i =0; i<ads.count; i++)
+                {
+                    [_adImages addObject:ads[i]];
+                }
+                //主线程更新UI
+                dispatch_async(dispatch_get_main_queue(), ^
+               {
+                   //广告
+                   [_ad setImages:_adImages];
+               });
+
+            }
+
+          
+            
+            //分类集合
+            if (_productTypes == nil)
+            {
+                _productTypes = [NSMutableArray new];
+                //获取商品分类分类信息
+                NSArray *types = dic[@"productTypes"];
+                for (int i =0; i<types.count; i++)
+                {
                     ProductTypes *type = [ProductTypes new];
-                    [type setPTName:@"瓜果蔬菜"];
-                    [type setPTID:1];
-                    [type setPTIconUrl:typeIcons[i+1]];
+                    [type setValuesForKeysWithDictionary:types[i]];
                     [_productTypes addObject:type];
                 }
-            });
-        }
-
-#pragma mark -置顶商品
-        NSMutableArray *proArray =[NSMutableArray new];
-        for (int i =0; i<3; i++)
-        {
-            Product *product1 = [Product new];
-            [product1 setProductName:@"看家神器"];
-            [product1 setProductDesc:@"无线wifi摄像头"];
-            [product1 setProductImages:@"product1"];
-            [product1 setProductID:@"SP201508210006"];
-            [proArray addObject:product1];
-        }
-       
-        
-   #pragma mark -热销商品
-        for (int i =0; i<9; i++) {
-            //获取热销商品资源
-            Product *product = [Product new];
-            [product setProductID:@"SP201508210006"];
-            [product setProductName:@"大草莓"];
-            [product setProductDesc:@"大草莓，小草莓，大大草莓"];
-            product.productImages =@"shuiguo";
-            [product setProductPrice:15.0];
-            [product setProductSaleCount:(i+5)*3];
-            [_hotProductList addObject:product];
-        }
-
-#pragma mark -主线程更新UI
-        dispatch_async(dispatch_get_main_queue(), ^
-        {
+                //主线程更新UI
+                dispatch_async(dispatch_get_main_queue(), ^
+               {
+                   //获取商品类型个数
+                   NSInteger maxRow = (types.count+1)/4+1;
+                   //重新改变大小
+                   [_meunView setFrame:CGRectMake(0, _ad.frame.origin.y+_ad.frame.size.height, _mainSize.width,maxRow*80)];
+                   [_topProductsView setFrame:CGRectMake(0, _meunView.frame.origin.y+_meunView.frame.size.height+10, _mainSize.width, 150)];
+                   
+                   [_headView setFrame:CGRectMake(0, 0, _mainSize.width, _topProductsView.frame.origin.y+_topProductsView.frame.size.height+2)];
+                   [_tableView setTableHeaderView:_headView];
+                   
+                   //商品类别信息
+                   [_meunView setMenuItems:_productTypes];
+                });
+               
+            }
             
-            //广告
-             [_ad setImages:_adImages];
-            //商品类别信息
-            [_meunView setMenuItems:_productTypes];
-            //置顶商品
-             [_topProductsView setProducts:proArray];
-            //商品列表信息
-            [self.tableView reloadData];
-            //停止刷新控件刷新
-            [self.tableView.header endRefreshing];
-            //隐藏加载动画
-            [_hud loadHide];
-        });
-        
-    });
-    
+            //置顶商品集合
+            NSArray *proTopList = dic[@"recommends"];
+            for (int i=0; i<proTopList.count; i++)
+            {
+                Product *topProduct = [Product new];
+                [topProduct setValuesForKeysWithDictionary:proTopList[i]];
+                [_proTopArray addObject:topProduct];
+            }
+            
+            //热销商品集合
+            NSArray * hotProductList = dic[@"hotSelling"];
+            for (int i=0; i<hotProductList.count; i++)
+            {
+                Product *topProduct = [Product new];
+                [topProduct setValuesForKeysWithDictionary:hotProductList[i]];
+                [_hotProductList addObject:topProduct];
+            }
+            
+            //主线程更新UI
+            dispatch_async(dispatch_get_main_queue(), ^
+               {
+                  
+                   //置顶商品
+                   [_topProductsView setProducts:_proTopArray];
+                   //商品列表信息
+                   [self.tableView reloadData];
+                   //停止刷新控件刷新
+                   [self.tableView.header endRefreshing];
+                   //隐藏加载动画
+                   [_hud loadHide];
+               });
+
+        }
+    }];
+
+ 
 }
+
 
 
 
@@ -294,11 +348,35 @@
 {
     Product *product = _hotProductList[indexPath.row];
     
-    MainProductCell *cell = [tableView dequeueReusableCellWithIdentifier:@"mainProductCell" forIndexPath:indexPath];
+    MainProductCell *cell = [tableView dequeueReusableCellWithIdentifier:@"mainProductCell"];
     if (cell.productImage == nil) {
         cell = [[MainProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mainProductCell"];
     }
-    [cell setCellDataWithProduct:product];
+    if (_productImageList == nil) {
+        _productImageList = [NSMutableDictionary new];
+    }
+    //如果存放图片的集合中没有当前商品的图片
+    if (_productImageList[product.productID]==nil)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //将图片路径分割出来
+            NSArray *imageArr = [product.productImages  componentsSeparatedByString:@","];
+            //确定图片的路径
+            NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
+            //通过网络url获取uiimage
+            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+            [_productImageList setObject:img forKey:product.productID];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //更新UI
+                [cell.productImage setImage:img];
+            });
+        });
+    }
+    else//图片集合中有当前商品的图片，直接使用集合中的图片，不去加载网络资源
+    {
+        [cell.productImage setImage:_productImageList[product.productID]];
+    }
+   [cell setCellDataWithProduct:product];
     //设置Cell代理
     [cell setDelegate:self];
     
@@ -347,6 +425,7 @@
     //商品列表页面
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
+    _productListTableView = productListTableView;
     //传入商品类型编号
     [productListTableView setPtID:type];
     //push页面
@@ -412,6 +491,16 @@
     return _addshopHud;
 }
 
+#pragma mark -搜索框值改变代理方法
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+    //将搜索框的值传入到搜索页面
+    [_productListTableView setProductName:searchText];
+}
+
+
+
+
 #pragma mark -PageControl显示当前页代理
 -(void)imageMoveWithIndex:(NSInteger)index
 {
@@ -456,6 +545,25 @@
     //push页面
     [self.navigationController pushViewController:messageListView animated:YES];
 }
+
+#pragma mark -开始返回时
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+   // NSLog(@"%@",gestureRecognizer.view);
+    if (gestureRecognizer.view == _productListTableView.view) {
+        NSLog(@"yiyang");
+    }
+    [self showNavigationBarAndStutsBar];
+    [self showSreachBar];
+    return YES;
+}
+
+#pragma mark -没次页面切换都会进入这个方法
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+//{
+//    //NSLog(@"111111");
+//    return YES;
+//}
 
 
 @end

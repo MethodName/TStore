@@ -7,6 +7,7 @@
 //
 
 #import "MainProductCell.h"
+#import "StoreDefine.h"
 
 
 @implementation MainProductCell
@@ -18,6 +19,8 @@
         CGFloat width = [UIScreen mainScreen].bounds.size.width;
         CGFloat height = 100;
         _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 5, height-10, height-10)];
+        [_productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
+        
         _productName = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, 15, width*0.4, 20)];
         [_productName setTextColor:[UIColor orangeColor]];
         _productDetail = [[UILabel alloc]initWithFrame:CGRectMake(width*0.4, _productName.frame.origin.y + 20, width*0.4, 20)];
@@ -54,17 +57,6 @@
 
 -(void)setCellDataWithProduct:(Product *)product
 {
-    //商品编号
-    _productID =product.productID;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
-        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
-        dispatch_async(dispatch_get_main_queue(), ^{
-             [self.productImage setImage: img];
-        });
-        
-    });
-   
     [self.productName setText:product.productName];
     [self.productDetail setText:product.productDesc];
     [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productPrice]];

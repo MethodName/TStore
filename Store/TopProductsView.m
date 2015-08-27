@@ -8,8 +8,9 @@
 
 #import "TopProductsView.h"
 #import "ProductView.h"
-#import "StoreProductsModel.h"
+//#import "StoreProductsModel.h"
 #import "Product.h"
+#import "StoreDefine.h"
 
 @interface TopProductsView()
 
@@ -35,6 +36,8 @@
         [product1.productDesc setFrame:CGRectMake(15, 25, product1.frame.size.width*0.8, 20)];
          [product1.productDesc setTextColor:[UIColor grayColor]];
          [product1.productDesc setFont:[UIFont systemFontOfSize:10]];
+        //占位图片
+        [product1.productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
         [self addSubview:product1];
         
 #pragma mark -第二个商品
@@ -46,6 +49,8 @@
         [product2.productDesc setFrame:CGRectMake(product2.frame.size.width*0.4, 35, product2.frame.size.width*0.6, 20)];
         [product2.productDesc setTextColor:[UIColor grayColor]];
          [product2.productDesc setFont:[UIFont systemFontOfSize:10]];
+        //占位图片
+        [product2.productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
         [self addSubview:product2];
        
 #pragma mark -第三个商品
@@ -57,6 +62,8 @@
         [product3.productDesc setFrame:CGRectMake(product3.frame.size.width*0.4, 35, product3.frame.size.width*0.6, 20)];
         [product3.productDesc setTextColor:[UIColor grayColor]];
           [product3.productDesc setFont:[UIFont systemFontOfSize:10]];
+        //占位图片
+        [product3.productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
         [self addSubview:product3];
         
         [_topProducts addObjectsFromArray:@[product1,product2,product3]];
@@ -76,8 +83,12 @@
          */
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             Product *product1 = products[i];
-            NSString *str = product1.productImages;
-            UIImage *img = [UIImage imageNamed:str];
+            //将图片路径分割出来
+            NSArray *imageArr = [product1.productImages  componentsSeparatedByString:@","];
+            //确定图片的路径
+            NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
+            //通过网络url获取uiimage
+            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
             /**
              *  主线程更新UI
              */

@@ -18,6 +18,8 @@
 
 @property(nonatomic,weak)id<MainMeunViewDelegate>delegate;
 
+@property(nonatomic,strong)UIView *dView;
+
 -(void)setMenuItems:(NSArray *)menuItems;
 
 @end
