@@ -72,14 +72,14 @@
         
         
         //价格
-        _productPrice = [[UILabel alloc]initWithFrame:CGRectMake(width-100, _productDetail.frame.origin.y+_productDetail.frame.size.height, 85, 20)];
+        _productPrice = [[UILabel alloc]initWithFrame:CGRectMake(width-100, _productDetail.frame.origin.y+_productDetail.frame.size.height, 85, 16)];
         [_productPrice setFont:[UIFont fontWithName:@"Thonburi-Bold" size:13.0]];
         [_productPrice setTextColor:[UIColor redColor]];
         [_productPrice setTextAlignment:NSTextAlignmentRight];
         [self.contentView addSubview:_productPrice];
         
         //数量
-        _productCount = [[UILabel alloc]initWithFrame:CGRectMake(width-65, height -30, 50, 25)];
+        _productCount = [[UILabel alloc]initWithFrame:CGRectMake(width-65, height -30, 50, 20)];
         [_productCount setTextColor:[UIColor lightGrayColor]];
         [_productCount setFont:[UIFont systemFontOfSize:13.0]];
         [_productCount setTextAlignment:NSTextAlignmentRight];
@@ -88,27 +88,30 @@
         
         
         //选择数量
-        _subBtn = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+2, height-35, 30, 25)];
+        _subBtn = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+2, height-35, 30, 30)];
         [_subBtn setTitle:@"-" forState:0];
-        [_subBtn setTitleColor:[UIColor lightGrayColor] forState:0];
+        [_subBtn setTitleColor:[UIColor grayColor] forState:0];
         [_subBtn.layer setBorderWidth:1.0];
-        [_subBtn.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
+        [_subBtn.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [_subBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
+        [_subBtn.layer setCornerRadius:3.0];
         [self.contentView addSubview:_subBtn];
         
-        _centerNum = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+31, height-35, 30, 25)];
+        _centerNum = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+31, height-35, 30, 30)];
         [_centerNum.titleLabel setFont:[UIFont systemFontOfSize:12.0]];
-        [_centerNum setTitleColor:[UIColor lightGrayColor] forState:0];
+        [_centerNum setTitleColor:[UIColor grayColor] forState:0];
         [_centerNum.layer setBorderWidth:1.0];
-        [_centerNum.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
+        [_centerNum.layer setCornerRadius:3.0];
+        [_centerNum.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [self.contentView addSubview:_centerNum];
         
-        _addBtn = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+60, height-35, 30, 25)];
+        _addBtn = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+60, height-35, 30, 30)];
         [_addBtn setTitle:@"+" forState:0];
-        [_addBtn setTitleColor:[UIColor lightGrayColor] forState:0];
+        [_addBtn setTitleColor:[UIColor grayColor] forState:0];
         [_addBtn.layer setBorderWidth:1.0];
-        [_addBtn.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
+        [_addBtn.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [_addBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
+        [_addBtn.layer setCornerRadius:3.0];
         [self.contentView addSubview:_addBtn];
     
         
@@ -146,33 +149,44 @@
     [_centerNum setTitle:[NSString stringWithFormat:@"%d",(int)product.bayCount] forState:0];
     [_productName setText:product.productName];
     [_productDetail setText:product.productDesc];
+    
     [_productCount setText:[NSString stringWithFormat:@"x%d",(int)product.bayCount]];
     [_productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productRealityPrice]];
+    
+    /**
+     *  设置库存
+     */
+    _productStock = product.productStock;
+    
 }
 
 #pragma mark -改变商品数量
 -(void)productCountClick:(UIButton *)btn
 {
+    //还原按钮状态
+  
+   
+    
     NSString *countStr =_centerNum.titleLabel.text;
     NSInteger count =countStr.integerValue;
     if ([btn.titleLabel.text isEqualToString:@"-"])
     {
-        if (count==SHOP_CAR_MIN_PRODUCT_COUNT) {
-            return;
-        }
-        if (count>1)
-        {
-            count--;
-        }
-    }
-    else  if ([btn.titleLabel.text isEqualToString:@"+"])
-    {
-        if (count==SHOP_CAR_MAX_PRODUCT_COUNT-1) {
-            return;
-        }
-        if (count<SHOP_CAR_MAX_PRODUCT_COUNT)
+        count--;
+       if (count<1)//小于最低库存
         {
             count++;
+            [_delegate refreshCellWithRow:btn.tag];
+            return;
+        }
+    }
+    else if ([btn.titleLabel.text isEqualToString:@"+"])
+    {
+        count++;
+       
+       if (count>_productStock)//如果数量超出库存
+        {
+            count--;
+            return;
         }
     }
     [_delegate productCountChage:count CellRow:btn.tag];

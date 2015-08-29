@@ -123,7 +123,7 @@
     SettlementBar *settlementBar = [[SettlementBar alloc]initWithFrame:CGRectMake(0, _mainSize.height-60, _mainSize.width, 60)];
     [settlementBar.selectAllBtn setTag:0];
     [settlementBar.selectAllBtn addTarget:self action:@selector(selectAllBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [settlementBar setSettlementBarWithSumPrice:12.0 productCount:1];
+    [settlementBar setSettlementBarWithSumPrice:0.0 productCount:0];
     [settlementBar.settlementBtn addTarget:self action:@selector(settlementBtnClick) forControlEvents:UIControlEventTouchUpInside];
     _settlementBar = settlementBar;
     [self.view addSubview:settlementBar];
@@ -529,6 +529,13 @@
 
     
   
+}
+
+
+-(void)refreshCellWithRow:(NSInteger)row
+{
+    NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:row];
+    [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
 }
 
 
