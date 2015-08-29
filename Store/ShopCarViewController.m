@@ -76,12 +76,8 @@
     
     _pageSize = 10;
     _pageIndex = 1;
-    
-    if (_productList == nil)
-    {
-        _productList = [NSMutableArray new];
-    }
-    [self pullDownLoadData];
+     _productList = [NSMutableArray new];
+      [self pullDownLoadData];
     _isRefresh  = NO;
 }
 
@@ -133,7 +129,7 @@
     [self.view addSubview:settlementBar];
     
     
-#pragma mark -上拉刷新
+#pragma mark -下拉刷新
     // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
     MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(pullDownLoadData)];
     // 设置普通状态的动画图片
@@ -189,29 +185,24 @@
 #pragma mark -下拉加载数据
 -(void)pullDownLoadData
 {
-    if (!_isRefresh)
-    {
-        _isRefresh = YES;
-        //清空商品集合中所有数据
-        [_productList removeAllObjects];
-        //上拉加载数据，当前页为1
-        _pageIndex=1;
-        [self loadData];
-    }
     
+   
+    _isRefresh = YES;
+    //清空商品集合中所有数据
+   
+    //上拉加载数据，当前页为1
+    _pageIndex=1;
+    [self loadData];
 }
 
 #pragma mark -上拉加载更多数据
 -(void)loadMoreData
 {
-    if (!_isRefresh)
-    {
-        _isRefresh = YES;
-        //下拉加载更多数据，当前页++
-        _pageIndex ++;
-        [self loadData];
-    }
-}
+   
+    _isRefresh = NO;
+    //下拉加载更多数据，当前页++
+    _pageIndex ++;
+    [self loadData];}
 
 
 #pragma mark -加载数据
@@ -237,7 +228,9 @@
         {
             //将结果转成字典集合
             NSArray *array =(NSArray *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-         
+            if (_isRefresh) {
+                 [_productList removeAllObjects];
+            }
             for (int i =0; i<array.count; i++)
             {
                 //添加商品
@@ -248,7 +241,8 @@
             
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                [_tableView reloadData];
+                NSLog(@"更新UI");
+                [self.tableView reloadData];
               
                 [_tableView.header endRefreshing];
                 
@@ -263,9 +257,10 @@
                     //重置下拉没有数据状态
                     [self.tableView.footer resetNoMoreData];
                 }
-                  _isRefresh = NO;
                 [_hud loadHide];
             });
+        }else{
+            NSLog(@"%@",connectionError.debugDescription);
         }
     }];
     
@@ -281,7 +276,6 @@
 #pragma mark -设置表格组
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    NSLog(@"__________%d",(int)_productList.count);
     return _productList.count;
 }
 
@@ -296,21 +290,32 @@
         cell = [[ShopCarProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"shopCarProductListCell"];
     }
     
-    if (_productImageList == nil) {
+    if (_productImageList == nil)
+    {
         _productImageList = [NSMutableDictionary new];
     }
     //如果存放图片的集合中没有当前商品的图片
     if (_productImageList[product.productID]==nil)
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
+        {
             //将图片路径分割出来
             NSArray *imageArr = [product.productImages  componentsSeparatedByString:@","];
             //确定图片的路径
             NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
             //通过网络url获取uiimage
             UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
-            [_productImageList setObject:img forKey:product.productID];
-            dispatch_async(dispatch_get_main_queue(), ^{
+            if (img==nil)
+            {
+                [_productImageList setObject:[UIImage imageNamed:@"placeholderImage"] forKey:product.productID];
+            }
+            else
+            {
+                [_productImageList setObject:img forKey:product.productID];
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^
+            {
                 //更新UI
                 [cell.productImage setImage:img];
             });
@@ -567,18 +572,12 @@
             [newProductList addObject:product];
         }
     }
-    [self.simpleHud setHidden:NO];
-    [self.simpleHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        //sleep(2.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.simpleHud simpleComplete];
-            [settlementView setProductList:newProductList];
-            [self.navigationController pushViewController:settlementView animated:YES];
-            });
-    });
-
+    
+    [settlementView setProductList:newProductList];
+    [settlementView setImageList:_productImageList];
+    
+    [self.navigationController pushViewController:settlementView animated:YES];
+    
 }
 
 

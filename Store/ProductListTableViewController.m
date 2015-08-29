@@ -192,7 +192,7 @@ _mainSize = self.view.frame.size;
     self.pageSize = 10;
     self.pageIndex=1;
     //物业编号
-    self.pmcID = 0;
+    self.pmcID = 1;
     //默认排序字段
     self.order = @"productID";
     //降序，升序
@@ -418,7 +418,16 @@ _mainSize = self.view.frame.size;
             NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
             //通过网络url获取uiimage
             UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
-            [_productImageList setObject:img forKey:product.productID];
+            if (img==nil)
+            {
+                  [_productImageList setObject:[UIImage imageNamed:@"placeholderImage"] forKey:product.productID];
+            }
+            else
+            {
+                  [_productImageList setObject:img forKey:product.productID];
+            }
+            
+          
             dispatch_async(dispatch_get_main_queue(), ^{
                 //更新UI
                 [cell.productImage setImage:img];

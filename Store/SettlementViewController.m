@@ -8,7 +8,7 @@
 
 #import "SettlementViewController.h"
 #import "ToolsOriginImage.h"
-#import "ShopCarProductModel.h"
+#import "ProductShopCar.h"
 #import "SettlementHeadCell.h"
 #import "SettlementProductCell.h"
 #import "SettlementConfirmView.h"
@@ -87,8 +87,8 @@
     double sumprice =0;
     for (int i =0; i<_productList.count; i++)
     {
-          ShopCarProductModel * product = _productList[i];
-          sumprice += product.ProductRealityPrice*product.ProductShopCarCout;
+          ProductShopCar * product = _productList[i];
+          sumprice += product.productRealityPrice*product.bayCount;
     }
     [settlementBar.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",sumprice]];
     
@@ -153,7 +153,7 @@
     else
     {
     /*-------------------------product-------------------------------*/
-        ShopCarProductModel * product = _productList[indexPath.section-1];
+        ProductShopCar * product = _productList[indexPath.section-1];
         //SettlementProductCell *cell;// = [tableView dequeueReusableCellWithIdentifier:@"settlementProductCell"];
 //        if (cell.productImage == nil)
 //        {
@@ -167,10 +167,10 @@
             [cell.name setText:@"隔壁老王的水果店(包邮)"];
         }else if (indexPath.row==1)//图片与价格数量
         {
-            [cell.productImage setImage:[UIImage imageNamed:product.ProductImage]];
-            [cell.productName setText:product.ProductName];
-            [cell.price setText:[NSString stringWithFormat:@"￥%0.2lf元",product.ProductRealityPrice]];
-            [cell.productCount setText:[NSString stringWithFormat:@"x%d",(int)product.ProductShopCarCout]];
+            [cell.productImage setImage:_imageList[product.productID]];
+            [cell.productName setText:product.productName];
+            [cell.price setText:[NSString stringWithFormat:@"￥%0.2lf元",product.productRealityPrice]];
+            [cell.productCount setText:[NSString stringWithFormat:@"x%d",(int)product.bayCount]];
         }else if (indexPath.row==2)//运费
         {
             [cell.name setText:@"运费"];
@@ -190,7 +190,7 @@
         }else if (indexPath.row==5)//合计
         {
             [cell.name setText:@"合计"];
-            [cell.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductRealityPrice*product.ProductShopCarCout]];
+            [cell.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productRealityPrice*product.bayCount]];
         }
         [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         

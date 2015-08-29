@@ -206,14 +206,14 @@
     {
         _proTopArray = [NSMutableArray new];
     }
-    [_proTopArray removeAllObjects];
+   
     
     //热销商品集合
     if (_hotProductList == nil)
     {
         _hotProductList = [NSMutableArray new];
     }
-    [_hotProductList removeAllObjects];
+   
     
 #pragma mark -异步获取数据
     
@@ -221,6 +221,7 @@
     NSString *path =[NSString stringWithFormat: @"%sStoreProduct/StoreHomePage?pmcID=%d",SERVER_ROOT_PATH,1];
     NSURL *url = [NSURL URLWithString:path];
     
+    //NSLog(@"%@",path);
     NSURLRequest *requst = [NSURLRequest requestWithURL:url];
     //发送请求
     
@@ -283,6 +284,7 @@
                
             }
             
+            [_proTopArray removeAllObjects];
             //置顶商品集合
             NSArray *proTopList = dic[@"recommends"];
             for (int i=0; i<proTopList.count; i++)
@@ -292,8 +294,11 @@
                 [_proTopArray addObject:topProduct];
             }
             
+            
+            [_hotProductList removeAllObjects];
             //热销商品集合
             NSArray * hotProductList = dic[@"hotSelling"];
+            //NSLog(@"%d",hotProductList.count);
             for (int i=0; i<hotProductList.count; i++)
             {
                 Product *topProduct = [Product new];
@@ -354,10 +359,12 @@
     Product *product = _hotProductList[indexPath.row];
     
     MainProductCell *cell = [tableView dequeueReusableCellWithIdentifier:@"mainProductCell"];
-    if (cell.productImage == nil) {
+    if (cell.productImage == nil)
+    {
         cell = [[MainProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mainProductCell"];
     }
-    if (_productImageList == nil) {
+    if (_productImageList == nil)
+    {
         _productImageList = [NSMutableDictionary new];
     }
     //如果存放图片的集合中没有当前商品的图片
@@ -370,7 +377,16 @@
             NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]]];
             //通过网络url获取uiimage
             UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
-            [_productImageList setObject:img forKey:product.productID];
+            if (img==nil)
+            {
+                //如果图片为nil，使用占位图片
+                [_productImageList setObject:[UIImage imageNamed:@"placeholderImage"] forKey:product.productID];
+            }
+            else
+            {
+                [_productImageList setObject:img forKey:product.productID];
+            }
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 //更新UI
                 [cell.productImage setImage:img];

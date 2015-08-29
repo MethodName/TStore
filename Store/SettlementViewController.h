@@ -14,6 +14,9 @@
 /**购物车商品列表*/
 @property(nonatomic,strong)NSMutableArray *productList;
 
+@property(nonatomic,strong)NSMutableDictionary *imageList;
+
+
 @property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
 
 @end
