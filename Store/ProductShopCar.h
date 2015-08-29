@@ -1,21 +1,19 @@
 //
-//  Product.h
+//  ProductShopCar.h
 //  Store
 //
-//  Created by tangmingming on 15/8/25.
+//  Created by tangmingming on 15/8/28.
 //  Copyright (c) 2015年 tangmingming. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface Product : NSObject
-
-
+@interface ProductShopCar : NSObject
 
 
 /**
-*  颜色编号
-*/
+ *  颜色编号
+ */
 @property(nonatomic,assign)NSInteger pcID;
 /**
  *  物业管理编号
@@ -101,33 +99,21 @@
  */
 @property(nonatomic,assign)NSInteger productDate;
 
-
-
-
-
-/*
- desc = 0;
- pcID = 1;
- pcName = "\U7ea2";
- pmcID = 1;
- pmcName = "\U7269\U4e1a";
- productDate = 1440092949010;
- productDesc = 666;
- productID = SP201508210005;
- productImages = "1440092945776f3fa4825c77f334ab8ba896a844ba8a8.jpg";
- productName = "\U6d4b\U8bd51";
- productPrice = 5;
- productRealityPrice = 5;
- productSaleCount = 0;
- productState = 1;
- productStock = 0;
- psID = 1;
- psName = "\U7bb1/\U53f0";
- ptID = 3;
- ptName = "\U98df\U7269";
- puID = 1;
- puName = "\U53f0";
+/**
+ *  在购物车中的数量
  */
+@property(nonatomic,assign)NSInteger bayCount;
+
+/**
+ *  是否被选中
+ */
+@property(nonatomic,assign)BOOL isSelected;
+
+/**
+ *  行号
+ */
+
+@property(nonatomic,assign)NSInteger cellNum;
 
 
 

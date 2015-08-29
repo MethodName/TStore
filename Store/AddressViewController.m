@@ -13,8 +13,9 @@
 #import "CustomHUD.h"
 #import "AddAddressViewController.h"
 #import "EditAddressViewController.h"
+#import "StoreNavigationBar.h"
 
-@interface AddressViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewCellDelegate,AddAddressViewControllerDelegate,EditAddressViewControllerDelegate>
+@interface AddressViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewCellDelegate,AddAddressViewControllerDelegate,EditAddressViewControllerDelegate,StoreNavigationBarDeleagte>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -44,16 +45,18 @@
     /**
      导航按钮
      */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"地址管理"];
-    
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.rightBtn setHidden:YES];
+    [navigationBar.title setText:@"地址管理"];
+    [self.view addSubview:navigationBar];
     
     /**
      tableView
      */
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height-44) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-98) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setRowHeight:_mainSize.width*0.4];
@@ -234,7 +237,7 @@
 
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

@@ -54,6 +54,7 @@
         
         //图片
         _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(45, 5+44, height-60, height-60)];
+        [_productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
         [self.contentView addSubview:_productImage];
         
         //简介
@@ -140,24 +141,13 @@
 
 
 #pragma mark -设置值
--(void)setShopCarListItemShopCarProductModel:(ShopCarProductModel *)product
+-(void)setShopCarListItemShopCarProductModel:(ProductShopCar *)product
 {
-    /**
-     *  异步线程加载图片
-     */
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL *photourl = [NSURL URLWithString:@"http://www.baoshanjie.com/data/attachment/forum/201505/02/133100uvpkv4gaeynpvjnh.jpg"];
-        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];//通过网络url获取uiimage
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_productImage setImage:img];
-        });
-    });
-    
-    [_centerNum setTitle:[NSString stringWithFormat:@"%d",(int)product.ProductShopCarCout] forState:0];
-    [_productName setText:product.ProductName];
-    [_productDetail setText:product.ProductDesc];
-    [_productCount setText:[NSString stringWithFormat:@"x%d",(int)product.ProductShopCarCout]];
-    [_productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.ProductRealityPrice]];
+    [_centerNum setTitle:[NSString stringWithFormat:@"%d",(int)product.bayCount] forState:0];
+    [_productName setText:product.productName];
+    [_productDetail setText:product.productDesc];
+    [_productCount setText:[NSString stringWithFormat:@"x%d",(int)product.bayCount]];
+    [_productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productRealityPrice]];
 }
 
 #pragma mark -改变商品数量
@@ -167,6 +157,9 @@
     NSInteger count =countStr.integerValue;
     if ([btn.titleLabel.text isEqualToString:@"-"])
     {
+        if (count==SHOP_CAR_MIN_PRODUCT_COUNT) {
+            return;
+        }
         if (count>1)
         {
             count--;
@@ -174,7 +167,10 @@
     }
     else  if ([btn.titleLabel.text isEqualToString:@"+"])
     {
-        if (count<100)
+        if (count==SHOP_CAR_MAX_PRODUCT_COUNT-1) {
+            return;
+        }
+        if (count<SHOP_CAR_MAX_PRODUCT_COUNT)
         {
             count++;
         }

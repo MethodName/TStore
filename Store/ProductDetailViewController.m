@@ -22,7 +22,7 @@
 
 
 
-@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,ShopCarViewControllerDelegate,MainSreachBarDelegate>
+@interface ProductDetailViewController()<UITableViewDataSource,UITableViewDelegate,ShopBarDelegate,UIScrollViewDelegate,MainSreachBarDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -297,7 +297,7 @@
 {
     [self.navigationController.navigationBar setHidden:NO];
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
-    [shopCar setNavigationBarDelegate:self];
+  
     [shopCar setUserID:10];//传入用户ID
     [self.navigationController pushViewController:shopCar animated:YES];
 }
@@ -312,7 +312,7 @@
     [self.addshopHud startSimpleLoad];
     
     //确定请求路径
-    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",_productID,@"&userID=",(int)[User shareUserID]];
+    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreShopCar/addStoreShopCar?productID=",_productID,@"&userID=",(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -462,11 +462,7 @@
 #pragma mark -返回上层
 -(void)leftItemClick
 {
-    [_delegate showNavigationBarAndStutsBar];
-    [_delegate showSreachBar];
     [self.navigationController popViewControllerAnimated:YES];
-    [_delegate searchBarEndEditing];
-  
 }
 
 

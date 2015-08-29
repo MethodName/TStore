@@ -59,7 +59,7 @@
 /**
  *  排序视图开始的Y点
  */
-#define SCREENINGVIEW_BEGIN_Y 116
+#define SCREENINGVIEW_BEGIN_Y 120
 
 
 /**
@@ -77,9 +77,6 @@
  */
 #define ANIMATION_TIME_QUICK 0.15
 
-
-
-
 /**
  *  商品列表数据类型【正常】
  */
@@ -89,6 +86,16 @@
  *  商品列表数据类型【收藏】
  */
 #define PRODUCTLIST_DATA_TYPE2 1
+
+/**
+ *  最大单个购物车商品数量
+ */
+#define SHOP_CAR_MAX_PRODUCT_COUNT 100
+
+/**
+ *  最小单个购物车商品数量
+ */
+#define SHOP_CAR_MIN_PRODUCT_COUNT 1
 
 
 

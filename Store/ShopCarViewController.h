@@ -9,19 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "MainSreachBarDelegate.h"
 
-@protocol ShopCarViewControllerDelegate <NSObject>
 
--(void)hideNavigationBar;
-
-@end
 
 @interface ShopCarViewController : UIViewController
 
 @property(nonatomic,assign)NSInteger userID;
-
-@property(nonatomic,weak)id<MainSreachBarDelegate>delegate;
-
-@property(nonatomic,weak)id<ShopCarViewControllerDelegate>navigationBarDelegate;
 
 
 @end

@@ -20,5 +20,14 @@
 +(ProductListMenuView *)defaultViewWithFrame:(CGRect)frame;
 
 
+#pragma mark -标记赛选
+-(void)tagScreening;
+
+#pragma mark -标记排序
+-(void)tagSort;
+
+#pragma mark -标记我的收藏
+-(void)tagCollection;
+
 
 @end

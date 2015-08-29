@@ -42,7 +42,9 @@
     return defaulfView;
 }
 
--(void)drawRect:(CGRect)rect{
+#pragma mark -画线
+-(void)drawRect:(CGRect)rect
+{
     //1、获取上下文
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGPoint ps1[] = {CGPointMake(self.frame.size.width*0.33, 5), CGPointMake(self.frame.size.width*0.33, self.frame.size.height-10)};
@@ -54,6 +56,32 @@
     [[UIColor colorWithRed:(220.0/255.0) green:(220.0/255.0) blue:(220.0/255.0) alpha:1.0]set];
     CGContextDrawPath(context, kCGPathStroke);
 }
+
+#pragma mark -标记赛选
+-(void)tagScreening
+{
+      [self.collection setTitleColor:[UIColor lightGrayColor] forState:0];
+      [self.sort setTitleColor:[UIColor lightGrayColor] forState:0];
+     [self.screening setTitleColor:[UIColor orangeColor] forState:0];
+}
+
+#pragma mark -标记排序
+-(void)tagSort
+{
+    [self.collection setTitleColor:[UIColor lightGrayColor] forState:0];
+    [self.screening setTitleColor:[UIColor lightGrayColor] forState:0];
+    [self.sort setTitleColor:[UIColor orangeColor] forState:0];
+}
+
+#pragma mark -标记我的收藏
+-(void)tagCollection
+{
+    [self.sort setTitleColor:[UIColor lightGrayColor] forState:0];
+    [self.screening setTitleColor:[UIColor lightGrayColor] forState:0];
+     [self.collection setTitleColor:[UIColor orangeColor] forState:0];
+}
+
+
 
 
 @end

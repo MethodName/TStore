@@ -55,7 +55,11 @@
 #pragma mark -设置购物车按钮显示购物车中商品数量
 -(void)setShopcarCountWithNum:(NSInteger) count
 {
-    if (count>0&&count<10)
+    if (count==0)
+    {
+        [_shopCarCount setHidden:YES];
+    }
+   else  if (count>0&&count<10)
     {
         [_shopCarCount setHidden:NO];
         [_shopCarCount setText:[NSString stringWithFormat:@"%d",(int)count]];

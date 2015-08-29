@@ -8,8 +8,8 @@
 
 #import "DeliveryTimeViewController.h"
 #import "ToolsOriginImage.h"
-
-@interface DeliveryTimeViewController ()
+#import "StoreNavigationBar.h"
+@interface DeliveryTimeViewController ()<StoreNavigationBarDeleagte>
 
 @end
 
@@ -28,11 +28,13 @@
     /**
      导航按钮
      */
-   UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"送货时间"];
-    
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.rightBtn setHidden:YES];
+    [navigationBar.title setText:@"送货时间"];
+    [self.view addSubview:navigationBar];
     
 }
 
@@ -43,7 +45,7 @@
 
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

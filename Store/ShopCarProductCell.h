@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ShopCarProductModel.h"
+#import "ProductShopCar.h"
 
 
 @protocol ShopCarProductCellDelegate <NSObject>
@@ -45,7 +45,7 @@
 @property(nonatomic,strong)UIButton *centerNum;
 
 
--(void)setShopCarListItemShopCarProductModel:(ShopCarProductModel *)product;
+-(void)setShopCarListItemShopCarProductModel:(ProductShopCar *)product;
 
 
 

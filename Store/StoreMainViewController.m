@@ -23,9 +23,10 @@
 #import "Product.h"
 #import "StoreDefine.h"
 #import "User.h"
+#import "StoreNavigationBar.h"
 
 
-@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate,MainProductCellDelegate,UIGestureRecognizerDelegate>
+@interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate,MainProductCellDelegate,UIGestureRecognizerDelegate,StoreNavigationBarDeleagte>
 
 #pragma mark -屏幕大小
 @property(assign,nonatomic)CGSize mainSize;
@@ -54,8 +55,6 @@
 
 @property(nonatomic,strong)NSMutableDictionary *productImageList;
 
-@property(nonatomic,weak)UISearchBar *search;
-
 @property(nonatomic,strong)CustomHUD *hud;
 
 @property(nonatomic,strong)CustomHUD *addshopHud;
@@ -65,6 +64,8 @@
 @property(nonatomic,weak)UIPageControl *page;
 
 @property(nonatomic,weak) ProductListTableViewController *productListTableView;
+
+@property(nonatomic,weak)StoreNavigationBar *customNavigationBar;
 
 
 @end
@@ -96,30 +97,18 @@
 #pragma mark -创建视图
 -(void)createView
 {
-#pragma mark -左右按钮
-    //leftBtn
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    
-    //rightBtn
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"messageList"] CGImage] scale:2.0 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(rightItemClick)];
-    [rightBtn setTintColor:[UIColor whiteColor]];
-    
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setRightBarButtonItem:rightBtn];
-    
-#pragma mark -搜索框
-    UISearchBar *search = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width-30*4, 44)];
-    [search setPlaceholder:@"搜索商品"];
-    [search sizeToFit];
-    [search setCenter:CGPointMake(self.navigationController.navigationBar.center.x, NAVIGATION_POSITION_Y)];
-    [self.navigationController.navigationBar addSubview:search];
-    [search setDelegate:self];
-    _search = search;
+
+#pragma mark -导航栏
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [self.view addSubview:navigationBar];
+    [navigationBar.searchBar setDelegate:self];
+    _customNavigationBar = navigationBar;
     
 #pragma mark -tableView
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-64) style:UITableViewStylePlain];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setShowsVerticalScrollIndicator:NO];
@@ -146,7 +135,7 @@
     [_headView addSubview:page];
     
     
-#pragma mark  -菜单
+#pragma mark  -类别
     
     _meunView = [[MainMeunView alloc]initWithFrame:CGRectMake(0, _ad.frame.origin.y+_ad.frame.size.height, _mainSize.width,80)];
     [_meunView setDelegate:self];
@@ -160,9 +149,7 @@
     [_headView addSubview:topProductsView];
     _topProductsView = topProductsView;
     [topProductsView setDelegate:self];
-    
 
-    
 #pragma mark -重新设置headview大小
     
     [_headView setFrame:CGRectMake(0, 0, _mainSize.width, topProductsView.frame.origin.y+topProductsView.frame.size.height+2)];
@@ -209,8 +196,9 @@
 }
 
 
-#pragma mark -刷新数据
--(void)loadData{
+#pragma mark -加载数据
+-(void)loadData
+{
     
     
     //置顶商品集合
@@ -264,8 +252,6 @@
                });
 
             }
-
-          
             
             //分类集合
             if (_productTypes == nil)
@@ -331,15 +317,34 @@
 
         }
     }];
+    
+    
+    //获取购物车用户购物车中商品数量
+    NSString *shopaCarPath = [NSString stringWithFormat:@"%sStoreShopCar/findShopCarCountByUserID?userID=%d",SERVER_ROOT_PATH,(int)[User shareUserID]];
 
- 
+    NSURL *shopCarUrl = [NSURL URLWithString:shopaCarPath];
+    NSURLRequest *shopCarRequst = [NSURLRequest requestWithURL:shopCarUrl];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:shopCarRequst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+    {
+        if (connectionError == nil)
+        {
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //主线程更新购物车显示数量
+                 [_shopCar setShopcarCountWithNum:[dic[@"count"] integerValue]];
+            });
+        }
+    }];
 }
 
 
 
 
 #pragma mark -设置表格行
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
     return _hotProductList.count;
 }
 
@@ -384,9 +389,9 @@
 }
 
 #pragma mark -热销商品跳转到商品详情
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
    //隐藏seachBar
-    [_search setHidden:YES];
     
     Product *product = _hotProductList[indexPath.row];
     ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
@@ -401,7 +406,6 @@
 -(void)productDetailWithProductID:(NSString *)proid
 {
     ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
-    [_search setHidden:YES]; 
     [productDetail setDelegate:self];
     [productDetail setProductID:proid];
     [self.navigationController pushViewController:productDetail animated:YES];
@@ -410,18 +414,15 @@
 #pragma mark -搜索
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [_search endEditing:YES];
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
-    [productListTableView setProductName:_search.text];
+    [productListTableView setProductName:_customNavigationBar.searchBar.text];
     [self.navigationController pushViewController:productListTableView animated:YES];
 }
 
 #pragma mark -商品类别搜索
 -(void)productListWithType:(NSInteger)type
 {
-    //结束sreachBar编辑状态
-    [_search endEditing:YES];
     //商品列表页面
     ProductListTableViewController *productListTableView = [[ProductListTableViewController alloc]init];
     [productListTableView setDelegate:self];
@@ -437,8 +438,9 @@
 {
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
-    //确定路径
-    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/addStoreCollects?productID=",productID,@"&userID=",(int)[User shareUserID]];
+    //确定路径  StoreShopCar/addStoreShopCar?userID=1&productID=SP201508210004
+    NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreShopCar/addStoreShopCar?productID=",productID,@"&userID=",(int)[User shareUserID]];
+  
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -462,21 +464,26 @@
                 }
             });
         }
+        else
+        {
+            NSLog(@"%@",connectionError.debugDescription);
+        }
     }];
 }
 
 #pragma mark -跳转到购物车
 -(void)pushToShopCarView
 {
-    [_search setHidden:YES];
     //购物车
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
-    [shopCar setDelegate:self];
     //传入用户ID
     [shopCar setUserID:10];
     //push页面
     [self.navigationController pushViewController:shopCar animated:YES];
 }
+
+
+
 
 
 
@@ -491,54 +498,30 @@
     return _addshopHud;
 }
 
-#pragma mark -搜索框值改变代理方法
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-{
-    //将搜索框的值传入到搜索页面
-    [_productListTableView setProductName:searchText];
-}
-
-
-
-
 #pragma mark -PageControl显示当前页代理
 -(void)imageMoveWithIndex:(NSInteger)index
 {
     [_page setCurrentPage:index];
 }
 
-#pragma mark -显示sreachBar代理方法
--(void)showSreachBar
-{
-    [_search setHidden:NO];
-}
-#pragma mark -sreachBar隐藏
--(void)hideSreachBar
-{
-    [_search setHidden:YES];
-}
+
 #pragma mark -sreachBar结算编辑状态
 -(void)searchBarEndEditing
 {
-    [_search endEditing:YES];
-}
-#pragma mark -显示navigationBar和StutsBar
--(void)showNavigationBarAndStutsBar
-{
-    [self.navigationController.navigationBar setHidden:NO];
+    [_customNavigationBar.searchBar endEditing:YES];
 }
 
 
 #pragma mark - 左边按钮
--(void)leftItemClick
+-(void)leftClick
 {
-    
+   // NSLog(@"xxxxx");
 }
 
 #pragma mark -右边按钮点击
--(void)rightItemClick
+-(void)rightClick
 {
-    [_search setHidden:YES];
+    
     //消息中心
     MessageListViewController *messageListView = [[MessageListViewController alloc]init];
     [messageListView setDelegate:self];
@@ -549,22 +532,13 @@
 #pragma mark -开始返回时
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-   // NSLog(@"%@",gestureRecognizer.view);
-    if (gestureRecognizer.view == _productListTableView.view) {
-        NSLog(@"yiyang");
+    if (self.navigationController.viewControllers.count==1)
+    {
+        return NO;
     }
-    [self showNavigationBarAndStutsBar];
-    [self showSreachBar];
+    
     return YES;
 }
-
-#pragma mark -没次页面切换都会进入这个方法
-//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
-//{
-//    //NSLog(@"111111");
-//    return YES;
-//}
-
 
 @end
 

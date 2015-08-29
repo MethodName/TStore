@@ -16,8 +16,9 @@
 #import "AddressViewController.h"
 #import "DeliveryTimeViewController.h"
 #import "ProductDetailViewController.h"
+#import "StoreNavigationBar.h"
 
-@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate>
+@interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate,StoreNavigationBarDeleagte>
 
 
 
@@ -53,18 +54,20 @@
     _mainSize = self.view.frame.size;
     
     /**
-     导航按钮
+     导航栏
      */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"结算中心"];
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.rightBtn setHidden:YES];
+    [navigationBar.title setText:@"结算中心"];
     
-    
+    [self.view addSubview:navigationBar];
     /**
      初始化tableView
      */
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height-60) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-124) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setSectionHeaderHeight:3];
@@ -94,7 +97,7 @@
     /**
      添加手势
      */
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
     
@@ -252,14 +255,8 @@
 
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
-    // [_delegate showSreachBar];
-    //[_delegate searchBarEndEditing];
-    if (_delegate != nil) {
-        [_delegate hideNavigationBar];
-    }
-    
     [self.navigationController popViewControllerAnimated:YES];
 }
 

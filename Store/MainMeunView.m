@@ -64,14 +64,24 @@
         CGFloat y =row*80;
         
         [hotBtn setFrame:CGRectMake(x, y, 80, 80)];
+        
         //确定图片的路径
         NSString *path =[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,type.ptIconUrl];
+        
         //NSLog(@"%@",path);
         NSURL *photourl = [NSURL URLWithString:path];
-        //通过网络url获取uiimage
-        UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
-
-        [hotBtn setImage: [ToolsOriginImage OriginImage:img scaleToSize:CGSizeMake(50, 50)] forState:0];
+//        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //通过网络url获取uiimage
+            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                  [hotBtn setImage: [ToolsOriginImage OriginImage:img scaleToSize:CGSizeMake(50, 50)] forState:0];
+            });
+            
+        });
+        
+//         UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+//           [hotBtn setImage: [ToolsOriginImage OriginImage:img scaleToSize:CGSizeMake(50, 50)] forState:0];
         [hotBtn setTitle:type.ptName forState:0];
         [hotBtn setTitleColor:[UIColor grayColor] forState:0];
         //将类型ID放入tag中，方便后面取值

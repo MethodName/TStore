@@ -21,16 +21,19 @@
 #import "ShopCarViewController.h"
 #import "User.h"
 #import "Product.h"
+#import "StoreNavigationBar.h"
 
-@interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate,ProductListCellDelegate>
+@interface ProductListTableViewController ()<UITableViewDataSource,UITableViewDelegate,SearchProductDelegate,MainSreachBarDelegate,ProductListCellDelegate,StoreNavigationBarDeleagte,UISearchBarDelegate>
 
-@property(nonatomic,strong)UITableView *tableView;
+@property(atomic,strong)UITableView *tableView;
 /**
  *  商品集合
  */
-@property(nonatomic,strong)NSMutableArray *productList;
-
-@property(nonatomic,strong)NSMutableDictionary *productImageList;
+@property(atomic,strong)NSMutableArray *productList;
+/**
+ *  存放图片的集合
+ */
+@property(atomic,strong)NSMutableDictionary *productImageList;
 /**
  *  页面大小
  */
@@ -65,6 +68,14 @@
  */
 @property(nonatomic,assign)NSInteger dataType;
 
+@property(nonatomic,weak) ProductListMenuView *menuView;
+
+@property(nonatomic,weak)StoreNavigationBar *customNavigationBar;
+
+
+@property(atomic,assign)BOOL isRefresh;
+
+
 @end
 
 @implementation ProductListTableViewController
@@ -81,21 +92,38 @@
 #pragma mark -创建视图
 -(void)createView
 {
-    _mainSize = self.view.frame.size;
     
-    //导航按钮
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
+_mainSize = self.view.frame.size;
     
-    UIBarButtonItem* rightBtn = [[UIBarButtonItem alloc]initWithImage:[UIImage imageWithCGImage:[[UIImage imageNamed:@"leftmuen"] CGImage] scale:2.0 orientation:UIImageOrientationUp]  style:UIBarButtonItemStyleBordered target:self action:nil];
-    [rightBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setRightBarButtonItem:rightBtn];
-    	
+    
+#pragma mark -tableView初始化
+    self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 100, _mainSize.width, _mainSize.height-100) style:UITableViewStylePlain];
+    [self.tableView setDelegate:self];
+    [self.tableView setDataSource:self];
+    [self.tableView setRowHeight:TABLE_CELL_HEIGHT];
+    [self.tableView setShowsVerticalScrollIndicator:NO];
+//    [self.tableView setTableHeaderView:[[UIView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 1)]];
+//    [self.tableView setTableFooterView:[[UIView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 1)]];
+    //[self.tableView.header setBackgroundColor:[UIColor whiteColor]];
+    [self.view addSubview:self.tableView];
+    [self.tableView registerClass:[ProductListCell class] forCellReuseIdentifier:@"productListCell"];
+    
+#pragma mark -导航栏
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [self.view addSubview:navigationBar];
+    [navigationBar.searchBar setDelegate:self];
+    //设置右边按钮图片
+    [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:0];
+    [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:1];
+    
+    _customNavigationBar = navigationBar;
+    
     //选项
     ProductListMenuView *menuView = [ProductListMenuView defaultViewWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 56)];
     [self.view addSubview:menuView];
-    
+    _menuView = menuView;
     //筛选
     [menuView.screening addTarget:self action:@selector(showScreeningView) forControlEvents:UIControlEventTouchUpInside];
     
@@ -105,18 +133,6 @@
     //我的收藏
     [menuView.collection addTarget: self action:@selector(showUserClllection) forControlEvents:UIControlEventTouchUpInside];
     
-    
-    
-#pragma mark -tableView初始化
-    self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 120, _mainSize.width, _mainSize.height-120) style:UITableViewStylePlain];
-    [self.tableView setDelegate:self];
-    [self.tableView setDataSource:self];
-    [self.tableView setRowHeight:TABLE_CELL_HEIGHT];
-    [self.tableView setShowsVerticalScrollIndicator:NO];
-    [self.view addSubview:self.tableView];
-    [self.tableView registerClass:[ProductListCell class] forCellReuseIdentifier:@"productListCell"];
-   
-    
     //购物车按钮
     self.shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
     [self.shopCar addTarget:self action:@selector(pushToShopCarView) forControlEvents:UIControlEventTouchUpInside];
@@ -124,7 +140,7 @@
     [self.view addSubview:self.shopCar];
     
     /*----------------------------------【添加手势】-------------------------------------*/
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
 
@@ -198,7 +214,10 @@
     }
     
     [self pullDownLoadData];
+    _isRefresh = NO;
 }
+
+
 
 
 
@@ -248,7 +267,7 @@
             //NSLog(@"%@",dic);
             //收藏商品
             NSArray *collects = dic[@"storeProducts"];//storeProducts
-
+            //NSLog(@"%d   %d",(int)_productList.count,(int)collects.count);
             for (int i =0; i<collects.count; i++)
             {
                 //添加商品
@@ -263,20 +282,43 @@
                 [self.addshopHud simpleComplete];
                 [self.tableView.header endRefreshing];
                 //如果没有更多数据的时候
-                if(collects.count==0)
+                if(collects.count<10)
                 {
                     //重置下拉没有数据状态
                     [self.tableView.footer noticeNoMoreData];
                 }
-                else
+                else if(collects.count==10)
                 {
                     //重置下拉没有数据状态
                     [self.tableView.footer resetNoMoreData];
                 }
-
+                _isRefresh = NO;
             });
         }
     }];
+    
+    
+    //获取购物车用户购物车中商品数量
+    NSString *shopaCarPath = [NSString stringWithFormat:@"%sStoreShopCar/findShopCarCountByUserID?userID=%d",SERVER_ROOT_PATH,(int)[User shareUserID]];
+    
+    NSURL *shopCarUrl = [NSURL URLWithString:shopaCarPath];
+    NSURLRequest *shopCarRequst = [NSURLRequest requestWithURL:shopCarUrl];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:shopCarRequst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+     {
+         if (connectionError == nil)
+         {
+             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+             
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 //主线程更新购物车显示数量
+                 [_shopCar setShopcarCountWithNum:[dic[@"count"] integerValue]];
+             });
+         }
+     }];
+
+    
+    
 }
 
 
@@ -284,23 +326,27 @@
 #pragma mark -下拉加载数据
 -(void)pullDownLoadData
 {
+    if (_isRefresh)
+    {
+        return;
+    }
+    _isRefresh = YES;
     //清空商品集合中所有数据
-    [_productImageList removeAllObjects];
     [_productList removeAllObjects];
-
-    
-    
      //上拉加载数据，当前页为1
     _pageIndex=1;
     [self loadData];
 }
 
-#pragma mark -下拉刷新数据
+#pragma mark -上拉加载更多数据
 -(void)loadMoreData
 {
+    if (_isRefresh)
+    {
+        return;
+    }
+    _isRefresh = YES;
     //下拉加载更多数据，当前页++
-    [_productList removeLastObject];
-    [_productImageList removeAllObjects];
     _pageIndex ++;
     [self loadData];
     
@@ -314,8 +360,23 @@
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
     _dataType = PRODUCTLIST_DATA_TYPE2;
+    self.pageSize = 10;
+    self.pageIndex=1;
+    //物业编号
+    self.pmcID = 0;
+    //默认排序字段
+    self.order = @"productID";
+    //降序，升序
+    self.descend = 0;
+    //清空搜索框的值
+    [_customNavigationBar.searchBar setText:@""];
+    self.productName = @"";
+    
+    //
+    [_menuView tagCollection];
+    
+
     //清空商品集合中所有数据
-    [_productImageList removeAllObjects];
     [_productList removeAllObjects];
 
     //加载数据
@@ -387,7 +448,7 @@
      参数：商品编号，用户编号
      */
     //确定请求路径与参数【商品编号，用户编号】
-    NSString *path = [NSString stringWithFormat:@"%sStoreCollects/addStoreCollects?productID=%@&userID=%d",SERVER_ROOT_PATH,productID,(int)[User shareUserID]];
+    NSString *path = [NSString stringWithFormat:@"%sStoreShopCar/addStoreShopCar?productID=%@&userID=%d",SERVER_ROOT_PATH,productID,(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -416,6 +477,17 @@
 }
 
 
+#pragma mark -搜索
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    [_customNavigationBar.searchBar endEditing:YES];
+    _productName =_customNavigationBar.searchBar.text;
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    [_productList removeAllObjects];
+    [self loadData];
+}
+
 
 #pragma mark -显示筛选视图
 -(void)showScreeningView
@@ -433,8 +505,11 @@
      //显示隐藏筛选的view动画
     [UIView animateWithDuration:ANIMATION_TIME_QUICK animations:^{
        [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, y, self.screeingView.sView .frame.size.width, self.screeingView.sView.frame.size.height)];
-    } completion:^(BOOL finished) {
-        if (y==SCREENINGVIEW_HIDE_Y) {
+    }
+    completion:^(BOOL finished)
+    {
+        if (y==SCREENINGVIEW_HIDE_Y)
+        {
             [_screeingView setHidden:YES];
         }
     }];
@@ -443,7 +518,8 @@
 #pragma mark -显示排序视图
 -(void)showSortView
 {
-    if (!self.screeingView.hidden) {
+    if (!self.screeingView.hidden)
+    {
         [self showScreeningView];
     };
     [self.sortView setHidden:NO];
@@ -465,7 +541,7 @@
     }];
 }
 
-#pragma mark -排序，筛选，我的收藏
+#pragma mark -排序
 -(void)searchProductListWithType:(NSInteger)type
 {
     //隐藏排序，筛选View
@@ -473,14 +549,15 @@
     [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, -116, self.screeingView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
-    
+    NSLog(@"%d",(int)type);
     //如果不是点击了空白处
     if (type!=HIED_SELF_TAG)
     {
         [self.addshopHud setHidden:NO];
         [self.addshopHud startSimpleLoad];
         
-
+        [_menuView tagSort];
+        
         //修改加载数据类型为正常类型
         _dataType = PRODUCTLIST_DATA_TYPE1;
         //
@@ -488,17 +565,24 @@
         {
             case SORT_SCALECOUNT_TAG:
                 _order = @SORT_SCALECOUNT;
+                 [_menuView tagSort];
                 break;
             case SORT_PRICE_TAG:
                 _order = @SORT_PRICE;
+                 [_menuView tagSort];
                 break;
             case SORT_UPDATE_TAG:
                 _order = @SORT_UPDATE;
+                 [_menuView tagSort];
+                break;
+            case 1:
+                //标记赛选
+                _order = @"productID";
+                [_menuView tagScreening];
                 break;
             default:
                 break;
         }
-        [_productImageList removeAllObjects];
         [_productList removeAllObjects];
         //加载数据
         [self loadData];
@@ -539,13 +623,8 @@
 #pragma mark -点击单个商品
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //隐藏导航栏
-    [_delegate hideSreachBar];
-    [_delegate searchBarEndEditing];
-    
     Product *product =_productList[indexPath.row];
     ProductDetailViewController *productDetail = [[ProductDetailViewController alloc]init];
-    [productDetail setDelegate:self];
     //传入商品编号
     [productDetail setProductID:product.productID];
     //push页面
@@ -556,9 +635,7 @@
 #pragma mark -跳转到购物车
 -(void)pushToShopCarView
 {
-    [_delegate hideSreachBar];
     ShopCarViewController *shopCar = [[ShopCarViewController alloc]init];
-    [shopCar setDelegate:self];
     //传入用户编号
     [shopCar setUserID:10];
     //push页面
@@ -579,32 +656,17 @@
 
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
-    //取消主页sreachBar的编辑状态
-    [_delegate searchBarEndEditing];
     //pop页面
     [self.navigationController popViewControllerAnimated:YES];
 }
 
--(void)searchBarEndEditing
+#pragma mark -右边菜单
+-(void)rightClick
 {
-    //取消主页（delegate）sreachBar的编辑状态
-    [_delegate searchBarEndEditing];
+    
 }
-
--(void)showSreachBar
-{
-    //显示主页（delegate）的sreachBar
-    [_delegate showSreachBar];
-}
-
--(void)showNavigationBarAndStutsBar
-{
-    //显示主页（delegate）的navigationBar
-    [self.navigationController.navigationBar setHidden:NO];
-}
-
 
 
 

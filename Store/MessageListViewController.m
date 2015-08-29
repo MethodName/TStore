@@ -8,8 +8,9 @@
 
 #import "MessageListViewController.h"
 #import "ToolsOriginImage.h"
+#import "StoreNavigationBar.h"
 
-@interface MessageListViewController ()
+@interface MessageListViewController ()<StoreNavigationBarDeleagte>
 
 @end
 
@@ -25,27 +26,26 @@
 #pragma mark -创建子视图
 -(void)createView
 {
-    /**
-     导航按钮
-     */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"消息中心"];
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.title setText:@"消息中心"];
     
-    UIColor * color = [UIColor whiteColor];
-    NSDictionary * dict = [NSDictionary dictionaryWithObject:color forKey:UITextAttributeTextColor];
-    self.navigationController.navigationBar.titleTextAttributes = dict;
-    
+    [self.view addSubview:navigationBar];
     
 }
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
-    [_delegate showSreachBar];
     [self.navigationController popViewControllerAnimated:YES];
 }
+-(void)rightClick
+{
+    
+}
+
 
 
 

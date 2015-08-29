@@ -62,6 +62,8 @@
 		6A74939C1B83749A0021C85B /* default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A7493981B83749A0021C85B /* default.png */; };
 		6A74939D1B83749A0021C85B /* default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A7493991B83749A0021C85B /* default@2x.png */; };
 		6A74939F1B83764A0021C85B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A74939E1B83764A0021C85B /* Default-568h@2x.png */; };
+		6A856F931B8FF580007DDAF8 /* StoreNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A856F921B8FF580007DDAF8 /* StoreNavigationBar.m */; };
+		6A856F961B90A96B007DDAF8 /* ProductShopCar.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A856F951B90A96B007DDAF8 /* ProductShopCar.m */; };
 		6AAB37001B8812AA006DF060 /* Image.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6AAB36FF1B8812AA006DF060 /* Image.bundle */; };
 		6AAF5C091B80F98F00C7F397 /* ProductListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AAF5C081B80F98F00C7F397 /* ProductListTableViewController.m */; };
 		6AAF5C0F1B810CC200C7F397 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AAF5C0E1B810CC200C7F397 /* RootViewController.m */; };
@@ -204,6 +206,10 @@
 		6A7493981B83749A0021C85B /* default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = default.png; sourceTree = "<group>"; };
 		6A7493991B83749A0021C85B /* default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default@2x.png"; sourceTree = "<group>"; };
 		6A74939E1B83764A0021C85B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		6A856F911B8FF580007DDAF8 /* StoreNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoreNavigationBar.h; sourceTree = "<group>"; };
+		6A856F921B8FF580007DDAF8 /* StoreNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoreNavigationBar.m; sourceTree = "<group>"; };
+		6A856F941B90A96B007DDAF8 /* ProductShopCar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductShopCar.h; sourceTree = "<group>"; };
+		6A856F951B90A96B007DDAF8 /* ProductShopCar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductShopCar.m; sourceTree = "<group>"; };
 		6AAB36FF1B8812AA006DF060 /* Image.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Image.bundle; sourceTree = "<group>"; };
 		6AAF5C071B80F98F00C7F397 /* ProductListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductListTableViewController.h; sourceTree = "<group>"; };
 		6AAF5C081B80F98F00C7F397 /* ProductListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductListTableViewController.m; sourceTree = "<group>"; };
@@ -460,6 +466,15 @@
 			name = default;
 			sourceTree = "<group>";
 		};
+		6A856F901B8FF530007DDAF8 /* CustomNavigationBar */ = {
+			isa = PBXGroup;
+			children = (
+				6A856F911B8FF580007DDAF8 /* StoreNavigationBar.h */,
+				6A856F921B8FF580007DDAF8 /* StoreNavigationBar.m */,
+			);
+			name = CustomNavigationBar;
+			sourceTree = "<group>";
+		};
 		6AB296AA1B7CAEE3002F1D16 = {
 			isa = PBXGroup;
 			children = (
@@ -559,6 +574,7 @@
 		6AB296E01B7CB284002F1D16 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				6A856F901B8FF530007DDAF8 /* CustomNavigationBar */,
 				6A2F6A931B81D82B000C882D /* CustomView */,
 				6A2F6A921B81D80F000C882D /* CustomTableCell */,
 			);
@@ -578,6 +594,8 @@
 				6AF994311B8C1CBC00C869D2 /* Product.m */,
 				6A1C3B7C1B8CD685001479C3 /* User.h */,
 				6A1C3B7D1B8CD685001479C3 /* User.m */,
+				6A856F941B90A96B007DDAF8 /* ProductShopCar.h */,
+				6A856F951B90A96B007DDAF8 /* ProductShopCar.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -743,6 +761,7 @@
 				6A1C3B6B1B8CBBDC001479C3 /* MJRefreshComponent.m in Sources */,
 				6A1C3B6E1B8CBBDC001479C3 /* MJRefreshAutoGifFooter.m in Sources */,
 				6A1C3B701B8CBBDC001479C3 /* MJRefreshAutoStateFooter.m in Sources */,
+				6A856F931B8FF580007DDAF8 /* StoreNavigationBar.m in Sources */,
 				6AF994321B8C1CBC00C869D2 /* Product.m in Sources */,
 				6A2F6A8B1B8197BF000C882D /* ScreeningView.m in Sources */,
 				6A624CB51B878ABC00963DC4 /* CustomHUD.m in Sources */,
@@ -791,6 +810,7 @@
 				6AF383441B89B6D800FAFB32 /* SelectAddressViewController.m in Sources */,
 				6A48522B1B84A9A900C9129C /* IconTitleButton.m in Sources */,
 				6A1C3B741B8CBBDC001479C3 /* MJRefreshGifHeader.m in Sources */,
+				6A856F961B90A96B007DDAF8 /* ProductShopCar.m in Sources */,
 				6A698AD51B7ED1FD00CC9707 /* MainMenuItem.m in Sources */,
 				6AF9942F1B8C14A700C869D2 /* ProductListNetWork.m in Sources */,
 				6A03580D1B845C70009E893C /* ShopCarViewController.m in Sources */,

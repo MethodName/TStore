@@ -57,6 +57,9 @@
 
 -(void)setCellDataWithProduct:(Product *)product
 {
+    
+    _productID = product.productID;
+    
     [self.productName setText:product.productName];
     [self.productDetail setText:product.productDesc];
     [self.productPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productPrice]];

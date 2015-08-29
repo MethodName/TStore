@@ -8,8 +8,9 @@
 
 #import "SelectAddressViewController.h"
 #import "ToolsOriginImage.h"
+#import "StoreNavigationBar.h"
 
-@interface SelectAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
+@interface SelectAddressViewController ()<UITableViewDataSource,UITableViewDelegate,StoreNavigationBarDeleagte>
 
 @property(nonatomic,strong)UITableView *tableView;
 
@@ -44,23 +45,20 @@
     /**
      导航按钮
      */
-    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"设置地址"];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.rightBtn setImage:nil forState:0];
+    [navigationBar.rightBtn setImage:nil forState:1];
+    [navigationBar.rightBtn setTitle:@"确定" forState:0];
+    [navigationBar.title setText:@"选择地址"];
     
-    UIBarButtonItem *rightBtn = [[UIBarButtonItem alloc]initWithTitle:@"确定" style:UIBarButtonItemStyleDone target:self action:@selector(rightBtnClick)];
-    [rightBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setRightBarButtonItem:rightBtn];
-    
-    UIColor * color = [UIColor whiteColor];
-    NSDictionary * dict = [NSDictionary dictionaryWithObject:color forKey:UITextAttributeTextColor];
-    self.navigationController.navigationBar.titleTextAttributes = dict;
+    [self.view addSubview:navigationBar];
     
     /**
      tableView
      */
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height-44) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-108) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setSectionHeaderHeight:3];
@@ -105,14 +103,14 @@
 
 
 #pragma mark -确定
--(void)rightBtnClick
+-(void)rightClick
 {
      [self.navigationController popViewControllerAnimated:YES];
     [_delegate addressWithStr:[NSString stringWithFormat:@"%@%@",_community.text,_housing.text]];
 }
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

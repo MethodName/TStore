@@ -8,8 +8,9 @@
 
 #import "ProductDetailintroductionViewController.h"
 #import "ToolsOriginImage.h"
+#import "StoreNavigationBar.h"
 
-@interface ProductDetailintroductionViewController ()
+@interface ProductDetailintroductionViewController ()<StoreNavigationBarDeleagte>
 
 @end
 
@@ -28,18 +29,19 @@
     /**
      导航按钮
      */
-     UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage: [UIImage imageWithCGImage:[[UIImage imageNamed:@"leftBtn"] CGImage] scale:1.8 orientation:UIImageOrientationUp] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-    [leftBtn setTintColor:[UIColor whiteColor]];
-    [self.navigationItem setLeftBarButtonItem:leftBtn];
-    [self.navigationItem setTitle:@"商品介绍"];
-    
-    
+    [self.navigationController setNavigationBarHidden:YES];
+    StoreNavigationBar *navigationBar= [[StoreNavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 64)];
+    [navigationBar setBarDelegate:self];
+    [navigationBar.searchBar setHidden:YES];
+    [navigationBar.rightBtn setHidden:YES];
+    [navigationBar.title setText:@"结算中心"];
+    [self.view addSubview:navigationBar];
     
     
     /**
      添加手势
      */
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.view addGestureRecognizer:swipe];
 
@@ -48,9 +50,8 @@
 }
 
 #pragma mark -返回上层
--(void)leftItemClick
+-(void)leftClick
 {
-    [self.navigationController.navigationBar setHidden:YES];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
