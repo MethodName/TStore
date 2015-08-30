@@ -19,6 +19,8 @@
 
 @property(nonatomic,weak)id<EditAddressViewControllerDelegate>delegate;
 
+@property(nonatomic,assign)NSInteger addressID;
+
 @property(nonatomic,strong)NSString *oldAddress;
 
 @property(nonatomic,strong)NSString *oldConsignee;

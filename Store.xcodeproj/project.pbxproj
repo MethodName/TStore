@@ -84,6 +84,7 @@
 		6AF383411B89ACDE00FAFB32 /* AddAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383401B89ACDE00FAFB32 /* AddAddressViewController.m */; };
 		6AF383441B89B6D800FAFB32 /* SelectAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383431B89B6D800FAFB32 /* SelectAddressViewController.m */; };
 		6AF383471B89C10500FAFB32 /* EditAddressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF383461B89C10500FAFB32 /* EditAddressViewController.m */; };
+		6AF5A3BB1B9333300015DA59 /* StoreOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF5A3BA1B9333300015DA59 /* StoreOrder.m */; };
 		6AF9942F1B8C14A700C869D2 /* ProductListNetWork.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF9942E1B8C14A700C869D2 /* ProductListNetWork.m */; };
 		6AF994321B8C1CBC00C869D2 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AF994311B8C1CBC00C869D2 /* Product.m */; };
 		6AFDF01E1B7EE15300CC96FF /* TopProductsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AFDF01D1B7EE15300CC96FF /* TopProductsView.m */; };
@@ -248,6 +249,8 @@
 		6AF383431B89B6D800FAFB32 /* SelectAddressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectAddressViewController.m; sourceTree = "<group>"; };
 		6AF383451B89C10500FAFB32 /* EditAddressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditAddressViewController.h; sourceTree = "<group>"; };
 		6AF383461B89C10500FAFB32 /* EditAddressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditAddressViewController.m; sourceTree = "<group>"; };
+		6AF5A3B91B9333300015DA59 /* StoreOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoreOrder.h; sourceTree = "<group>"; };
+		6AF5A3BA1B9333300015DA59 /* StoreOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoreOrder.m; sourceTree = "<group>"; };
 		6AF9942D1B8C14A700C869D2 /* ProductListNetWork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductListNetWork.h; sourceTree = "<group>"; };
 		6AF9942E1B8C14A700C869D2 /* ProductListNetWork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductListNetWork.m; sourceTree = "<group>"; };
 		6AF994301B8C1CBC00C869D2 /* Product.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
@@ -373,14 +376,14 @@
 			path = Header;
 			sourceTree = "<group>";
 		};
-		6A2F6A8C1B81A5DA000C882D /* Delegate */ = {
+		6A2F6A8C1B81A5DA000C882D /* Protocol */ = {
 			isa = PBXGroup;
 			children = (
 				6A2F6A8D1B81A620000C882D /* SearchProductDelegate.h */,
 				6AEE6E431B830C39000C82C1 /* MainSreachBarDelegate.h */,
 				6A03585A1B849F92009E893C /* ShopBarDelegate.h */,
 			);
-			name = Delegate;
+			name = Protocol;
 			sourceTree = "<group>";
 		};
 		6A2F6A921B81D80F000C882D /* CustomTableCell */ = {
@@ -500,7 +503,7 @@
 				6AF9942C1B8C148000C869D2 /* NetWork */,
 				6AB296E81B7D00FE002F1D16 /* Resouces */,
 				6AEE6E3C1B82DDAF000C82C1 /* Tools */,
-				6A2F6A8C1B81A5DA000C882D /* Delegate */,
+				6A2F6A8C1B81A5DA000C882D /* Protocol */,
 				6AB296E11B7CB28E002F1D16 /* Model */,
 				6AB296E01B7CB284002F1D16 /* View */,
 				6AB296DF1B7CB277002F1D16 /* Controller */,
@@ -596,6 +599,8 @@
 				6A1C3B7D1B8CD685001479C3 /* User.m */,
 				6A856F941B90A96B007DDAF8 /* ProductShopCar.h */,
 				6A856F951B90A96B007DDAF8 /* ProductShopCar.m */,
+				6AF5A3B91B9333300015DA59 /* StoreOrder.h */,
+				6AF5A3BA1B9333300015DA59 /* StoreOrder.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -781,6 +786,7 @@
 				6A624C701B872ABB00963DC4 /* SettlementViewController.m in Sources */,
 				6AAF5C0F1B810CC200C7F397 /* RootViewController.m in Sources */,
 				6A1C3B7E1B8CD685001479C3 /* User.m in Sources */,
+				6AF5A3BB1B9333300015DA59 /* StoreOrder.m in Sources */,
 				6A698AD21B7E52D300CC9707 /* MainMeunView.m in Sources */,
 				6A1C3B7A1B8CBBDC001479C3 /* UIScrollView+MJRefresh.m in Sources */,
 				6A1C3B6F1B8CBBDC001479C3 /* MJRefreshAutoNormalFooter.m in Sources */,

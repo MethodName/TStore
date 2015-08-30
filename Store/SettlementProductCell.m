@@ -18,6 +18,8 @@
          CGFloat width = [UIScreen mainScreen].bounds.size.width;
         //商品图片
         _productImage = [[UIImageView alloc]initWithFrame:CGRectMake(15, 5, 60, 60)];
+        //[_productImage setImage:[UIImage imageNamed:@"placeholderImage"]];
+        //[_productImage setHidden:YES];
         [self.contentView addSubview:_productImage];
         //name
         _name = [[UILabel alloc]initWithFrame:CGRectMake(15, 12, width*0.7, 20)];

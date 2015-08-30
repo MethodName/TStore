@@ -103,7 +103,8 @@
 /*
  服务器地址
  */
-#define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
+//#define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
+#define SERVER_ROOT_PATH "http://192.168.1.114:8080/store/"
 
 /**
  *  服务器图片根目录

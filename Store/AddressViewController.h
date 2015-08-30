@@ -10,7 +10,7 @@
 
 @protocol AddressViewControllerDelegate <NSObject>
 
--(void)selectRowWithAddress:(NSString *)address;
+-(void)selectRowWithProvinceCityDistrict:(NSString *)provinceCityDistrict AddressDetail:(NSString *)addressDetail Consignee:(NSString *)consignee  Telephone:(NSString*) telephone;
 
 @end
 

@@ -94,14 +94,14 @@
         [_subBtn.layer setBorderWidth:1.0];
         [_subBtn.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [_subBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_subBtn.layer setCornerRadius:3.0];
+        //[_subBtn.layer setCornerRadius:3.0];
         [self.contentView addSubview:_subBtn];
         
         _centerNum = [[UIButton alloc] initWithFrame:CGRectMake(_productDetail.frame.origin.x+31, height-35, 30, 30)];
         [_centerNum.titleLabel setFont:[UIFont systemFontOfSize:12.0]];
         [_centerNum setTitleColor:[UIColor grayColor] forState:0];
         [_centerNum.layer setBorderWidth:1.0];
-        [_centerNum.layer setCornerRadius:3.0];
+        //[_centerNum.layer setCornerRadius:3.0];
         [_centerNum.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [self.contentView addSubview:_centerNum];
         
@@ -111,7 +111,7 @@
         [_addBtn.layer setBorderWidth:1.0];
         [_addBtn.layer setBorderColor:[[UIColor grayColor] CGColor]];
         [_addBtn addTarget:self action:@selector(productCountClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_addBtn.layer setCornerRadius:3.0];
+        //[_addBtn.layer setCornerRadius:3.0];
         [self.contentView addSubview:_addBtn];
     
         

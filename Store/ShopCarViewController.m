@@ -98,6 +98,8 @@
     [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:0];
     [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:1];
     
+    
+    
     [self.view addSubview:navigationBar];
     
     /**
@@ -218,7 +220,7 @@
   
     NSString *path = [NSString stringWithFormat:@"%sStoreShopCar/findShopCarByUserID?userID=%d&pageIndex=%d&pageSize=%d",SERVER_ROOT_PATH,(int)[User shareUserID],(int)_pageIndex,(int)_pageSize];
     
-    //NSLog(@"%@",path);
+   // NSLog(@"%@",path);
     
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
@@ -226,6 +228,7 @@
     [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError == nil)
         {
+            //NSLog(@"%@",data);
             //将结果转成字典集合
             NSArray *array =(NSArray *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
             if (_isRefresh) {
@@ -241,7 +244,7 @@
             
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                NSLog(@"更新UI");
+                //NSLog(@"更新UI");
                 [self.tableView reloadData];
               
                 [_tableView.header endRefreshing];
@@ -260,6 +263,7 @@
                 [_hud loadHide];
             });
         }else{
+              [_hud loadHide];
             NSLog(@"%@",connectionError.debugDescription);
         }
     }];
@@ -388,6 +392,7 @@
         {
             //将结果转成字典集合
             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+          
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([dic[@"status"] intValue] == 1)//成功
                 {
@@ -493,6 +498,8 @@
     ProductShopCar *product =_productList[btn.tag];
     NSString *path = [NSString stringWithFormat:@"%sStoreShopCar/delStoreShopCar?productID=%@&userID=%d&",SERVER_ROOT_PATH,product.productID,(int)[User shareUserID]];
    
+    
+    
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -502,7 +509,7 @@
          {
              //将结果转成字典集合
              NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-             
+            
              dispatch_async(dispatch_get_main_queue(), ^{
                  if ([dic[@"status"] intValue] == 1)//成功
                  {
@@ -605,6 +612,8 @@
 {
      [self.navigationController popViewControllerAnimated:YES];
 }
+
+-(void)rightClick{}
 
 
 

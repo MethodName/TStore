@@ -78,7 +78,7 @@
         [_deleteBtn setFrame:CGRectMake(width-80, height-35, 65, 28)];
         [_deleteBtn setImage:[UIImage imageNamed:@"address_delete"] forState:0];
         [self.contentView addSubview:_deleteBtn];
-        [_deleteBtn addTarget:self action:@selector(deleteBtnClick) forControlEvents:UIControlEventTouchUpInside];
+        [_deleteBtn addTarget:self action:@selector(deleteBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         
     }
 
@@ -88,17 +88,26 @@
 #pragma mark -设置值
 -(void)setAddressValueWithAddress:(StoreAddressModel *)address
 {
-    [_consignee setText:address.Consignee];
-    [_telephone setText:address.Telephone];
-    [_addressDetail setText:[NSString stringWithFormat:@"%@%@",address.ProvinceCityDistrict,address.AddressDetail]];
-    if (address.IsDefault)
+    [_consignee setText:address.consignee];
+    [_telephone setText:address.telephone];
+    [_addressDetail setText:[NSString stringWithFormat:@"%@%@",address.provinceCityDistrict,address.addressDetail]];
+    
+    [_deleteBtn setTag:address.addressID];
+    _addressID = address.addressID;
+    
+    //是否是默认地址
+    if (address.isDefault)
     {
         [_defaultAddress setImage:[UIImage imageNamed:@"pay_select"] forState:0];
+        //如果是默认的，设置tag为1
+        [_defaultAddress setTag:0];
         [_defaultAddressDesc setText:@"默认地址"];
     }
     else
     {
         [_defaultAddress setImage:[UIImage imageNamed:@"pay_select_press"] forState:0];
+        //如果不是默认的，设置tag为0
+         [_defaultAddress setTag:1];
         [_defaultAddressDesc setText:@"设为默认"];
     }
 }
@@ -107,19 +116,21 @@
 #pragma mark -设为默认地址
 -(void)defaultAddressClick
 {
-    [_delegate setDefaultAddressWithBtn:_defaultAddress];
+    [_delegate setDefaultAddressWithBtn:_defaultAddress AddressID:_addressID];
 }
 
 #pragma mark -编辑
 -(void)editBtnClick
 {
-    [_delegate editAddressWithAddress:_addressDetail.text Consignee:_consignee.text Telephone:_telephone.text];
+    
+    [_delegate editAddressWithAddress:_addressDetail.text Consignee:_consignee.text Telephone:_telephone.text AddressID:_addressID];
 }
 
 #pragma mark -删除
--(void)deleteBtnClick
+-(void)deleteBtnClick:(UIButton *)del
 {
-     [_delegate deleteAddress];
+    
+     [_delegate deleteAddressWithAddressID:del.tag];
 }
 
 /**

@@ -244,12 +244,12 @@ _mainSize = self.view.frame.size;
              pageIndex=第几页
              pageSize=每页条数
              */
-            self.path = [NSString stringWithFormat:@"%sStoreProduct/findStoreProductList?ptID=%d&pageIndex=%d&pageSize=%d&productName=%@&pmcID=%d&order=%@&desc=%d",
+            self.path = [NSString stringWithFormat:@"%sStoreProduct/findStoreProductList?ptID=%d&pageIndex=%d&pageSize=%d&pmcID=%d&order=%@&desc=%d",
                          SERVER_ROOT_PATH,
                          (int)_ptID,
                          _pageIndex,
                          _pageSize,
-                         _productName,
+                       //  _productName,
                          (int)_pmcID,
                          _order,
                          (int)_descend];
@@ -257,9 +257,20 @@ _mainSize = self.view.frame.size;
     //NSLog(@"%@",self.path);
     
     NSURL *url = [NSURL URLWithString:self.path];
-    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    
+    [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
+    
+    NSString *str = [NSString stringWithFormat:@"productName=%@",_productName];//设置参数
+    
+    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [request setHTTPBody:data];
+    
     //发送请求
-    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+    {
         if (connectionError == nil)
         {
             //将结果转成字典集合

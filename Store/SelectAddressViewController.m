@@ -106,7 +106,7 @@
 -(void)rightClick
 {
      [self.navigationController popViewControllerAnimated:YES];
-    [_delegate addressWithStr:[NSString stringWithFormat:@"%@%@",_community.text,_housing.text]];
+    [_delegate addressWithCommunity:_community.text Housing:_housing.text];
 }
 
 #pragma mark -返回上层

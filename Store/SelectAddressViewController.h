@@ -11,7 +11,7 @@
 
 @protocol SelectAddressViewControllerDelegate <NSObject>
 
--(void)addressWithStr:(NSString *)str;
+-(void)addressWithCommunity:(NSString *)community Housing:(NSString *)housing;
 
 @end
 

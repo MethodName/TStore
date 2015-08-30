@@ -115,6 +115,6 @@
 
 @property(nonatomic,assign)NSInteger cellNum;
 
-
+@property(nonatomic,assign)NSString * shopCarID;
 
 @end

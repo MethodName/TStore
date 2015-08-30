@@ -19,6 +19,7 @@
 #import "StoreDefine.h"
 #import "Product.h"
 #import "User.h"
+#import "ProductShopCar.h"
 
 
 
@@ -43,6 +44,8 @@
 
 @property(nonatomic,assign)BOOL isCollect;
 
+@property(nonatomic,copy)UIImage *defaultImage;
+
 @end
 
 @implementation ProductDetailViewController
@@ -51,14 +54,106 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    [self loadData];
+   
     [self createView];
+     [self loadData];
+}
+
+
+#pragma mark -创建视图
+-(void)createView
+{
+    //隐藏状态栏
+    [self.navigationController.navigationBar setHidden:YES];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    _mainSize = self.view.frame.size;
+    
+    /**
+     导航按钮
+     */
+    //    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
+    //    [leftBtn setTintColor:[UIColor whiteColor]];
+    //    [self.navigationItem setLeftBarButtonItem:leftBtn];
+    //    [self.navigationItem setTitle:@"商品详情"];
+    
+    //leftBtn
+    UIButton *leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(15, 15, 30, 30)];
+    [leftBtn setImage: [UIImage imageNamed:@"leftBtn.png"] forState:0];
+    [leftBtn addTarget:self action:@selector(leftItemClick) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    /**
+     设置BarTitle的颜色
+     */
+    UIColor * color = [UIColor whiteColor];
+    NSDictionary * dict = [NSDictionary dictionaryWithObject:color forKey:UITextAttributeTextColor];
+    self.navigationController.navigationBar.titleTextAttributes = dict;
+    
+    // tableView
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height+200) style:UITableViewStyleGrouped];
+    [_tableView setDelegate:self];
+    [_tableView setDataSource:self];
+    [_tableView setSectionFooterHeight:2.0];
+    [_tableView setSectionHeaderHeight:2.0];
+    
+    [self.view addSubview:_tableView];
+    
+    /**
+     注册自定义Cell
+     */
+    [_tableView registerClass:[ProductDetailCell class] forCellReuseIdentifier:@"productDetailCell"];
+    
+    /**
+     商品图片
+     */
+    ProductImagesScrollView *imagesScrollView = [[ProductImagesScrollView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.8)];
+    [_tableView setTableHeaderView:imagesScrollView];
+    [imagesScrollView setDelegate:self];
+    _imagesScrollView = imagesScrollView;
+    
+    
+    /**
+     PageControl
+     */
+    UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(imagesScrollView.frame.size.width-100, imagesScrollView.frame.size.height-20, 100,20)];
+    [page setCurrentPage:0];
+    _page = page;
+    [self.view addSubview:page];
+    
+    /**
+     商品属性
+     */
+    _nameArray =@[@"商品：",@"价格：",@"运费：免运费",@"商品详细介绍",@"评价/晒单(0)"];
+    
+    
+    /**
+     购物栏
+     */
+    ShopBar *shopBar = [[ShopBar alloc]initWithFrame:CGRectMake(0, _mainSize.height-44, _mainSize.width, 44)];
+    [self.view addSubview:shopBar];
+    [shopBar setDelegate:self];
+    [shopBar setShopCatCountNum:6];
+    
+    [self.view addSubview:leftBtn];
+    
+    /**
+     添加手势
+     */
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
+    [self.tableView addGestureRecognizer:swipe];
     
 }
+
 
 #pragma mark -加载数据
 -(void)loadData
 {
+    //显示指示器
+    [self.addshopHud setHidden:NO];
+    [self.addshopHud startSimpleLoad];
+    
+    
      [self userIsCollect];
     /*
      根据商品ID获取商品信息 :StoreProduct/getStoreProductByID   
@@ -85,7 +180,15 @@
                [_page setNumberOfPages:imageArr.count];
                //设置图片
                 [_imagesScrollView setImages:imageArr];
+               
+               NSString *path =[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArr[0]];
+               //获取图片路径
+               NSURL *photourl = [NSURL URLWithString:path];
+               _defaultImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:photourl]];
+            //更新UI
                [self.tableView reloadData];
+               //隐藏指示器
+                [self.addshopHud simpleComplete];
            });
            
        }
@@ -102,6 +205,7 @@
     NSString *path = [NSString stringWithFormat:@"%s%@%@%@%d",SERVER_ROOT_PATH,@"StoreCollects/checkCollectStatus?productID=",_productID,@"&userID=",(int)[User shareUserID]];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
     [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError == nil)
         {
@@ -119,90 +223,7 @@
 
 
 
-#pragma mark -创建视图
--(void)createView
-{
-    //隐藏状态栏
-    [self.navigationController.navigationBar setHidden:YES];
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    _mainSize = self.view.frame.size;
-    
-    /**
-        导航按钮
-     */
-//    UIBarButtonItem *leftBtn = [[UIBarButtonItem alloc]initWithImage:[ToolsOriginImage OriginImage: [UIImage imageNamed:@"leftBtn.png"] scaleToSize:CGSizeMake(30, 30)] style:UIBarButtonItemStyleBordered target:self action:@selector(leftItemClick)];
-//    [leftBtn setTintColor:[UIColor whiteColor]];
-//    [self.navigationItem setLeftBarButtonItem:leftBtn];
-//    [self.navigationItem setTitle:@"商品详情"];
-    
-    //leftBtn
-    UIButton *leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(15, 15, 30, 30)];
-    [leftBtn setImage: [UIImage imageNamed:@"leftBtn.png"] forState:0];
-    [leftBtn addTarget:self action:@selector(leftItemClick) forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    /**
-       设置BarTitle的颜色
-     */
-    UIColor * color = [UIColor whiteColor];
-    NSDictionary * dict = [NSDictionary dictionaryWithObject:color forKey:UITextAttributeTextColor];
-    self.navigationController.navigationBar.titleTextAttributes = dict;
-    
-    // tableView
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.height+200) style:UITableViewStyleGrouped];
-    [_tableView setDelegate:self];
-    [_tableView setDataSource:self];
-    [_tableView setSectionFooterHeight:2.0];
-    [_tableView setSectionHeaderHeight:2.0];
-   
-     [self.view addSubview:_tableView];
-    
-    /**
-        注册自定义Cell
-     */
-    [_tableView registerClass:[ProductDetailCell class] forCellReuseIdentifier:@"productDetailCell"];
-    
-    /**
-     商品图片
-     */
-    ProductImagesScrollView *imagesScrollView = [[ProductImagesScrollView alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.8)];
-    [_tableView setTableHeaderView:imagesScrollView];
-    [imagesScrollView setDelegate:self];
-    _imagesScrollView = imagesScrollView;
-    
-    
-    /**
-     PageControl
-     */
-    UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(imagesScrollView.frame.size.width-100, imagesScrollView.frame.size.height-20, 100,20)];
-    [page setCurrentPage:0];
-    _page = page;
-    [self.view addSubview:page];
-    
-    /**
-        商品属性
-     */
-    _nameArray =@[@"商品：",@"价格：",@"运费：免运费",@"商品详细介绍",@"评价/晒单(0)"];
-    
-    
-    /**
-        购物栏
-     */
-    ShopBar *shopBar = [[ShopBar alloc]initWithFrame:CGRectMake(0, _mainSize.height-44, _mainSize.width, 44)];
-    [self.view addSubview:shopBar];
-    [shopBar setDelegate:self];
-    [shopBar setShopCatCountNum:6];
-    
-     [self.view addSubview:leftBtn];
-    
-    /**
-        添加手势
-     */
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
-    [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
-    [self.tableView addGestureRecognizer:swipe];
-    
-}
+
 
 #pragma mark -tableView组行数
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -411,31 +432,27 @@
     //结算页面商品集合
     NSMutableArray *newProductList = [[NSMutableArray alloc]init];
     //将当前的商品信息转化为结算时的商品信息
-    ShopCarProductModel *product =[ShopCarProductModel new];
+    ProductShopCar *product =[ProductShopCar new];
     [product setProductID:_product.productID];
-    //[product setProductImage:_product.ProductImages[0]];
+ 
     [product setProductDesc:_product.productDesc];
     [product setProductName:_product.productName];
     [product setProductRealityPrice:_product.productRealityPrice];
-    [product setProductShopCarCout:1];
+    [product setBayCount:1];
     //将当前商品加入结算商品集合中
     [newProductList addObject:product];
+    //商品图片
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    [dic setObject:_defaultImage forKey:product.productID];
+    [settlementView setImageList:dic];
+  
+    //传入商品形信息
+    [settlementView setProductList:newProductList];
+    [settlementView setDelegate:self];
+    //push到计算页面
+    [self.navigationController pushViewController:settlementView animated:YES];
     
-    [self.addshopHud setHidden:NO];
-    [self.addshopHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        //sleep(2.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.navigationController.navigationBar setHidden:NO];
-            [self.addshopHud simpleComplete];
-            //传入商品形信息
-            [settlementView setProductList:newProductList];
-            [settlementView setDelegate:self];
-            //push到计算页面
-            [self.navigationController pushViewController:settlementView animated:YES];
-        });
-    });
+    
 }
 
 

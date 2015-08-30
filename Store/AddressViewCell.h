@@ -11,12 +11,13 @@
 
 @protocol AddressViewCellDelegate <NSObject>
 
--(void)setDefaultAddressWithBtn:(UIButton *)btn;
-
--(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone;
+-(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID;
 
 
--(void)deleteAddress;
+-(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone AddressID:(NSInteger)addressID;
+
+
+-(void)deleteAddressWithAddressID:(NSInteger)addressID;
 
 @end
 
@@ -24,6 +25,8 @@
 
 
 @property(nonatomic,weak)id<AddressViewCellDelegate>delegate;
+
+@property(nonatomic,assign)NSInteger addressID;
 
 /**收货人*/
 @property(nonatomic,strong)UILabel *consignee;

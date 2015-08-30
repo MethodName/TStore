@@ -14,6 +14,9 @@
 #import "AddAddressViewController.h"
 #import "EditAddressViewController.h"
 #import "StoreNavigationBar.h"
+#import "MJRefresh.h"
+#import "StoreDefine.h"
+#import "User.h"
 
 @interface AddressViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewCellDelegate,AddAddressViewControllerDelegate,EditAddressViewControllerDelegate,StoreNavigationBarDeleagte>
 
@@ -22,6 +25,19 @@
 @property(nonatomic,strong)NSMutableArray *addressList;
 
 @property(nonatomic,assign)CGSize mainSize;
+
+/**
+ *  请求数据当前页
+ */
+@property(nonatomic,assign)NSInteger pageIndex;
+/**
+ *  请求数据页大小
+ */
+@property(nonatomic,assign)NSInteger pageSize;
+/**
+ *  是否在刷新状态
+ */
+@property(atomic,assign)BOOL isRefresh;
 
 @property(nonatomic,strong)CustomHUD *simpleHud;
 
@@ -56,7 +72,7 @@
     /**
      tableView
      */
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-98) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, _mainSize.width, _mainSize.height-128) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView setRowHeight:_mainSize.width*0.4];
@@ -80,7 +96,7 @@
     /**
      添加手势
      */
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftItemClick)];
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftClick)];
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
 }
@@ -94,32 +110,60 @@
     [_addressList removeAllObjects];
     [self.simpleHud setHidden:NO];
     [self.simpleHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-         sleep(1);
-        for (int i= 0; i<10; i++) {
-           
-            StoreAddressModel *address = [StoreAddressModel new];
-            [address setAddressID:i+1];
-            [address setProvinceCityDistrict:@"湖南省长沙市"];
-            [address setAddressDetail:@"岳麓区天顶街道中电软件园23栋华瑞软件学院5楼IOS4班"];
-            [address setConsignee:@"唐明明"];
-            [address setTelephone:@"15974244021"];
-            [address setUserID:15];
+    
+    /**
+     *  StoreAddress/findAddressByUserID
+     *  userID=用户ID
+     */
+    
+    
+    
+    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/findAddressByUserID?userID=%d",SERVER_ROOT_PATH,(int)[User shareUserID]];
+    
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSArray *array =(NSArray *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            if (_isRefresh) {
+                [_addressList removeAllObjects];
+            }
+            for (int i =0; i<array.count; i++)
+            {
+                StoreAddressModel *address = [StoreAddressModel new];
+                [address setValuesForKeysWithDictionary:array[i]];
+                [_addressList addObject:address];
+            }
             
-           if(i==1)
-               [address setIsDefault:YES];
-            else
-                [address setIsDefault:NO];
-            
-            [_addressList addObject:address];
+            dispatch_async(dispatch_get_main_queue(), ^
+           {
+               [self.tableView reloadData];
+               
+               [_tableView.header endRefreshing];
+               
+               //如果没有更多数据的时候
+               if(array.count<10)
+               {
+                   //重置下拉没有数据状态
+                   [self.tableView.footer noticeNoMoreData];
+               }
+               else if(array.count==10)
+               {
+                   //重置下拉没有数据状态
+                   [self.tableView.footer resetNoMoreData];
+               }
+               [_simpleHud simpleComplete];
+           });
         }
-      
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_simpleHud simpleComplete];
-             [_tableView reloadData];
-        });
-        
-    });
+        else
+        {
+            NSLog(@"%@",connectionError.debugDescription);
+        }
+    }];
+
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -131,6 +175,7 @@
     return 1;
 }
 
+#pragma mark -行内容
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     AddressViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"addressCell"];
@@ -142,6 +187,7 @@
     [cell setAddressValueWithAddress:address];
     //设置按钮的tag值为当前行数，方便后面的修改操作
     [cell.defaultAddress setTag:indexPath.section];
+    
     [cell setDelegate:self];
     return cell;
 }
@@ -150,15 +196,80 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     StoreAddressModel *address =_addressList[indexPath.section];
-    [_delegate selectRowWithAddress:[NSString stringWithFormat:@"%@%@",address.ProvinceCityDistrict,address.AddressDetail]];
+    //将选中地址的值传上上层页面
+    [_delegate selectRowWithProvinceCityDistrict:address.provinceCityDistrict AddressDetail:address.addressDetail Consignee:address.consignee Telephone:address.telephone ];
+    //push页面
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark -设置默认地址
--(void)setDefaultAddressWithBtn:(UIButton *)btn
+-(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID
 {
     [self.simpleHud setHidden:NO];
     [self.simpleHud startSimpleLoad];
+    /*
+     
+     StoreAddress/updateAddressDefault
+     userID=用户ID
+     addressID=地址ID
+     isDefault=是默认
+     
+     **/
+    //确定路径，tag反转【是默认，变成不默认，不默认，变成默认】
+    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/updateAddressDefault?userID=%d&addressID=%d&isDefault=%d",SERVER_ROOT_PATH,(int)[User shareUserID],(int)addressID,(int)btn.tag==1?0:1];
+    
+    NSLog(@"%@",path);
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^
+                           {
+                               if ([dic[@"status"] integerValue]==1)
+                               {
+                                   for (int i= 0; i<_addressList.count; i++)
+                                   {
+                                       StoreAddressModel *address =_addressList[i];
+                                       if(address.addressID != addressID)
+                                       {
+                                           [address setIsDefault:NO];
+                                       }
+                                       else
+                                       {
+                                           
+                                           [address setIsDefault:btn.tag==1?NO:YES];
+                                       }
+                                    }
+
+                                   //删除地址集合中的已经删除的地址
+                                   //更新UI
+                                   [self.tableView reloadData];
+                                   //指示器完成
+                                   [self.simpleHud simpleComplete];
+                                }
+                               else
+                               {
+                                   [self.simpleHud stopAnimation];
+                                   UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"] delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                                   [alertView show];
+                               }
+                               
+                           });
+        }
+        else
+        {
+            NSLog(@"%@",connectionError.debugDescription);
+        }
+    }];
+
+    
+    
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         //模拟请求网络数据
         sleep(1.0);
@@ -176,20 +287,20 @@
                 }
             }
             [self.simpleHud simpleComplete];
-            //刷新数据
-            [self.tableView reloadData];
+            
         });
     });
 
 }
 
 #pragma mark -编辑代理
--(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone
+-(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone AddressID:(NSInteger)addressID
 {
     EditAddressViewController *editView = [[EditAddressViewController alloc]init];
     [editView setOldAddress:address];
     [editView setOldConsignee:consignee];
     [editView setOldTelephone:telephone];
+    [editView setAddressID:addressID];
     [editView setDelegate:self];
     [self.navigationController pushViewController:editView animated:YES];
 }
@@ -209,17 +320,56 @@
 }
 
 #pragma mark -删除代理
--(void)deleteAddress
+-(void)deleteAddressWithAddressID:(NSInteger)addressID
 {
+    //显示指示器
     [self.simpleHud setHidden:NO];
     [self.simpleHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(1.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.simpleHud simpleComplete];
-        });
-    });
+
+    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/delStoreAddress?addressID=%d",SERVER_ROOT_PATH,(int)addressID];
+    
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^
+               {
+                   if ([dic[@"status"] integerValue]==1)
+                   {
+                       //删除地址集合中的已经删除的地址
+                       for (int i =0; i<_addressList.count; i++)
+                       {
+                           StoreAddressModel *address = _addressList[i];
+                           if (address.addressID==addressID) {
+                               [_addressList removeObject:address];
+                               break;
+                           }
+                       }
+                       
+                       //更新UI
+                       [self.tableView reloadData];
+                       //指示器完成
+                        [self.simpleHud simpleComplete];
+                   }
+                   else
+                   {
+                       [self.simpleHud stopAnimation];
+                       UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"] delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                       [alertView show];
+                   }
+
+               });
+        }
+        else
+        {
+            NSLog(@"%@",connectionError.debugDescription);
+        }
+    }];
 
 }
 

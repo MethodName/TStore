@@ -17,6 +17,7 @@
 #import "DeliveryTimeViewController.h"
 #import "ProductDetailViewController.h"
 #import "StoreNavigationBar.h"
+#import "StoreOrder.h"
 
 @interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate,StoreNavigationBarDeleagte>
 
@@ -31,6 +32,10 @@
 @property(nonatomic,strong)CustomHUD *simpleHud;
 
 @property(nonatomic,strong)NSString *defaultAddress;
+
+@property(nonatomic,strong)StoreOrder *order;
+
+@property(nonatomic,strong)NSString *path;
 
 
 @end
@@ -49,6 +54,7 @@
 #pragma mark -创建视图
 -(void)createView
 {
+    _order = [StoreOrder new];
     
     _defaultAddress = @"请先填写收货人信息";
     _mainSize = self.view.frame.size;
@@ -114,7 +120,7 @@
 {
     NSInteger row = 2;
     if (section >0) {
-        row = 6;
+        row = 3;
     }
     return row;
 }
@@ -154,43 +160,27 @@
     {
     /*-------------------------product-------------------------------*/
         ProductShopCar * product = _productList[indexPath.section-1];
-        //SettlementProductCell *cell;// = [tableView dequeueReusableCellWithIdentifier:@"settlementProductCell"];
-//        if (cell.productImage == nil)
-//        {
-          SettlementProductCell *   cell = [[SettlementProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"settlementProductCell"];
-//        }
+        
+        SettlementProductCell *   cell = [[SettlementProductCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"settlementProductCell"];
+
         /**
          *  设置属性
          */
         if (indexPath.row==0)//店铺名字
         {
-            [cell.name setText:@"隔壁老王的水果店(包邮)"];
+            [cell.name setText:product.productName];
         }else if (indexPath.row==1)//图片与价格数量
         {
             [cell.productImage setImage:_imageList[product.productID]];
             [cell.productName setText:product.productName];
             [cell.price setText:[NSString stringWithFormat:@"￥%0.2lf元",product.productRealityPrice]];
             [cell.productCount setText:[NSString stringWithFormat:@"x%d",(int)product.bayCount]];
-        }else if (indexPath.row==2)//运费
+        }
+        else if (indexPath.row==2)//合计
         {
-            [cell.name setText:@"运费"];
-            [cell.detail setText:[NSString stringWithFormat:@"快递:￥%0.2lf元(已减免:%0.2lf)",0.0,0.0]];
-        }else if (indexPath.row==3)//现金券
-        {
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            [cell.name setText:@"现金券"];
-            [cell.detail setText:@"使用现金券"];
-            [cell.detail setCenter:CGPointMake(cell.detail.center.x-15, cell.detail.center.y)];
-        }else if (indexPath.row==4)//红包
-        {
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            [cell.name setText:@"红包"];
-            [cell.detail setText:@"使用红包"];
-            [cell.detail setCenter:CGPointMake(cell.detail.center.x-15, cell.detail.center.y)];
-        }else if (indexPath.row==5)//合计
-        {
-            [cell.name setText:@"合计"];
+            [cell.name setText:@"小计"];
             [cell.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productRealityPrice*product.bayCount]];
+            [_order setOrderSumPrice:product.productRealityPrice*product.bayCount];
         }
         [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         
@@ -199,19 +189,90 @@
    
 }
 
-#pragma mark -确认付款
+#pragma mark -确认订单
 -(void)settlementBtnClick
 {
+    //验证地址
+    if (_order.orderAddress==nil||_order.orderAddress.length==0)
+    {
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"亲，收货地址不能为空哦~" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alertView show];
+        return;
+    }
+    
+    //显示指示器
     [self.simpleHud setHidden:NO];
     [self.simpleHud startSimpleLoad];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(5.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.simpleHud simpleComplete];
-        });
-    });
+    
+    //判断结算类型
+    //如果是立即购买
+    if (_settlementType == 1)
+    {
+        self.path = @"StoreOrders/addOrderSimple";
+        /**
+           userID = 用户ID
+            orderConsignee = 订单收件人
+            orderAddress = 订单地址
+            orderTelephone = 电话号码
+            rderSumPrice = 总金额
+            orderDesc = 订单描述
+            pmcID = 物业ID
+         
+         
+            productID = 商品ID
+            buyCount = 商品数量
+         */
+    }
+    else if(_settlementType == 2)
+    {
+        self.path = @"StoreOrders/addOrder";
+        /**
+             userID = 用户ID
+             orderConsignee = 订单收件人
+             orderAddress = 订单地址
+             orderTelephone = 电话号码
+             rderSumPrice = 总金额
+             orderDesc = 订单描述
+             pmcID = 物业ID
+         
+         
+             shopCarID = 购物车ID
+             [shopCarID = 购物车ID]
+         */
+    }
+    
+    
+    NSURL *url = [NSURL URLWithString:self.path];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    
+    [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
+    
+    NSString *str = [NSString stringWithFormat:@"userID=%d&orderConsignee=%@&orderAddress=%@&orderTelephone=%@&orderDesc=%@&pmcID=%d"];//设置参数
+    
+    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [request setHTTPBody:data];
+    
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+     {
+         if (connectionError == nil)
+         {
+             //将结果转成字典集合
+             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+                dispatch_async(dispatch_get_main_queue(), ^
+                {
+                    //关闭指示器
+                    [self.simpleHud simpleComplete];
+                });
+         }
+     }];
 
+    
+    
+    
+   
 }
 
 
@@ -237,7 +298,8 @@
         [addressView setDelegate:self];
         [self.navigationController pushViewController:addressView animated:YES];
     }
-    else if(indexPath.section ==0&&indexPath.row==1){
+    else if(indexPath.section ==0&&indexPath.row==1)
+    {
         DeliveryTimeViewController *deliveryTimeView  =[[DeliveryTimeViewController alloc]init];
         [self.navigationController pushViewController:deliveryTimeView animated:YES];
     }
@@ -246,9 +308,21 @@
 }
 
 
--(void)selectRowWithAddress:(NSString *)address
+-(void)selectRowWithProvinceCityDistrict:(NSString *)provinceCityDistrict AddressDetail:(NSString *)addressDetail Consignee:(NSString *)consignee Telephone:(NSString *)telephone
 {
-    _defaultAddress = address;
+   // _order set
+    //订单地址
+    [_order setOrderAddress:[NSString stringWithFormat:@"%@%@",provinceCityDistrict,addressDetail]];
+    //收货人
+    [_order setOrderConsignee:consignee];
+    //联系电话
+    [_order setOrderTelephone:telephone];
+    
+    
+    //地址行显示内容
+    _defaultAddress = [NSString stringWithFormat:@"%@%@--%@",provinceCityDistrict,addressDetail,consignee];
+    
+    //更新行
     NSIndexPath *newIndex = [NSIndexPath indexPathForItem:0 inSection:0];
     [self.tableView reloadRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationNone];
 }
