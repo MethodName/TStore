@@ -11,7 +11,7 @@
 
 @protocol AddressViewCellDelegate <NSObject>
 
--(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID;
+-(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID State:(NSInteger)state;
 
 
 -(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone AddressID:(NSInteger)addressID;
@@ -47,6 +47,8 @@
 
 /**删除按钮*/
 @property(nonatomic,strong)UIButton *deleteBtn;
+
+@property(nonatomic,assign)NSInteger defaultState;
 
 
 

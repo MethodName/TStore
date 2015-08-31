@@ -99,24 +99,26 @@
     if (address.isDefault)
     {
         [_defaultAddress setImage:[UIImage imageNamed:@"pay_select"] forState:0];
-        //如果是默认的，设置tag为1
-        [_defaultAddress setTag:0];
+        //如果是默认的，设置tag为0【反转】
+        _defaultState = 0;
         [_defaultAddressDesc setText:@"默认地址"];
     }
     else
     {
         [_defaultAddress setImage:[UIImage imageNamed:@"pay_select_press"] forState:0];
-        //如果不是默认的，设置tag为0
-         [_defaultAddress setTag:1];
+        //如果不是默认的，设置tag为1【反转】
+        _defaultState = 1;
         [_defaultAddressDesc setText:@"设为默认"];
     }
+   
 }
 
 
 #pragma mark -设为默认地址
 -(void)defaultAddressClick
 {
-    [_delegate setDefaultAddressWithBtn:_defaultAddress AddressID:_addressID];
+ 
+    [_delegate setDefaultAddressWithBtn:_defaultAddress AddressID:_addressID State:_defaultState];
 }
 
 #pragma mark -编辑

@@ -101,7 +101,7 @@
     [self.tableView addGestureRecognizer:swipe];
 }
 
-
+#pragma mark -加载数据【网络】
 -(void)loadData
 {
     if (_addressList == nil) {
@@ -155,7 +155,7 @@
                    //重置下拉没有数据状态
                    [self.tableView.footer resetNoMoreData];
                }
-               [_simpleHud simpleComplete];
+               [_simpleHud stopAnimation];
            });
         }
         else
@@ -203,7 +203,7 @@
 }
 
 #pragma mark -设置默认地址
--(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID
+-(void)setDefaultAddressWithBtn:(UIButton *)btn AddressID:(NSInteger)addressID State:(NSInteger)state
 {
     [self.simpleHud setHidden:NO];
     [self.simpleHud startSimpleLoad];
@@ -216,9 +216,9 @@
      
      **/
     //确定路径，tag反转【是默认，变成不默认，不默认，变成默认】
-    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/updateAddressDefault?userID=%d&addressID=%d&isDefault=%d",SERVER_ROOT_PATH,(int)[User shareUserID],(int)addressID,(int)btn.tag==1?0:1];
+    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/updateAddressDefault?userID=%d&addressID=%d&isDefault=%d",SERVER_ROOT_PATH,(int)[User shareUserID],(int)addressID,(int)state];
     
-    NSLog(@"%@",path);
+    
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
     //发送请求
@@ -242,13 +242,15 @@
                                        else
                                        {
                                            
-                                           [address setIsDefault:btn.tag==1?NO:YES];
+                                           [address setIsDefault:state==1?YES:NO];
                                        }
                                     }
 
                                    //删除地址集合中的已经删除的地址
                                    //更新UI
                                    [self.tableView reloadData];
+                                   //通知父级重新加载默认地址
+                                   [_delegate reLoadDefaultAddress];
                                    //指示器完成
                                    [self.simpleHud simpleComplete];
                                 }
@@ -266,30 +268,6 @@
             NSLog(@"%@",connectionError.debugDescription);
         }
     }];
-
-    
-    
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //模拟请求网络数据
-        sleep(1.0);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            //改变当前数组中的值
-            for (int i= 0; i<_addressList.count; i++) {
-                StoreAddressModel *address =_addressList[i];
-                if(i==btn.tag)
-                {
-                    [address setIsDefault:YES];
-                }
-                else
-                {
-                    [address setIsDefault:NO];
-                }
-            }
-            [self.simpleHud simpleComplete];
-            
-        });
-    });
 
 }
 

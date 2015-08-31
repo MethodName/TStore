@@ -12,6 +12,11 @@
 
 -(void)selectRowWithProvinceCityDistrict:(NSString *)provinceCityDistrict AddressDetail:(NSString *)addressDetail Consignee:(NSString *)consignee  Telephone:(NSString*) telephone;
 
+/**
+ *  重新加载默认地址
+ */
+-(void)reLoadDefaultAddress;
+
 @end
 
 @interface AddressViewController : UIViewController

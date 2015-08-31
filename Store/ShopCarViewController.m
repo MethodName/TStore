@@ -220,7 +220,7 @@
   
     NSString *path = [NSString stringWithFormat:@"%sStoreShopCar/findShopCarByUserID?userID=%d&pageIndex=%d&pageSize=%d",SERVER_ROOT_PATH,(int)[User shareUserID],(int)_pageIndex,(int)_pageSize];
     
-   // NSLog(@"%@",path);
+   //NSLog(@"%@",path);
     
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
@@ -288,6 +288,7 @@
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ProductShopCar *product =_productList[indexPath.section];
+    
     ShopCarProductCell *cell =[tableView dequeueReusableCellWithIdentifier:@"shopCarProductListCell"];
     if (cell.productImage == nil)
     {
@@ -577,6 +578,7 @@
 -(void)settlementBtnClick
 {
     SettlementViewController *settlementView = [[SettlementViewController alloc]init];
+    settlementView.settlementType = 2;
     NSMutableArray *newProductList = [[NSMutableArray alloc]init];
     for (int i =0; i<_productList.count; i++)
     {

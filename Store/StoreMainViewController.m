@@ -82,11 +82,19 @@
 #pragma mark -视图加载后
 - (void)viewDidLoad
 {
-    [User setShacreUserID:1];
+   
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor whiteColor]];
     [self.navigationController.navigationBar setBarTintColor:[UIColor orangeColor]];
     _mainSize = self.view.frame.size;
+    
+    
+    //设置用户ID
+    [User setShacreUserID:1];
+    
+    //设置物业ID
+    [User setShacrePmcID:1];
+    
     [self createView];
     self.navigationController.interactivePopGestureRecognizer.delegate = self;
     

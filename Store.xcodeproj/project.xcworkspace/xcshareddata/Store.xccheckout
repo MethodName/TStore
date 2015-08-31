@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>595B572F-06CF-4F06-BCB5-BDDE607C9944</string>
 	<key>IDESourceControlProjectName</key>
-	<string>Store</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>FCAF62591D7D1DC3AE54C0F45882F14BF1ADA567</key>
 		<string>https://github.com/MethodName/Store.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Store.xcodeproj</string>
+	<string>Store.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>FCAF62591D7D1DC3AE54C0F45882F14BF1ADA567</key>

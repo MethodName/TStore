@@ -569,7 +569,7 @@ _mainSize = self.view.frame.size;
     [self.screeingView.sView setFrame:CGRectMake(self.screeingView.sView.frame.origin.x, -116, self.screeingView.sView.frame.size.width, self.sortView.sView.frame.size.height)];
     [self.screeingView setHidden:YES];
     [self.sortView setHidden:YES];
-    NSLog(@"%d",(int)type);
+   
     //如果不是点击了空白处
     if (type!=HIED_SELF_TAG)
     {
@@ -580,6 +580,11 @@ _mainSize = self.view.frame.size;
         
         //修改加载数据类型为正常类型
         _dataType = PRODUCTLIST_DATA_TYPE1;
+        
+        //重置当前页
+        _pageIndex = 1;
+        
+        
         //
         switch (type)
         {

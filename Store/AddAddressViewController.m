@@ -122,7 +122,8 @@
 }
 
 
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
     if (indexPath.section==0) {
         SelectAddressViewController *selectAddressView = [[SelectAddressViewController alloc]init];
         [selectAddressView setDelegate:self];

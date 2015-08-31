@@ -18,6 +18,9 @@
 #import "ProductDetailViewController.h"
 #import "StoreNavigationBar.h"
 #import "StoreOrder.h"
+#import "User.h"
+#import "StoreDefine.h"
+#import "PlayTypeViewController.h"
 
 @interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate,StoreNavigationBarDeleagte>
 
@@ -55,6 +58,8 @@
 -(void)createView
 {
     _order = [StoreOrder new];
+    [_order setPMCID:[User sharePmcID]];
+   
     
     _defaultAddress = @"请先填写收货人信息";
     _mainSize = self.view.frame.size;
@@ -89,6 +94,16 @@
     SettlementConfirmView *settlementBar = [[SettlementConfirmView alloc]initWithFrame:CGRectMake(0, _mainSize.height-60, _mainSize.width, 60)];
     [settlementBar.settlementBtn addTarget:self action:@selector(settlementBtnClick) forControlEvents:UIControlEventTouchUpInside];
     _settlementBar = settlementBar;
+    
+    
+    /**
+     *  设置运费
+     */
+    
+    [settlementBar.freight setText:@"0.00"];
+    
+    
+    
     //计算总金额
     double sumprice =0;
     for (int i =0; i<_productList.count; i++)
@@ -107,7 +122,59 @@
     [swipe setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.tableView addGestureRecognizer:swipe];
     
+    [self loadUserDefaultAddress];
+    
 }
+
+
+
+#pragma mark -查询用户默认地址
+-(void)loadUserDefaultAddress
+{
+    //显示指示器
+    [self.simpleHud setHidden:NO];
+    [self.simpleHud startSimpleLoad];
+    
+    //StoreAddress/findDefaultAddressByUserID
+    NSString *path = [NSString stringWithFormat:@"%sStoreAddress/findDefaultAddressByUserID?userID=%d",SERVER_ROOT_PATH,(int)[User shareUserID]];
+    
+   
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *requst = [[NSURLRequest alloc]initWithURL:url];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:requst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (connectionError == nil)
+        {
+            //将结果转成字典集合
+            NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^
+               {
+                    [self.simpleHud stopAnimation];
+                   if (dic!=nil)//如果有默认地址
+                   {
+                       [_order setOrderAddress:[NSString stringWithFormat:@"%@%@",dic[@"provinceCityDistrict"],dic[@"addressDetail"]]];
+                       [_order setOrderConsignee:dic[@"consignee"]];
+                       [_order setOrderTelephone:dic[@"telephone"]];
+                       //更新UI
+                       [self.tableView reloadData];
+                      
+                   }
+               });
+        }
+        else
+        {
+            NSLog(@"%@",connectionError.debugDescription);
+        }
+    }];
+
+    
+    
+
+}
+
+
+
 
 #pragma mark -设置分组
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -127,7 +194,8 @@
 
 
 
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     if (indexPath.section>0&&indexPath.row==1) {
         return 70;
     }else{
@@ -146,8 +214,18 @@
          cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         if (indexPath.row==0)
         {
-            [cell.icon setImage:[UIImage imageNamed:@"location"]];
-            [cell.name setText:_defaultAddress];
+            if (_order.orderAddress ==nil||[_order.orderAddress isEqualToString:@""]) {
+                 [cell.icon setImage:[UIImage imageNamed:@"location"]];
+                 [cell.name setText:_defaultAddress];
+            }
+            else
+            {
+                [cell.icon setImage:[UIImage imageNamed:@"location"]];
+                [cell.name setText:_order.orderAddress];
+                [cell.name setTextAlignment:NSTextAlignmentLeft];
+            }
+           
+           
         }else if (indexPath.row==1) {
             [cell.icon setImage:[UIImage imageNamed:@"date"]];
             [cell.name setText:@"工作日、双休日与假日均可送货"];
@@ -180,7 +258,7 @@
         {
             [cell.name setText:@"小计"];
             [cell.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",product.productRealityPrice*product.bayCount]];
-            [_order setOrderSumPrice:product.productRealityPrice*product.bayCount];
+            _order.orderSumPrice +=product.productRealityPrice*product.bayCount;
         }
         [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         
@@ -208,7 +286,9 @@
     //如果是立即购买
     if (_settlementType == 1)
     {
-        self.path = @"StoreOrders/addOrderSimple";
+         ProductShopCar * product = _productList[0];
+        self.path =[NSString stringWithFormat:@"%sStoreOrders/addOrderSimple?productID=%@&buyCount=%d",SERVER_ROOT_PATH,product.productID,(int)product.bayCount];
+        
         /**
            userID = 用户ID
             orderConsignee = 订单收件人
@@ -224,14 +304,31 @@
          */
     }
     else if(_settlementType == 2)
+        //购物车结算
     {
-        self.path = @"StoreOrders/addOrder";
+        
+        NSMutableString *shapCarIDs = [NSMutableString new];
+        
+        for (int i =0; i<_productList.count; i++)
+        {
+            ProductShopCar * product = _productList[i];
+            [shapCarIDs appendString:@"shopCarID="];
+            
+            [shapCarIDs appendString:product.shopCarID];
+            if (i<_productList.count-1)
+            {
+                 [shapCarIDs appendString:@"&"];
+            }
+        }
+        
+        self.path = [NSString stringWithFormat:@"%sStoreOrders/addOrder?%@",SERVER_ROOT_PATH,shapCarIDs] ;
+        
         /**
              userID = 用户ID
              orderConsignee = 订单收件人
              orderAddress = 订单地址
              orderTelephone = 电话号码
-             rderSumPrice = 总金额
+             orderSumPrice = 总金额
              orderDesc = 订单描述
              pmcID = 物业ID
          
@@ -241,15 +338,17 @@
          */
     }
     
-    
+   
     NSURL *url = [NSURL URLWithString:self.path];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
     
     [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
     
-    NSString *str = [NSString stringWithFormat:@"userID=%d&orderConsignee=%@&orderAddress=%@&orderTelephone=%@&orderDesc=%@&pmcID=%d"];//设置参数
+    //公共参数
+    NSString *str = [NSString stringWithFormat:@"userID=%d&orderConsignee=%@&orderAddress=%@&orderTelephone=%@&orderSumPrice=%0.2lf&orderDesc=%@&pmcID=%d",(int)[User shareUserID],_order.orderConsignee,_order.orderAddress,_order.orderTelephone,_order.orderSumPrice,@"",(int)_order.pMCID];//设置参数
     
+   
     NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
     
     [request setHTTPBody:data];
@@ -263,17 +362,54 @@
              NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
-                    //关闭指示器
-                    [self.simpleHud simpleComplete];
+                    NSLog(@"%@",dic);
+                    
+                    //成功时
+                    if ([dic[@"message"][@"status"] integerValue]==1)
+                    {
+                       
+                        //关闭指示器
+                        [self.simpleHud stopAnimation];
+                        //push到选择支付方式页面
+                        PlayTypeViewController *playTypeView= [[ PlayTypeViewController alloc]init];
+                        //传入订单编号
+                        [playTypeView setOrderID:dic[@"orderID"]];
+                        //传入订单金额
+                        [playTypeView setSumprice:_order.orderSumPrice];
+                        
+                        [self.navigationController pushViewController:playTypeView animated:YES];
+                        
+                    }
+                    //失败时
+                    else
+                    {
+                        [self.simpleHud stopAnimation];
+                        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"message"][@"msg"] delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                        [alertView show];
+                    }
+                    
                 });
+         }
+         else
+         {
+          //网络请求出错时
+             [self.simpleHud stopAnimation];
+             UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:connectionError.debugDescription delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+             [alertView show];
+
          }
      }];
 
     
-    
-    
    
 }
+
+#pragma mark -重新加载默认地址
+-(void)reLoadDefaultAddress
+{
+    [self loadUserDefaultAddress];
+}
+
 
 
 

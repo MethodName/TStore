@@ -188,7 +188,7 @@
             //更新UI
                [self.tableView reloadData];
                //隐藏指示器
-                [self.addshopHud simpleComplete];
+                [self.addshopHud stopAnimation];
            });
            
        }
@@ -429,6 +429,7 @@
 {
     //结算页面
     SettlementViewController *settlementView = [[SettlementViewController alloc]init];
+    settlementView.settlementType = 1;
     //结算页面商品集合
     NSMutableArray *newProductList = [[NSMutableArray alloc]init];
     //将当前的商品信息转化为结算时的商品信息

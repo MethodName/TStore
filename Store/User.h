@@ -26,7 +26,9 @@
 +(NSInteger)shareUserID;
 
 
++(void)setShacrePmcID:(NSInteger)pmcID;
 
 
++(NSInteger)sharePmcID;
 
 @end

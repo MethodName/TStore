@@ -85,6 +85,7 @@
 #import "AppDelegate.h"
 #import "RootViewController.h"
 #import "StoreMainViewController.h"
+#import "PlayTypeViewController.h"
 
 
 @interface AppDelegate ()
@@ -99,6 +100,7 @@
     self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
     RootViewController *navigation = [[RootViewController alloc]initWithRootViewController:[StoreMainViewController new]];
     self.window.rootViewController = navigation;
+    //self.window.rootViewController = [PlayTypeViewController new];
     [self.window makeKeyAndVisible];
     return YES;
 }
