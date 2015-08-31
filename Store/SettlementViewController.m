@@ -58,8 +58,10 @@
 -(void)createView
 {
     _order = [StoreOrder new];
+    //获取物业编号
     [_order setPMCID:[User sharePmcID]];
-   
+   //设置运费
+    [_order setOrderFreight:8.0];
     
     _defaultAddress = @"请先填写收货人信息";
     _mainSize = self.view.frame.size;
@@ -96,11 +98,7 @@
     _settlementBar = settlementBar;
     
     
-    /**
-     *  设置运费
-     */
-    
-    [settlementBar.freight setText:@"0.00"];
+   
     
     
     
@@ -114,6 +112,13 @@
     [settlementBar.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",sumprice]];
     
     [self.view addSubview:settlementBar];
+    
+    
+    /**
+     *  设置显示运费
+     */
+    [settlementBar.freight setText:[NSString stringWithFormat:@"￥%lf",_order.orderFreight]];
+    
     
     /**
      添加手势
@@ -362,7 +367,7 @@
              NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
-                    NSLog(@"%@",dic);
+                    //NSLog(@"%@",dic);
                     
                     //成功时
                     if ([dic[@"message"][@"status"] integerValue]==1)
@@ -443,7 +448,7 @@
     
 }
 
-
+#pragma mark -选择订单代理方法
 -(void)selectRowWithProvinceCityDistrict:(NSString *)provinceCityDistrict AddressDetail:(NSString *)addressDetail Consignee:(NSString *)consignee Telephone:(NSString *)telephone
 {
    // _order set

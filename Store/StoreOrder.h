@@ -52,6 +52,10 @@
 @property(nonatomic,assign)double orderSumPrice;
 
 /**
+ *  运费
+ */
+@property(nonatomic,assign)double orderFreight;
+/**
  *  订单状态
  */
 @property(nonatomic,assign)NSInteger orderState;
