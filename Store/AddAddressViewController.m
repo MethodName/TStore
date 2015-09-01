@@ -88,6 +88,7 @@
     return section+1;
 }
 
+#pragma mark -行内容
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"addAddressCell"];
     if (indexPath.section==0)
@@ -121,7 +122,7 @@
     return cell;
 }
 
-
+#pragma mark - 行选中事件
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section==0) {
@@ -131,6 +132,7 @@
     }
 }
 
+#pragma mark -选中地址后返回值的代理方法
 -(void)addressWithCommunity:(NSString *)community Housing:(NSString *)housing
 {
     [_address setText:[NSString stringWithFormat:@"%@%@",community,housing]];

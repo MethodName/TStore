@@ -74,6 +74,7 @@
 #pragma mark - 设置购物车上显示数量
 -(void)setShopCatCountNum:(NSInteger)num
 {
+    
       if (num>0&&num<10)
     {
          [_shopCatCount setHidden:NO];

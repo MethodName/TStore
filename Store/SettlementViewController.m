@@ -25,19 +25,33 @@
 @interface SettlementViewController ()<UITableViewDataSource,UITableViewDelegate,AddressViewControllerDelegate,MainSreachBarDelegate,StoreNavigationBarDeleagte>
 
 
-
+/**
+ *  tableView
+ */
 @property(nonatomic,strong)UITableView *tableView;
-
+/**
+ *  屏幕大小
+ */
 @property(nonatomic,assign)CGSize mainSize;
-
+/**
+ *  确认栏
+ */
 @property(nonatomic,strong)SettlementConfirmView *settlementBar;
-
+/**
+ *  指示器
+ */
 @property(nonatomic,strong)CustomHUD *simpleHud;
-
+/**
+ *  默认地址
+ */
 @property(nonatomic,strong)NSString *defaultAddress;
-
+/**
+ *  订单对象
+ */
 @property(nonatomic,strong)StoreOrder *order;
-
+/**
+ *  网络请求路径
+ */
 @property(nonatomic,strong)NSString *path;
 
 
@@ -109,6 +123,9 @@
           ProductShopCar * product = _productList[i];
           sumprice += product.productRealityPrice*product.bayCount;
     }
+    //加上运费
+    sumprice +=_order.orderFreight;
+    //显示总金额
     [settlementBar.sumPrice setText:[NSString stringWithFormat:@"￥%0.2lf",sumprice]];
     
     [self.view addSubview:settlementBar];
@@ -117,7 +134,7 @@
     /**
      *  设置显示运费
      */
-    [settlementBar.freight setText:[NSString stringWithFormat:@"￥%lf",_order.orderFreight]];
+    [settlementBar.freight setText:[NSString stringWithFormat:@"￥%0.2lf",_order.orderFreight]];
     
     
     /**
@@ -201,9 +218,12 @@
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section>0&&indexPath.row==1) {
+    if (indexPath.section>0&&indexPath.row==1)
+    {
         return 70;
-    }else{
+    }
+    else
+    {
         return 40;
     }
 }
@@ -351,7 +371,7 @@
     [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
     
     //公共参数
-    NSString *str = [NSString stringWithFormat:@"userID=%d&orderConsignee=%@&orderAddress=%@&orderTelephone=%@&orderSumPrice=%0.2lf&orderDesc=%@&pmcID=%d",(int)[User shareUserID],_order.orderConsignee,_order.orderAddress,_order.orderTelephone,_order.orderSumPrice,@"",(int)_order.pMCID];//设置参数
+    NSString *str = [NSString stringWithFormat:@"userID=%d&orderConsignee=%@&orderAddress=%@&orderTelephone=%@&orderSumPrice=%0.2lf&orderDesc=%@&pmcID=%d&orderFreight=%0.2lf",(int)[User shareUserID],_order.orderConsignee,_order.orderAddress,_order.orderTelephone,_order.orderSumPrice,@"",(int)_order.pMCID,_order.orderFreight];//设置参数
     
    
     NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];

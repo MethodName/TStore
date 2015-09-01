@@ -8,6 +8,7 @@
 
 #import "MainProductCell.h"
 #import "StoreDefine.h"
+#import "CustomAnimate.h"
 
 
 @implementation MainProductCell
@@ -34,6 +35,7 @@
         _addShopCar = [[UIButton alloc]initWithFrame:CGRectMake(width-55, height-50, 33, 28)];
         [_addShopCar setImage:[UIImage imageNamed:@"shopCar"] forState:0];
         [_addShopCar addTarget:self action:@selector(addShopCarClick) forControlEvents:UIControlEventTouchUpInside];
+        
         
         //已售数量
         _productScaleCount = [[UILabel alloc]initWithFrame:CGRectMake(width-60, height-23, 80, 20)];
@@ -70,6 +72,7 @@
 #pragma mark -加入购物车
 -(void)addShopCarClick
 {
+    [CustomAnimate scaleAnime:_addShopCar FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     [_delegate addShopCarCWithProductID:_productID];
 }
 

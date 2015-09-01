@@ -67,9 +67,13 @@
  *  商品数据类型数据类型
  */
 @property(nonatomic,assign)NSInteger dataType;
-
+/**
+ *  菜单View
+ */
 @property(nonatomic,weak) ProductListMenuView *menuView;
-
+/**
+ *  自定义导航栏
+ */
 @property(nonatomic,weak)StoreNavigationBar *customNavigationBar;
 
 
@@ -117,6 +121,9 @@ _mainSize = self.view.frame.size;
     //设置右边按钮图片
     [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:0];
     [navigationBar.rightBtn setImage:[UIImage imageNamed:@"rightMuen"] forState:1];
+    
+    //设置搜索框中的内容为主页传过来的商品名
+    [navigationBar.searchBar setText:_productName];
     
     _customNavigationBar = navigationBar;
     
@@ -250,16 +257,16 @@ _mainSize = self.view.frame.size;
                          _pageIndex,
                          _pageSize,
                        //  _productName,
-                         (int)_pmcID,
+                         (int)[User sharePmcID],
                          _order,
                          (int)_descend];
     }
-    //NSLog(@"%@",self.path);
+   // NSLog(@"%@",self.path);
     
     NSURL *url = [NSURL URLWithString:self.path];
-    
+    //创建请求对象
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
-    
+    //请求类型
     [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
     
     NSString *str = [NSString stringWithFormat:@"productName=%@",_productName];//设置参数

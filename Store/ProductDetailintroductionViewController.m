@@ -34,7 +34,7 @@
     [navigationBar setBarDelegate:self];
     [navigationBar.searchBar setHidden:YES];
     [navigationBar.rightBtn setHidden:YES];
-    [navigationBar.title setText:@"结算中心"];
+    [navigationBar.title setText:@"商品详情"];
     [self.view addSubview:navigationBar];
     
     

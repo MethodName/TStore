@@ -16,19 +16,33 @@
 #import "CustomHUD.h"
 
 @interface EditAddressViewController ()<UITableViewDelegate,UITableViewDataSource,SelectAddressViewControllerDelegate,StoreNavigationBarDeleagte>
-
+/**
+ *  tableView
+ */
 @property(nonatomic,strong)UITableView *tableView;
-
+/**
+ *  屏幕大小
+ */
 @property(nonatomic,assign)CGSize mainSize;
-
+/**
+ *  显示地址的label
+ */
 @property(nonatomic,strong)UILabel *address;
-
+/**
+ *  收件人输入框
+ */
 @property(nonatomic,strong)UITextField *consignee;
-
+/**
+ *  手机号码输入框
+ */
 @property(nonatomic,strong)UITextField *telephone;
-
+/**
+ *  地址对象
+ */
 @property(nonatomic,strong)StoreAddressModel *addressObj;
-
+/**
+ *  指示器
+ */
 @property(nonatomic,strong)CustomHUD *simpleHud;
 
 @end

@@ -20,6 +20,7 @@
 #import "Product.h"
 #import "User.h"
 #import "ProductShopCar.h"
+#import "CustomAnimate.h"
 
 
 
@@ -33,18 +34,35 @@
 /**每列名字*/
 @property(nonatomic,strong)NSArray *nameArray;
 
-
+/**
+ *  商品对象
+ */
 @property(nonatomic,strong)Product *product;
-
+/**
+ *  商品广告ScrollView
+ */
 @property(nonatomic,strong)ProductImagesScrollView *imagesScrollView;
-
+/**
+ *  添加到购物车指示器
+ */
 @property(nonatomic,strong)CustomHUD *addshopHud;
-
+/**
+ *  广告图片page
+ */
 @property(nonatomic,weak)UIPageControl *page;
-
+/**
+ *  是否收藏
+ */
 @property(nonatomic,assign)BOOL isCollect;
-
+/**
+ *  默认图片
+ */
 @property(nonatomic,copy)UIImage *defaultImage;
+
+/**
+ *  购买栏
+ */
+@property(nonatomic,weak)ShopBar *shopBar;
 
 @end
 
@@ -132,8 +150,7 @@
     ShopBar *shopBar = [[ShopBar alloc]initWithFrame:CGRectMake(0, _mainSize.height-44, _mainSize.width, 44)];
     [self.view addSubview:shopBar];
     [shopBar setDelegate:self];
-    [shopBar setShopCatCountNum:6];
-    
+    _shopBar = shopBar;
     [self.view addSubview:leftBtn];
     
     /**
@@ -193,6 +210,31 @@
            
        }
    }];
+    
+    
+    
+    
+    //获取购物车用户购物车中商品数量
+    NSString *shopaCarPath = [NSString stringWithFormat:@"%sStoreShopCar/findShopCarCountByUserID?userID=%d",SERVER_ROOT_PATH,(int)[User shareUserID]];
+    
+    NSURL *shopCarUrl = [NSURL URLWithString:shopaCarPath];
+    NSURLRequest *shopCarRequst = [NSURLRequest requestWithURL:shopCarUrl];
+    //发送请求
+    [NSURLConnection sendAsynchronousRequest:shopCarRequst queue:[NSOperationQueue new] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+     {
+         if (connectionError == nil)
+         {
+             NSDictionary *dic =(NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 
+                 //主线程更新购物车显示数量
+                 [_shopBar setShopCatCountNum:[dic[@"count"] integerValue]];
+             });
+         }
+     }];
+
+    
+    
 }
 
 #pragma mark -检索用户是否收藏了当前商品
@@ -364,6 +406,7 @@
 #pragma mark -收藏
 -(void)collectBtnClick:(IconTitleButton *)btn
 {
+     [CustomAnimate scaleAnime:btn FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     [self.addshopHud setHidden:NO];
     [self.addshopHud startSimpleLoad];
     //添加收藏路径
@@ -468,7 +511,8 @@
 #pragma mark -CustomHUD 懒加载
 -(CustomHUD *)addshopHud
 {
-    if (_addshopHud == nil) {
+    if (_addshopHud == nil)
+    {
         _addshopHud= [CustomHUD defaultCustomHUDSimpleWithFrame:self.view.frame];
         [self.view addSubview:_addshopHud];
         [_addshopHud setHidden:YES];

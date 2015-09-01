@@ -9,6 +9,12 @@
 #ifndef Store_StoreDefine_h
 #define Store_StoreDefine_h
 
+
+#define NAVIGATION_ITEM_CELL 35
+
+#define NAVIGATION_POSITION_Y 20
+
+
 /**
  *【排序，筛选】隐藏自己
  */
@@ -103,16 +109,17 @@
 /*
  服务器地址
  */
-#define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
-//#define SERVER_ROOT_PATH "http://192.168.1.114:8080/store/"
+//#define SERVER_ROOT_PATH "http://store.hexiaotian.cn/"
+#define SERVER_ROOT_PATH "http://192.168.1.114:8080/store/"
 //#define SERVER_ROOT_PATH "http://10.10.52.66:8080/store/"
 //#define SERVER_ROOT_PATH "http://192.168.191.1:8080/store/"
 /**
  *  服务器图片根目录
  *
  */
-#define SERVER_IMAGES_ROOT_PATH "http://store.hexiaotian.cn/images/"
+//	#define SERVER_IMAGES_ROOT_PATH "http://store.hexiaotian.cn/images/"
 
+#define SERVER_IMAGES_ROOT_PATH "http://192.168.1.114:8080/store/images/"
 
 
 

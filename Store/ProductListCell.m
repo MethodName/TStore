@@ -8,6 +8,7 @@
 
 #import "ProductListCell.h"
 #import "StoreDefine.h"
+#import "CustomAnimate.h"
 
 
 @implementation ProductListCell
@@ -100,6 +101,7 @@
 #pragma mark -添加到购物车按钮点击事件
 -(void)addShopCarClick
 {
+    [CustomAnimate scaleAnime:_addShopCar FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     [_delegate addShopCarCWithProductID:_productID];
 }
 

@@ -29,9 +29,13 @@
 @property(nonatomic,strong)NSString *ProductDesc;
 /**数量*/
 @property(nonatomic,assign)NSInteger ProductShopCarCout;
-
+/**
+ *  是否被选中
+ */
 @property(nonatomic,assign)BOOL isSelected;
-
+/**
+ *  在tableView中的行号
+ */
 @property(nonatomic,assign)NSInteger cellNum;
 
 

@@ -9,18 +9,32 @@
 #import "PlayTypeViewController.h"
 #import "StoreNavigationBar.h"
 #import "PlayTypeCell.h"
+#import "CustomAnimate.h"
 
 @interface PlayTypeViewController ()<StoreNavigationBarDeleagte,UITableViewDataSource,UITableViewDelegate>
 
+/**
+ *  屏幕大小
+ */
 @property(nonatomic,assign)CGSize mainSize;
-
+/**
+ *  tableView
+ */
 @property(strong,nonatomic)UITableView *tableView;
 
+/**
+ *  总金额显示label
+ */
 @property(strong,nonatomic)UILabel *sumPriceLabel;
 
-
+/**
+ *  确认支付按钮
+ */
 @property(nonatomic,strong)UIButton *commitBtn;
 
+/**
+ *  支付类型
+ */
 @property(nonatomic,assign)NSInteger payType;
 
 
@@ -29,6 +43,9 @@
 
 @implementation PlayTypeViewController
 
+
+
+#pragma mark -视图加载后
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -37,6 +54,9 @@
     [self createView];
 }
 
+/**
+ *  创建子视图
+ */
 -(void)createView
 {
     _mainSize = [UIScreen mainScreen].bounds.size;
@@ -142,7 +162,7 @@
     }
 }
 
-
+#pragma mark -行内容
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     PlayTypeCell *cell = [[PlayTypeCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"playTypeCell"];
@@ -192,6 +212,7 @@
 {
     if (indexPath.section==1&&indexPath.row>0)
     {
+        
          _payType = indexPath.row+1;
         [self.tableView reloadData];
     }
@@ -202,13 +223,16 @@
 #pragma mark -确认支付
 -(void)commitClick
 {
-    
-    
     /**
-     *  支付完成后，在回调block中修改订单的状态和结算的金额
-     *
+     *  验证支付方式
      */
-    
+    if (_payType == -1)
+    {
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请选择支付方式" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alertView show];
+        return;
+    }
+    [CustomAnimate scaleAnime:_commitBtn FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     
     if (_payType == 1)//微信支付
     {
@@ -222,6 +246,20 @@
     {
         
     }
+    
+    
+    /**
+     *  支付完成后，在回调block中修改订单的状态和结算的金额
+     *
+     */
+    
+    
+    
+    
+    
+    
+    
+    
 }
 
 

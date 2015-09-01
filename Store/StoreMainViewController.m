@@ -28,55 +28,85 @@
 
 @interface StoreMainViewController ()<UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,MainMeunViewDelegate,MainSreachBarDelegate,TopProductsViewDelegate,MainADScrollVIewDelegate,MainProductCellDelegate,UIGestureRecognizerDelegate,StoreNavigationBarDeleagte>
 
-#pragma mark -屏幕大小
+/**
+ *  屏幕大小
+ */
 @property(assign,nonatomic)CGSize mainSize;
-
+/**
+ *  tableView
+ */
 @property(strong,nonatomic)UITableView *tableView;
 
-#pragma mark -底部ScrollView
+/**
+ *  底部ScrollView
+ */
 @property(nonatomic,strong)UIView *headView;
 
-#pragma mark -广告图片
+/**
+ *  广告图片数组
+ */
 @property(strong,nonatomic)NSMutableArray *adImages;
-
+/**
+ *  结束主页数据的字典
+ */
 @property(nonatomic,strong)NSDictionary *dataDic;
-
+/**
+ *  广告图片ScrollView
+ */
 @property(strong,nonatomic)MainADScrollVIew *ad;
-
+/**
+ *  分类View
+ */
 @property(nonatomic,strong)MainMeunView *meunView;
-
+/**
+ *  置顶商品View
+ */
 @property(nonatomic,weak)TopProductsView *topProductsView;
-
+/**
+ *  类型数组
+ */
 @property(strong,nonatomic)NSMutableArray *productTypes;
-
+/**
+ *  置顶商品数组
+ */
 @property(strong,nonatomic)NSMutableArray *proTopArray;
-
+/**
+ *  热销商品数组
+ */
 @property(nonatomic,strong)NSMutableArray *hotProductList;
-
+/**
+ *  商品图片数组
+ */
 @property(nonatomic,strong)NSMutableDictionary *productImageList;
-
+/**
+ *  加载指示器
+ */
 @property(nonatomic,strong)CustomHUD *hud;
-
+/**
+ *  添加指示器
+ */
 @property(nonatomic,strong)CustomHUD *addshopHud;
-
+/**
+ *  购物车按钮
+ */
 @property(nonatomic,strong)ShopCarButton *shopCar;
-
+/**
+ *  广告page
+ */
 @property(nonatomic,weak)UIPageControl *page;
-
+/**
+ *商品列表页面
+ */
 @property(nonatomic,weak) ProductListTableViewController *productListTableView;
-
+/**
+ *  自定义导航栏
+ */
 @property(nonatomic,weak)StoreNavigationBar *customNavigationBar;
-
 
 @end
 
+
 @implementation StoreMainViewController
-
-#define NAVIGATION_ITEM_CELL 35
-
-#define NAVIGATION_POSITION_Y 20
-
-
 
 
 #pragma mark -视图加载后
@@ -131,7 +161,7 @@
     
 #pragma mark -广告ScrollView
     
-    _ad = [[MainADScrollVIew alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.4)];
+    _ad = [[MainADScrollVIew alloc]initWithFrame:CGRectMake(0, 0, _mainSize.width, _mainSize.width*0.6)];
     [_ad setSreachBarDelegate:self];
     [_ad setImageMoveDelegate:self];
     [_ad setDelegate:self];
@@ -140,6 +170,8 @@
     UIPageControl *page = [[UIPageControl alloc]initWithFrame:CGRectMake(_ad.frame.size.width-100, _ad.frame.size.height-20, 100,20)];
     [page setCurrentPage:0];
     _page = page;
+    [page setCurrentPageIndicatorTintColor:[UIColor orangeColor]];
+    [page setPageIndicatorTintColor:[UIColor grayColor]];
     [_headView addSubview:page];
     
     
@@ -167,7 +199,7 @@
     
     _shopCar = [[ShopCarButton alloc]initWithFrame:CGRectMake(15, _mainSize.height-45, 44, 44)];
     [_shopCar addTarget:self action:@selector(pushToShopCarView) forControlEvents:UIControlEventTouchUpInside];
-    [_shopCar setShopcarCountWithNum:15];
+    [_shopCar setShopcarCountWithNum:0];
     [self.view addSubview:_shopCar];
     
 #pragma mark -刷新控件
@@ -453,6 +485,7 @@
     _productListTableView = productListTableView;
     //传入商品类型编号
     [productListTableView setPtID:type];
+    [productListTableView setProductName:@""];
     //push页面
     [self.navigationController pushViewController:productListTableView animated:YES];
 }

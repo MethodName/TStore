@@ -8,6 +8,7 @@
 
 #import "ShopCarProductCell.h"
 #import "StoreDefine.h"
+#import "CustomAnimate.h"
 
 
 @implementation ShopCarProductCell
@@ -189,6 +190,7 @@
             return;
         }
     }
+     [CustomAnimate scaleAnime:btn FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     [_delegate productCountChage:count CellRow:btn.tag];
 }
 

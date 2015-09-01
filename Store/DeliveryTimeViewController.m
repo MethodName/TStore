@@ -14,7 +14,9 @@
 @end
 
 @implementation DeliveryTimeViewController
-
+/**
+ *  视图加载后
+ */
 - (void)viewDidLoad
 {
     [super viewDidLoad];

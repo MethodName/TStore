@@ -26,9 +26,18 @@
 +(NSInteger)shareUserID;
 
 
+/**
+ *  设置物业编号
+ *
+ *  @param pmcID 物业编号
+ */
 +(void)setShacrePmcID:(NSInteger)pmcID;
 
-
+/**
+ *  获取物业编号
+ *
+ *  @return 物业编号
+ */
 +(NSInteger)sharePmcID;
 
 @end

@@ -67,32 +67,29 @@
     
     [self.view addSubview:_tableView];
     
-    
-    
-    
-    
-    
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return 2;
 }
 
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+#pragma mark -行内容
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     UITableViewCell *cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"addAddressCell"];
    	 [cell.textLabel setFont:[UIFont systemFontOfSize:14.0]];
         if (indexPath.row==0) {
-            [cell.textLabel setText:@"已选小区"];
+            [cell.textLabel setText:@"地址"];
             _community = [[UITextField alloc]initWithFrame:CGRectMake(80, 10, _mainSize.width*0.7, 25)];
-            [_community setPlaceholder:@"永安安置小区"];
+            [_community setPlaceholder:@"省/市/区"];
             [cell.contentView addSubview:_community];
         }
         else if (indexPath.row==1)
         {
-            [cell.textLabel setText:@"输入栋号房号"];
+            [cell.textLabel setText:@"详细地址"];
            
-            _housing = [[UITextField alloc]initWithFrame:CGRectMake(110, 10, _mainSize.width*0.55, 25)];
-            [_housing setPlaceholder:@"如1栋1单元101室"];
+            _housing = [[UITextField alloc]initWithFrame:CGRectMake(80, 10, _mainSize.width*0.55, 25)];
+            [_housing setPlaceholder:@"所在街道/小区/5栋号房号"];
             [cell.contentView addSubview:_housing];
         }
     
@@ -105,6 +102,22 @@
 #pragma mark -确定
 -(void)rightClick
 {
+    
+    if (_community.text.length==0)
+    {
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"地址不能为空" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alertView show];
+        return;
+    }
+    
+    
+    if (_housing.text.length==0)
+    {
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"详细地址不能为空" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alertView show];
+        return;
+    }
+    
      [self.navigationController popViewControllerAnimated:YES];
     [_delegate addressWithCommunity:_community.text Housing:_housing.text];
 }

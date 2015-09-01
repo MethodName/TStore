@@ -7,7 +7,7 @@
 //
 
 #import "AddressViewCell.h"
-
+#import "CustomAnimate.h"
 
 
 @implementation AddressViewCell
@@ -117,7 +117,7 @@
 #pragma mark -设为默认地址
 -(void)defaultAddressClick
 {
- 
+     [CustomAnimate scaleAnime:_defaultAddress FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
     [_delegate setDefaultAddressWithBtn:_defaultAddress AddressID:_addressID State:_defaultState];
 }
 
@@ -131,7 +131,7 @@
 #pragma mark -删除
 -(void)deleteBtnClick:(UIButton *)del
 {
-    
+     [CustomAnimate scaleAnime:del FromValue:1.0 ToValue:1.5 Duration:0.25 Autoreverse:YES RepeatCount:1];
      [_delegate deleteAddressWithAddressID:del.tag];
 }
 

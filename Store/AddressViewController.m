@@ -22,8 +22,13 @@
 
 @property(nonatomic,strong)UITableView *tableView;
 
+/**
+ *  地址集合
+ */
 @property(nonatomic,strong)NSMutableArray *addressList;
-
+/**
+ *  屏幕大小
+ */
 @property(nonatomic,assign)CGSize mainSize;
 
 /**
@@ -38,13 +43,16 @@
  *  是否在刷新状态
  */
 @property(atomic,assign)BOOL isRefresh;
-
+/**
+ *  指示器
+ */
 @property(nonatomic,strong)CustomHUD *simpleHud;
 
 @end
 
 @implementation AddressViewController
 
+#pragma mark -视图加载后
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -255,7 +263,7 @@
                                    [self.simpleHud simpleComplete];
                                 }
                                else
-                               {
+                               {//失败时
                                    [self.simpleHud stopAnimation];
                                    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:dic[@"msg"] delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
                                    [alertView show];
@@ -265,6 +273,7 @@
         }
         else
         {
+            //网络请求出错时
             NSLog(@"%@",connectionError.debugDescription);
         }
     }];
@@ -275,11 +284,14 @@
 -(void)editAddressWithAddress:(NSString *)address  Consignee:(NSString *)consignee Telephone:(NSString *)telephone AddressID:(NSInteger)addressID
 {
     EditAddressViewController *editView = [[EditAddressViewController alloc]init];
+    //赋值
     [editView setOldAddress:address];
     [editView setOldConsignee:consignee];
     [editView setOldTelephone:telephone];
     [editView setAddressID:addressID];
+    //设置代理
     [editView setDelegate:self];
+    //push到编辑页面
     [self.navigationController pushViewController:editView animated:YES];
 }
 

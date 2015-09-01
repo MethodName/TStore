@@ -38,11 +38,11 @@
 {
    // NSLog(@"%@",imageArray);
     
-    [self setContentSize:CGSizeMake(self.frame.size.width*imageArray.count, self.frame.size.width*0.4)];
+    [self setContentSize:CGSizeMake(self.frame.size.width*imageArray.count, self.frame.size.width*0.6)];
     for (int i =0; i<imageArray.count; i++)
     {
         //创建ImageView
-        UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width*i, 0, self.frame.size.width, self.frame.size.width*0.4)];
+        UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width*i, 0, self.frame.size.width, self.frame.size.width*0.6)];
         //确定路径
         NSURL *photourl = [NSURL URLWithString:[NSString stringWithFormat:@"%s%@",SERVER_IMAGES_ROOT_PATH,imageArray[i]]];
         //异步网络加载图片

@@ -114,7 +114,9 @@
  */
 
 @property(nonatomic,assign)NSInteger cellNum;
-
+/**
+ *  购物车编号
+ */
 @property(nonatomic,strong)NSString * shopCarID;
 
 @end
